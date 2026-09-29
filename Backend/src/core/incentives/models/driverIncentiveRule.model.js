@@ -24,7 +24,7 @@ const incentiveTierSchema = new mongoose.Schema({
 /**
  * An admin-configured order-count ladder for one duty segment — mirrors the
  * Flutter rider app's DutySegment split:
- *   - foodAndQuick: food, quick-commerce and medicine deliveries.
+ *   - foodAndQuick: food deliveries (segment name kept for the mobile app's contract).
  *   - taxiAndPorter: rides and parcel/porter jobs.
  *
  * Edits insert a new active version and deactivate the previous one (see

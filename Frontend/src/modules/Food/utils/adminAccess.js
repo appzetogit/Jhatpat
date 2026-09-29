@@ -142,8 +142,6 @@ export function hasPanel(access, service) {
 /* ---------------------------------------------------------------- pages */
 
 const PANEL_BASES = [
-  { base: "/admin/quick-commerce", service: "quickCommerce" },
-  { base: "/admin/medical", service: "medical" },
   { base: "/admin/food", service: "food" },
 ]
 
@@ -171,10 +169,6 @@ const PAGE_RULES = [
   ["/restaurants", "restaurants"],
   ["/free-delivery", "restaurants"],
   ["/delivery-radius", "restaurants"],
-  ["/verification", "restaurants"],
-  ["/drug-licences", "restaurants"],
-  ["/prescriptions", "orders"],
-  ["/requests", "orders"],
   ["/orders", "orders"],
   ["/order-detect-delivery", "orders"],
   ["/order-refunds", "orders"],
@@ -242,7 +236,7 @@ export function resourceForPath(pathname = "") {
 }
 
 /*
- * Taxi and Services screens, reached from the Master menu. Taxi's own panel
+ * Taxi screens, reached from the Master menu. Taxi's own panel
  * filters its menu by its own table; these only need to answer "may this
  * sub-admin see the link", so the section is enough.
  */
@@ -261,8 +255,6 @@ const TAXI_PAGE_RULES = [
 /** Can this admin open the screen at `pathname`? */
 export function canOpenPath(access, pathname) {
   if (!isRestricted(access)) return true
-  // The Services admin is for superadmins only (its own isSuperAdmin guard).
-  if (pathname.startsWith("/admin/sp")) return false
   if (pathname.startsWith("/taxi/admin")) {
     if (!hasPanel(access, "taxi")) return false
     const hit = TAXI_PAGE_RULES.find(([prefix]) => pathname.startsWith(prefix))

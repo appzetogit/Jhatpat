@@ -5,18 +5,13 @@ import { FoodNotification } from './models/notification.model.js';
  * One customer inbox across every service.
  *
  * The app reads ONE inbox (GET /food/notifications/inbox: food_notifications,
- * ownerType USER, ownerId = the customer's platform account in `users`). The
- * collection was built for all four services -- it carries `vertical`, and
- * sources like RIDE and BOOKING -- but only Services wrote to it, and under its
- * own user id, so nothing it wrote was ever shown. Food, Quick and Taxi sent
- * their order and ride updates as pushes only: once a push was dismissed, or
- * never arrived because notifications were off, it was gone.
+ * ownerType USER, ownerId = the customer's platform account in `users`). Food
+ * and Taxi sent their order and ride updates as pushes only: once a push was
+ * dismissed, or never arrived because notifications were off, it was gone.
  *
  * Every customer push now also lands here, via recordCustomerNotification,
  * under the customer's PLATFORM id:
  *   food, taxi       already are platform ids (`users`)
- *   quickCommerce    qc_users -> platformUserId, else the same phone in `users`
- *   serviceProvider  sp_users -> platformUserId, else the same phone
  * (worked out from the id itself -- see OWN_USERS)
  * A customer with no platform account is left out rather than filed somewhere
  * the app cannot read.
@@ -39,7 +34,6 @@ function sourceFor(vertical, data = {}) {
   const type = plain(data.type).toLowerCase();
   if (type.includes('payment') || type.includes('refund') || type.includes('wallet')) return 'PAYMENT';
   if (vertical === 'taxi') return 'RIDE';
-  if (vertical === 'serviceProvider') return 'BOOKING';
   if (data.orderId || data.orderMongoId || type.includes('order')) return 'ORDER';
   return 'SYSTEM';
 }
@@ -48,7 +42,7 @@ function sourceFor(vertical, data = {}) {
  * File one customer notification in the shared inbox.
  *
  * @param {object} n
- * @param {'food'|'quickCommerce'|'taxi'|'serviceProvider'} n.vertical  label when the id is a platform id
+ * @param {'food'|'taxi'} n.vertical  label when the id is a platform id
  * @param {string} n.userId   the service's own customer id (translated here)
  * @param {string} n.title
  * @param {string} n.message

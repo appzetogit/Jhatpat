@@ -4,7 +4,6 @@ import { loadAdminCached } from '../../modules/food/admin/middlewares/foodAdmin.
 import {
   decideAdminAccess,
   denialMessage,
-  effectiveServices,
   isDeleteRequest,
   isRestrictedAdmin,
   isWriteMethod,
@@ -13,12 +12,12 @@ import {
 /**
  * Enforce the shared admin permissions on one panel's API.
  *
- *   service   'food' | 'quickCommerce' | 'taxi' -- the API being guarded
+ *   service   'food' | 'taxi' -- the API being guarded
  *   resolve   (path, method) => resource        -- see adminAccessPolicy.js
  *   prefix    prepended to req.path when mounted under a sub-path
  *
- * An id that is not in the platform `admins` collection (a quick-commerce-native
- * admin in qc_admins) passes through: that panel's own checks still apply to it.
+ * An id that is not in the platform `admins` collection passes through: that
+ * panel's own checks still apply to it.
  */
 export const enforceAdminAccess = (service, resolve, { prefix = '' } = {}) => async (req, res, next) => {
   try {
@@ -46,29 +45,11 @@ export const enforceAdminAccess = (service, resolve, { prefix = '' } = {}) => as
       return sendError(res, 403, denialMessage({ ...decision, resource }));
     }
 
-    if (service === 'quickCommerce' && isRestrictedAdmin(admin)) narrowToMedical(req, admin);
     return next();
   } catch (error) {
     return next(error);
   }
 };
-
-/*
- * One API serves the Quick Commerce and the Medical panel; the panel narrows its
- * reads with storeType=pharmacy and its zone calls with vertical=medical. For a
- * sub-admin given Medical alone, that narrowing is applied here rather than
- * trusted from the browser, so dropping the parameter does not widen the view to
- * every grocery seller.
- */
-function narrowToMedical(req, admin) {
-  const services = effectiveServices(admin);
-  if (!services.includes('medical') || services.includes('quickCommerce')) return;
-  if (!isWriteMethod(req.method)) req.query.storeType = 'pharmacy';
-  if (/^\/zones(\/|$)/.test(req.path)) {
-    req.query.vertical = 'medical';
-    if (req.body && typeof req.body === 'object' && !Array.isArray(req.body)) req.body.vertical = 'medical';
-  }
-}
 
 /** Platform-wide settings (the MASTER section) are not a sub-admin's to change. */
 export const refuseRestrictedAdminWrites = async (req, res, next) => {

@@ -40,22 +40,18 @@ const activeAssignmentSchema = new mongoose.Schema(
  * The real busy-lock: every job this person is currently holding, any vertical.
  *
  * A single slot made "one job at a time" a property of the schema rather than a
- * policy, so stacking a second grocery order onto a food delivery was not
- * switched off -- it was unrepresentable. And quick-commerce, which forked before
- * the lock existed, never wrote the single slot at all, so a rider on a QC order
- * read as free and food or taxi would claim them.
+ * policy, so stacking a second delivery onto a food delivery was not switched
+ * off -- it was unrepresentable.
  *
  * `vertical` is carried alongside `jobType` because reconciliation needs to know
- * WHICH collection to look the job up in: the old reconcile resolved every
- * delivery against FoodOrder, so a quick-commerce lock would have been judged
- * "job not found, therefore stale" and cleared on sight.
+ * WHICH collection to look the job up in.
  */
 const activeAssignmentEntrySchema = new mongoose.Schema(
   {
-    vertical: { type: String, enum: ['food', 'quickCommerce', 'taxi', 'serviceProvider'] },
+    vertical: { type: String, enum: ['food', 'taxi'] },
     jobType: {
       type: String,
-      enum: ['foodDelivery', 'quickCommerceDelivery', 'taxiRide', 'serviceBooking'],
+      enum: ['foodDelivery', 'taxiRide'],
     },
     jobId: { type: mongoose.Schema.Types.ObjectId },
     at: { type: Date },
@@ -143,15 +139,13 @@ const driverSchema = new mongoose.Schema(
     },
     // ---- Unified multi-service fields (Phase 1: additive, not yet wired to dispatch) ----
     // What this driver is set up / approved to do. Onboarding or the backfill grants 'delivery'.
-    // 'delivery' is food delivery; 'quickCommerce' is the grocery vertical, which
-    // dispatches from its own pool and so is a capability of its own rather than
-    // being folded into 'delivery'. A driver can hold any combination.
+    // A driver can hold any combination.
     serviceCapabilities: {
       type: [String],
       // 'parcel' is separate from 'taxi' on purpose. Parcel jobs ride the
       // same dispatcher as passenger trips, so without a capability of its
       // own a driver who signed up to carry boxes would be offered people.
-      enum: ['taxi', 'delivery', 'quickCommerce', 'parcel'],
+      enum: ['taxi', 'delivery', 'parcel'],
       default: ['taxi'],
     },
     /**
@@ -185,18 +179,11 @@ const driverSchema = new mongoose.Schema(
      *
      *   all      every stream the driver is capable of
      *   taxi     rides only
-     *   delivery BOTH delivery verticals -- food and quick-commerce
-     *
-     * One toggle covers both deliveries deliberately: a rider turning deliveries
-     * on wants jobs, not a choice between two apps they cannot tell apart from
-     * the street. The separate capabilities still decide which pools they are in.
-     *
-     * 'quickCommerce' is retained only so a driver who stored it while it was
-     * briefly selectable can still be read and saved; it is no longer offered.
+     *   delivery food delivery
      */
     workMode: {
       type: String,
-      enum: ['all', 'taxi', 'delivery', 'quickCommerce'],
+      enum: ['all', 'taxi', 'delivery'],
       default: 'all',
     },
     // Mirror of activeAssignments[0], for the readers that predate the array.
@@ -222,15 +209,6 @@ const driverSchema = new mongoose.Schema(
     legacyDeliveryPartnerId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'FoodDeliveryPartner',
-      default: null,
-      index: true,
-    },
-    // The quick-commerce half. Separate from the food link above because the two
-    // verticals keep separate pools (food_delivery_partners vs
-    // qc_delivery_partners) and a driver may be set up for one and not the other.
-    legacyQcPartnerId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'QCDeliveryPartner',
       default: null,
       index: true,
     },

@@ -11,8 +11,8 @@ import { logger } from '../../utils/logger.js';
  *
  * Each night, in order:
  *
- *   1. delivery projection (LEDGER_PROJECTION_ENABLED): project every food and
- *      quick-commerce partner, then reconcile each against riderFinance.
+ *   1. delivery projection (LEDGER_PROJECTION_ENABLED): project every food
+ *      partner, then reconcile each against riderFinance.
  *   2. taxi mirror (LEDGER_DUAL_WRITE_ENABLED + LEDGER_MIRROR_SINCE): every wallet
  *      transaction in the last two days has its ledger entry. Two days, not since
  *      enabling, so the check stays bounded; each row is covered on two nights.

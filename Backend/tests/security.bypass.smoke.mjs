@@ -247,7 +247,7 @@ check('the razorpay mock bypass is not reachable via useDefaultOtp', () => {
 check('the razorpay webhook compares signatures in constant time', () => {
     /*
      * The webhook no longer inlines timingSafeEqual: it calls the shared
-     * safeSignatureEqual util, as the quick-commerce copy already did. So the
+     * safeSignatureEqual util. So the
      * property is asserted in two parts rather than by grepping one file for a
      * word that is no longer in it -- the webhook must go through the util, AND the
      * util must actually be constant-time. Checking only the first would let

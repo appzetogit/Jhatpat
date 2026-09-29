@@ -11,9 +11,7 @@
  * signature concurrently and clear all their COD cash for the price of one deposit.
  *
  * Drives the real food verifyDeliveryCashDepositPayment against an in-memory
- * Mongo. The quick-commerce copy lives in qc-cash-deposit-counted-once.smoke.mjs,
- * because the two verticals read Razorpay configuration once at import and this
- * file needs it switched on.
+ * Mongo.
  */
 import assert from 'node:assert/strict';
 import crypto from 'node:crypto';

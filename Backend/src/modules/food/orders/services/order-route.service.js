@@ -66,8 +66,7 @@ const riderOrigin = async (order) => {
  *
  * Required. This returned any order's route to any logged-in customer or rider --
  * the rider's live coordinates and the customer's delivery point -- for an order id
- * that is a guessable FOD- plus seven digits. The quick-commerce twin already
- * scoped both callers; this matches it.
+ * that is a guessable FOD- plus seven digits.
  */
 export async function getOrderRoute(orderId, { lat, lng, target } = {}, viewer = {}) {
   const identity = buildOrderIdentityFilter(orderId);

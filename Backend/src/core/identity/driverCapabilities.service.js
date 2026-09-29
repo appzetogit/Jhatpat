@@ -115,74 +115,11 @@ export async function ensureDeliveryCapability(driver) {
 }
 
 /**
- * Give a unified driver the quick-commerce half.
- *
- * Kept separate from the food half because the two verticals keep separate pools
- * -- food_delivery_partners and qc_delivery_partners -- so being in one says
- * nothing about the other. Same shape as ensureDeliveryCapability: create the
- * missing record, link both ways, grant the capability, never fail the caller.
- */
-export async function ensureQuickCommerceCapability(driver) {
-    try {
-        if (!driver?._id) return { granted: false, partnerId: null, reason: 'no driver' };
-
-        const phone = normalizePhone(driver.phone);
-        if (!phone) return { granted: false, partnerId: null, reason: 'driver has no phone' };
-
-        const { FoodDeliveryPartner: QCDeliveryPartner } = await import(
-            '../../modules/quickCommerce/modules/food/delivery/models/deliveryPartner.model.js'
-        );
-
-        let partner = await QCDeliveryPartner.findOne({ phone: { $regex: `${phone}$` } });
-
-        if (!partner) {
-            partner = await QCDeliveryPartner.create({
-                name: driver.name || driver.fullName || 'Driver',
-                phone,
-                countryCode: driver.countryCode || '+91',
-                email: driver.email || undefined,
-                vehicleType: driver.delivery?.vehicleType || '',
-                vehicleName: driver.delivery?.vehicleName || driver.vehicleName || '',
-                ...(driver.vehicleNumber ? { vehicleNumber: driver.vehicleNumber } : {}),
-                status: driver.approve === true ? 'approved' : 'pending',
-                driverId: driver._id,
-            });
-        } else if (!partner.driverId) {
-            partner.driverId = driver._id;
-            await partner.save();
-        }
-
-        const caps = Array.isArray(driver.serviceCapabilities) ? [...driver.serviceCapabilities] : [];
-        let changed = false;
-
-        if (!caps.includes('quickCommerce')) {
-            caps.push('quickCommerce');
-            driver.serviceCapabilities = caps;
-            changed = true;
-        }
-        if (String(driver.legacyQcPartnerId || '') !== String(partner._id)) {
-            driver.legacyQcPartnerId = partner._id;
-            changed = true;
-        }
-        if (changed) await driver.save();
-
-        return { granted: true, partnerId: String(partner._id) };
-    } catch (err) {
-        logger.error(`ensureQuickCommerceCapability failed for driver ${driver?._id}: ${err.message}`);
-        return { granted: false, partnerId: null, reason: err.message };
-    }
-}
-
-/**
  * Every stream, from one registration. What the registration paths call.
- *
- * Each half is independent: if one fails the other still lands, and the driver
- * ends up able to work the streams that did succeed rather than none of them.
  */
 export async function ensureAllDriverCapabilities(driver) {
     const delivery = await ensureDeliveryCapability(driver);
-    const quickCommerce = await ensureQuickCommerceCapability(driver);
-    return { delivery, quickCommerce };
+    return { delivery };
 }
 
 /**
@@ -204,20 +141,6 @@ export async function syncDeliveryApproval(driver) {
         }
     }
 
-    // The quick-commerce half moves with the same decision. Skipping it would
-    // leave someone barred from rides and food but still taking grocery orders.
-    if (driver?.legacyQcPartnerId) {
-        try {
-            const { FoodDeliveryPartner: QCDeliveryPartner } = await import(
-                '../../modules/quickCommerce/modules/food/delivery/models/deliveryPartner.model.js'
-            );
-            await QCDeliveryPartner.updateOne({ _id: driver.legacyQcPartnerId }, { $set: { status } });
-            touched = true;
-        } catch (err) {
-            logger.error(`syncDeliveryApproval (qc) failed for driver ${driver?._id}: ${err.message}`);
-        }
-    }
-
     return touched;
 }
 
@@ -232,16 +155,15 @@ export async function syncDeliveryApproval(driver) {
  *
  * Registration used to grant all three unconditionally, so every driver could
  * take everything and the admin had no say. Dispatch already enforces the
- * capability in all three matchers -- food, quick-commerce and taxi -- so this
- * is purely about who sets it, not about adding enforcement.
+ * capability in both matchers -- food and taxi -- so this is purely about who
+ * sets it, not about adding enforcement.
  */
 // Ordered widest-first; the order is what two admins ticking the same boxes
 // store, so it must stay stable.
-export const SERVICE_CAPABILITIES = Object.freeze(['taxi', 'delivery', 'quickCommerce', 'parcel']);
+export const SERVICE_CAPABILITIES = Object.freeze(['taxi', 'delivery', 'parcel']);
 
 export const CAPABILITY_LABELS = Object.freeze({
     delivery: 'Food delivery',
-    quickCommerce: 'Quick Commerce',
     taxi: 'Taxi',
     parcel: 'Parcel & Porter',
 });
@@ -294,12 +216,12 @@ export function coerceWorkMode(currentMode, capabilities) {
     // receives them is 'taxi'. A driver holding only 'parcel' was coerced
     // to 'delivery' and then sat online being offered nothing at all.
     const canTaxi = caps.has('taxi') || caps.has('parcel');
-    const canDeliver = caps.has('delivery') || caps.has('quickCommerce');
+    const canDeliver = caps.has('delivery');
     const mode = String(currentMode || 'all');
 
     if (mode === 'all' && canTaxi && canDeliver) return 'all';
     if (mode === 'taxi' && canTaxi) return 'taxi';
-    if ((mode === 'delivery' || mode === 'quickCommerce') && canDeliver) return 'delivery';
+    if (mode === 'delivery' && canDeliver) return 'delivery';
 
     // Current mode is no longer allowed: fall to the widest legal one.
     if (canTaxi && canDeliver) return 'all';
@@ -395,21 +317,13 @@ export async function ensureUnifiedDriverForPartner(partner, { approved } = {}) 
 /**
  * Set exactly which streams a partner's driver may work, from the admin panel.
  *
- * Order matters: the quick-commerce pool helper unconditionally ADDS its
- * capability, so it runs first and the admin's exact list is written last --
- * otherwise revoking quick-commerce would be undone a line later. Removing a
- * capability needs no pool cleanup: each dispatcher filters linked partners on
- * the driver's capabilities, so a linked record with the capability gone is
- * simply never offered work.
+ * Removing a capability needs no pool cleanup: each dispatcher filters linked
+ * partners on the driver's capabilities, so a linked record with the
+ * capability gone is simply never offered work.
  */
 export async function applyPartnerCapabilities(partner, capabilities, { approved } = {}) {
     const caps = normalizeCapabilities(capabilities);
     const driver = await ensureUnifiedDriverForPartner(partner, { approved });
-
-    if (caps.includes('quickCommerce')) {
-        // Puts the driver in the grocery pool (creates + links the QC record).
-        await ensureQuickCommerceCapability(driver);
-    }
 
     driver.serviceCapabilities = caps;
     driver.workMode = coerceWorkMode(driver.workMode, caps);

@@ -4,12 +4,10 @@ import { logger } from '../../utils/logger.js';
  * What a rider is paid, from one place.
  *
  * Before this, the earning formula was a `food_delivery_commission_rules`
- * collection that food and quick commerce BOTH pointed at -- one shared table
- * neither panel said was shared, so changing food's rates silently changed quick
- * commerce's -- and an incentive rule that existed only in food's fee settings,
- * so a quick-commerce rider earned no incentive on the same order.
+ * collection food read directly, with an incentive rule that existed only in
+ * food's fee settings.
  *
- * Now both come from Master > Delivery earnings (core/config) under the one
+ * Now every vertical comes from Master > Delivery earnings (core/config) under the one
  * precedence the platform uses:
  *
  *     zone  >  vertical  >  global
@@ -110,7 +108,7 @@ export function bandFee(band, distanceKm) {
  * The earning table for a vertical.
  *
  * @param {object} args
- * @param {string} args.vertical          'food' | 'quickCommerce' | 'medical' | 'taxi'
+ * @param {string} args.vertical          'food' | 'medical' | 'taxi'
  * @param {string} [args.zoneId]
  * @param {Function} [args.loadLegacy]    async () => module's own rows, used when nothing is set here
  * @returns {Promise<{slabs: Array, source: string, level: string|null}>}

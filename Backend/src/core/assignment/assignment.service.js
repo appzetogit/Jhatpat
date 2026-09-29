@@ -11,14 +11,11 @@ import {
 /**
  * The one place a partner is marked busy, whatever kind of work it is.
  *
- * Replaces `driverAssignmentService`'s single-slot lock, which had three problems
- * this fixes and one it did not have:
+ * Replaces `driverAssignmentService`'s single-slot lock, which had two problems
+ * this fixes:
  *
- *   - quick-commerce never called it, so a rider on a grocery order read as free
- *     and food or taxi would claim them (the live double-booking hole);
- *   - `reconcile` only understood FoodOrder, so a QC lock would have been judged
- *     "job not found, therefore stale" and cleared instantly -- which is why
- *     simply making QC call the old primitive would have been worse than useless;
+ *   - `reconcile` only understood FoodOrder, so anything else would have been
+ *     judged "job not found, therefore stale" and cleared instantly;
  *   - one slot made concurrency a property of the schema rather than a policy.
  *
  * The thing it did have, and this keeps, is a genuinely atomic compare-and-set. A
@@ -46,9 +43,7 @@ import {
 
 const jobTypeForVertical = Object.freeze({
     food: JOB_TYPES.FOOD_DELIVERY,
-    quickCommerce: JOB_TYPES.QUICK_COMMERCE_DELIVERY,
     taxi: JOB_TYPES.TAXI_RIDE,
-    serviceProvider: JOB_TYPES.SERVICE_BOOKING,
 });
 
 export const jobTypeOf = (vertical) => jobTypeForVertical[vertical] || null;
@@ -274,18 +269,13 @@ export async function releaseAssignment(driverId, rawJobId, { session = null } =
  * Which statuses mean a job is over, per vertical.
  *
  * The old reconcile knew only FoodOrder, so anything else looked like "job not
- * found" and its lock was cleared immediately -- the reason wiring QC into the old
- * primitive unchanged would have been actively harmful.
+ * found" and its lock was cleared immediately.
  */
 const TERMINAL = Object.freeze({
     [JOB_TYPES.TAXI_RIDE]: ['completed', 'cancelled'],
     [JOB_TYPES.FOOD_DELIVERY]: [
         'delivered', 'cancelled_by_user', 'cancelled_by_restaurant', 'cancelled_by_admin',
     ],
-    [JOB_TYPES.QUICK_COMMERCE_DELIVERY]: [
-        'delivered', 'cancelled_by_user', 'cancelled_by_restaurant', 'cancelled_by_admin',
-    ],
-    [JOB_TYPES.SERVICE_BOOKING]: ['completed', 'cancelled', 'rejected'],
 });
 
 const resolveJobState = async (entry) => {
@@ -305,20 +295,6 @@ const resolveJobState = async (entry) => {
             const order = await FoodOrder.findById(jobId).select('orderStatus').lean();
             if (!order) return { known: true, terminal: true };
             return { known: true, terminal: TERMINAL[jobType].includes(String(order.orderStatus || '').toLowerCase()) };
-        }
-        if (jobType === JOB_TYPES.QUICK_COMMERCE_DELIVERY) {
-            const { FoodOrder: QCOrder } = await import(
-                '../../modules/quickCommerce/modules/food/orders/models/order.model.js'
-            );
-            const order = await QCOrder.findById(jobId).select('orderStatus').lean();
-            if (!order) return { known: true, terminal: true };
-            return { known: true, terminal: TERMINAL[jobType].includes(String(order.orderStatus || '').toLowerCase()) };
-        }
-        if (jobType === JOB_TYPES.SERVICE_BOOKING) {
-            const Booking = (await import('../../modules/serviceProvider/models/Booking.js')).default;
-            const booking = await Booking.findById(jobId).select('status').lean();
-            if (!booking) return { known: true, terminal: true };
-            return { known: true, terminal: TERMINAL[jobType].includes(String(booking.status || '').toLowerCase()) };
         }
     } catch (err) {
         // A lookup that FAILED is not evidence the job is over. Freeing a lock on a

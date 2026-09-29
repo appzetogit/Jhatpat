@@ -110,7 +110,6 @@ async function main() {
 
     await test('disabling one vertical does not touch another', async () => {
         assert.equal(await isModuleEnabled(MODULES.FOOD), true);
-        assert.equal(await isModuleEnabled(MODULES.QUICK_COMMERCE), true);
         const foodGuard = requireModuleEnabled(MODULES.FOOD);
         const r = await run(foodGuard, { url: '/v1/food/orders' });
         assert.equal(r.nexted, true);
@@ -134,10 +133,10 @@ async function main() {
     });
 
     await test('state survives a cold cache (it is persisted, not in-memory)', async () => {
-        await setModuleEnabled(MODULES.QUICK_COMMERCE, false, { reason: 'catalogue rebuild', actorId: 'a' });
+        await setModuleEnabled(MODULES.FOOD, false, { reason: 'catalogue rebuild', actorId: 'a' });
         clearModuleStateCache();
-        assert.equal(await isModuleEnabled(MODULES.QUICK_COMMERCE), false);
-        await setModuleEnabled(MODULES.QUICK_COMMERCE, true, { actorId: 'a' });
+        assert.equal(await isModuleEnabled(MODULES.FOOD), false);
+        await setModuleEnabled(MODULES.FOOD, true, { actorId: 'a' });
     });
 
     console.log('\n[5] Admin permission cache');

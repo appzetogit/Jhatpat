@@ -28,7 +28,7 @@ const INTENT_LABELS = {
 
 /** Which capabilities each answer asks for. */
 const INTENT_CAPABILITIES = {
-  food_daily_medical_parcel: ['delivery', 'quickCommerce', 'parcel'],
+  food_daily_medical_parcel: ['delivery', 'parcel'],
   bike_taxi_parcel: ['taxi', 'parcel'],
   three_wheeler: ['taxi'],
   four_wheeler: ['taxi'],
@@ -586,7 +586,6 @@ export default function JoinRequest() {
               <div className="space-y-2">
                 {[
                   ["delivery", "Food delivery"],
-                  ["quickCommerce", "Quick Commerce"],
                   ["taxi", "Taxi rides"],
                   // Parcel and porter jobs. Separate from taxi because they
                   // are dispatched to the same drivers by the same service:

@@ -52,10 +52,10 @@ console.log('\n[2] orderId is no longer required — other verticals have no Foo
     check('a payment with no orderId validates', () => assert.equal(err, null, err?.message));
 }
 
-console.log('\n[3] all four verticals write to ONE collection');
+console.log('\n[3] both verticals write to ONE collection');
 {
     const ids = {};
-    for (const v of ['food', 'quickCommerce', 'taxi', 'serviceProvider']) {
+    for (const v of ['food', 'taxi']) {
         const p = await recordPayment({
             vertical: v, userId: oid(), amount: 100, method: 'razorpay',
             gateway: 'razorpay', status: 'success', subjectId: oid(),
@@ -63,16 +63,14 @@ console.log('\n[3] all four verticals write to ONE collection');
         });
         ids[v] = p;
     }
-    check('all four persisted', () => assert.equal(Object.keys(ids).length, 4));
+    check('both persisted', () => assert.equal(Object.keys(ids).length, 2));
     check('same collection for every vertical', () => assert.equal(Payment.collection.name, 'payments'));
     check('each carries its own vertical', () =>
-        assert.deepEqual(['food', 'quickCommerce', 'taxi', 'serviceProvider'].map((v) => ids[v].vertical),
-            ['food', 'quickCommerce', 'taxi', 'serviceProvider']));
+        assert.deepEqual(['food', 'taxi'].map((v) => ids[v].vertical), ['food', 'taxi']));
     check('subjectModel is set per vertical', () =>
-        assert.deepEqual([ids.food.subjectModel, ids.taxi.subjectModel, ids.serviceProvider.subjectModel],
-            ['FoodOrder', 'TaxiRide', 'SPBooking']));
+        assert.deepEqual([ids.food.subjectModel, ids.taxi.subjectModel], ['FoodOrder', 'TaxiRide']));
     check('module mirrors vertical for legacy readers', () =>
-        assert.equal(ids.serviceProvider.module, 'serviceProvider'));
+        assert.equal(ids.taxi.module, 'taxi'));
     check('food still gets orderId populated for its existing readers', () =>
         assert.ok(ids.food.orderId));
 }
@@ -92,7 +90,7 @@ console.log('\n[5] the query that was impossible before');
 {
     const totals = await getPaymentTotals({ status: 'success' });
     check(`platform total across verticals (${totals.total})`, () => assert.ok(totals.total > 0));
-    check('broken down per vertical', () => assert.ok(totals.byVertical.length >= 4, JSON.stringify(totals.byVertical)));
+    check('broken down per vertical', () => assert.ok(totals.byVertical.length >= 2, JSON.stringify(totals.byVertical)));
 }
 
 console.log('\n[6] guardrails');
@@ -136,88 +134,7 @@ console.log('\n[7] food is cut over — createPayment now goes through the facad
     check('same gatewayOrderId still collapses to one row', () => assert.equal(dupes, 1));
 }
 
-console.log('\n[8] quick-commerce is cut over — reads AND writes moved together');
-{
-    const qc = await import('../src/modules/quickCommerce/core/payments/payment.service.js');
-    const { Payment: QCPaymentModel } = await import('../src/modules/quickCommerce/core/payments/models/payment.model.js');
-    const orderId = oid(); const userId = oid();
-
-    check('QC now resolves to the SHARED payments collection', () =>
-        assert.equal(QCPaymentModel.collection.name, 'payments'));
-    check('and is literally the same model object as core', () =>
-        assert.equal(QCPaymentModel, Payment));
-
-    const p = await qc.createPayment({ orderId, userId, amount: 420, method: 'upi', gateway: 'razorpay' });
-    check('tagged quickCommerce, not food', () => assert.equal(p.vertical, 'quickCommerce'));
-    check('subjectModel is QCOrder', () => assert.equal(p.subjectModel, 'QCOrder'));
-
-    // The split this guards against: writing to `payments` while still reading
-    // `qc_payments` would make a payment vanish the moment after it was created.
-    const readBack = await qc.getPaymentsByOrder(orderId);
-    check('QC can read back what QC just wrote', () => assert.equal(readBack.length, 1));
-    check('and it is the same document', () => assert.equal(String(readBack[0]._id), String(p._id)));
-
-    const found = await Payment.findById(p._id);
-    check('core sees the quick-commerce payment too', () => assert.ok(found));
-
-    // findOrCreatePayment queries { orderId }, so the mirror must hold for QC as well.
-    const again = await qc.findOrCreatePayment({ orderId, userId, amount: 420, method: 'upi' });
-    check('findOrCreatePayment returns the existing row, not a duplicate', () =>
-        assert.equal(String(again._id), String(p._id)));
-
-    const totals = await getPaymentTotals({ status: 'success' });
-    const verticals = totals.byVertical.map((v) => v.vertical);
-    check('quick-commerce revenue is attributed to itself', () => assert.ok(verticals.includes('quickCommerce')));
-}
-
-console.log('\n[9] service-provider mirrors gateway payments — and only those');
-{
-    const { createRequire } = await import('node:module');
-    const require = createRequire(import.meta.url);
-    const spPath = '../src/modules/serviceProvider/utils/confirmGatewayPayment.js';
-    const src = await (await import('node:fs/promises')).readFile(new URL(spPath, import.meta.url), 'utf8');
-
-    check('confirms via the shared facade', () => assert.match(src, /recordPayment/));
-    check("tagged serviceProvider", () => assert.match(src, /vertical:\s*'serviceProvider'/));
-    check('mirror cannot throw — payment stays valid if reporting fails', () =>
-        assert.match(src, /catch \(err\)[\s\S]*payment still valid/));
-    check('mock orders are not reported as revenue', () => {
-        // the mock branch returns before the mirror call
-        const mockIdx = src.indexOf('mock: true');
-        const mirrorIdx = src.indexOf('await mirrorToSharedPayments');
-        assert.ok(mockIdx > -1 && mirrorIdx > mockIdx, 'mirror must sit after the mock early-return');
-    });
-
-    // The ledger must NOT have been moved.
-    const SPTransaction = require('../src/modules/serviceProvider/models/Transaction.js');
-    check('sp_transactions is still its own collection', () =>
-        assert.equal(SPTransaction.collection.name, 'sp_transactions'));
-    check('ledger-only types are still there (commission, settlement, tds)', () => {
-        const types = SPTransaction.schema.path('type').enumValues;
-        for (const t of ['commission', 'settlement', 'tds_deduction', 'earnings_credit']) {
-            assert.ok(types.includes(t), `ledger type ${t} went missing`);
-        }
-    });
-
-    // And an SP payment recorded through the facade behaves like the others.
-    const p = await recordPayment({
-        vertical: 'serviceProvider', userId: oid(), amount: 640, method: 'razorpay',
-        gateway: 'razorpay', status: 'success', subjectId: oid(),
-        gatewayOrderId: `order_sp_${Date.now()}`,
-    });
-    check('SP payment lands in the shared collection', () => assert.equal(p.vertical, 'serviceProvider'));
-    check('subjectModel is SPBooking', () => assert.equal(p.subjectModel, 'SPBooking'));
-    check('orderId is NOT mirrored for SP (its readers use sp_transactions)', () =>
-        assert.equal(p.orderId, undefined));
-
-    const totals = await getPaymentTotals({ status: 'success' });
-    const vs = totals.byVertical.map((v) => v.vertical);
-    check('all three cut-over verticals report separately', () => {
-        for (const v of ['food', 'quickCommerce', 'serviceProvider']) assert.ok(vs.includes(v), `${v} missing`);
-    });
-}
-
-console.log('\n[10] taxi — all five gateway flows mirrored');
+console.log('\n[8] taxi — all five gateway flows mirrored');
 {
     const readFile = (await import('node:fs/promises')).readFile;
     const rel = (p) => readFile(new URL(p, import.meta.url), 'utf8');
@@ -267,20 +184,8 @@ console.log('\n[10] taxi — all five gateway flows mirrored');
 
     const totals = await getPaymentTotals({ status: 'success' });
     const vs = totals.byVertical.map((v) => v.vertical);
-    check('ALL FOUR verticals now report into one total', () => {
-        for (const v of ['food', 'quickCommerce', 'serviceProvider', 'taxi']) assert.ok(vs.includes(v), `${v} missing`);
-    });
-}
-
-console.log('\n[11] the wallet ledger is deliberately NOT merged in');
-{
-    const { default: SPTransaction } = await import('../src/modules/serviceProvider/models/Transaction.js');
-    check('SP wallet ledger keeps its own collection', () =>
-        assert.equal(SPTransaction.collection.name, 'sp_transactions'));
-    check('it is a different aggregate (has balanceBefore/After)', () => {
-        const paths = Object.keys(SPTransaction.schema.paths);
-        assert.ok(paths.includes('balanceBefore') && paths.includes('balanceAfter'),
-            'expected a running-balance ledger, not a gateway payment');
+    check('both verticals now report into one total', () => {
+        for (const v of ['food', 'taxi']) assert.ok(vs.includes(v), `${v} missing`);
     });
 }
 

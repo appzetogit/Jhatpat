@@ -2272,21 +2272,15 @@ export const loginDriver = async (req, res) => {
 /**
  * Sets the driver's work mode — which job streams they accept: all | taxi | delivery.
  *
- * 'delivery' covers BOTH delivery verticals, food and quick-commerce. One toggle,
- * because a rider turning deliveries on wants jobs rather than a choice between
- * two apps they cannot tell apart from the street.
- *
- * Only capabilities the driver actually has are honored, and holding either
+ * Only capabilities the driver actually has are honored, and holding the
  * delivery capability is enough to select it. 'all' means every stream the driver
  * is capable of, so it needs at least two capabilities to be a real choice.
  */
 const WORK_MODES = ['all', 'taxi', 'delivery'];
-const DELIVERY_CAPABILITIES = ['delivery', 'quickCommerce'];
+const DELIVERY_CAPABILITIES = ['delivery'];
 
 export const setWorkMode = async (req, res) => {
-  // Matched case-insensitively but stored in the schema's casing: lowercasing
-  // the input outright would turn 'quickCommerce' into 'quickcommerce', which is
-  // not in the enum, so the mode would be rejected however the client sent it.
+  // Matched case-insensitively but stored in the schema's casing.
   const raw = String(req.body?.workMode || '').trim();
   const requested = WORK_MODES.find((m) => m.toLowerCase() === raw.toLowerCase());
   if (!requested) {
@@ -2301,9 +2295,6 @@ export const setWorkMode = async (req, res) => {
     : ['taxi'];
 
   // Guard: a driver can only pick a mode they're actually set up for.
-  // Delivery is satisfied by EITHER delivery capability, since the one toggle
-  // covers both verticals -- a driver set up for grocery but not food can still
-  // turn deliveries on and will simply only be offered grocery.
   //
   // 'taxi' is also satisfied by a bare 'parcel' capability: a parcel-vehicle
   // driver (normal or heavy) is never granted 'taxi' itself, only 'parcel',

@@ -3,16 +3,12 @@ import mongoose from 'mongoose';
 /**
  * The customer's one platform account, for any service's own customer id.
  *
- * Food and Taxi key customers by the platform account (`users`). Quick and
- * Services keep their own customer rows (`qc_users`, `sp_users`), linked by
- * platformUserId or, failing that, the same phone. Shared features -- the
- * inbox (core/notifications/customerInbox.js) and the wallet Quick now shares
- * (modules/quickCommerce/modules/food/user/models/userWallet.model.js) -- file
+ * Food and Taxi key customers by the platform account (`users`). Shared
+ * features -- the inbox (core/notifications/customerInbox.js) -- file
  * everything under the platform account, so they translate here.
  *
- * The id is looked up rather than trusted to the caller: Quick's code also runs
- * through Food's senders with Quick ids. ObjectIds are unique across
- * collections, so the first collection that has it is the answer.
+ * The id is looked up rather than trusted to the caller. ObjectIds are unique
+ * across collections, so the first collection that has it is the answer.
  */
 
 const isId = (v) => mongoose.Types.ObjectId.isValid(String(v || ''));
@@ -20,15 +16,11 @@ const lastTen = (phone) => String(phone || '').replace(/\D/g, '').slice(-10);
 
 /*
  * Where a service keeps its own customers, and the service each belongs to.
- * The id is looked up rather than trusted to the caller: Quick's code sends
- * through Food's push sender too, with Quick ids, so "which service called"
- * does not say whose id it is. ObjectIds are unique across collections, so the
- * first collection that has it is the answer.
+ * ObjectIds are unique across collections, so the first collection that has
+ * it is the answer.
  */
 const OWN_USERS = [
   ['users', null],
-  ['qc_users', 'quickCommerce'],
-  ['sp_users', 'serviceProvider'],
 ];
 
 /**

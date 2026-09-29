@@ -13,8 +13,8 @@ import { useAdminAccess, isRestricted, can } from "@food/utils/adminAccess"
  *
  * Two segments, not per-module tabs like Delivery Earnings — a rider works
  * one of two duty segments at a time (the Flutter app's DutySegment), and
- * both food+quick-commerce+medical riders and taxi+porter riders share one
- * ladder within their segment. Saving inserts a new active rule and
+ * both food riders and taxi+porter riders share one ladder within their
+ * segment. Saving inserts a new active rule and
  * deactivates whichever was active for that segment before it (server-side,
  * see incentiveRule.model.js) — this screen never edits a rule in place, so
  * "recent" below is real history, not a log of the same document changing.
@@ -23,10 +23,9 @@ import { useAdminAccess, isRestricted, can } from "@food/utils/adminAccess"
 const SEGMENTS = [
   {
     id: "foodAndQuick",
-    label: "Food, Quick Commerce & Medical",
-    hint: "Riders on the food-and-delivery duty — food, groceries and medicine all count toward the same ladder.",
-    // A zone ladder can be for a Food, Quick or Medical zone: whichever the order is in.
-    zoneModules: ["food", "quickCommerce", "medical"],
+    label: "Food",
+    hint: "Riders on the food-delivery duty.",
+    zoneModules: ["food"],
   },
   {
     id: "taxiAndPorter",

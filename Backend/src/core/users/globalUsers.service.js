@@ -9,9 +9,7 @@ import { toTenDigits } from '../identity/phoneMatch.js';
  * Food and taxi customers are ALREADY the same documents: both
  * `core/users/user.model.js` and `modules/taxi/user/models/User.js` declare
  * `collection: 'users'`. So this is not a migration -- it is the read that was
- * never written. Quick commerce (`qc_users`) and service provider (`sp_users`)
- * still keep their own documents, linked by `platformUserId` where it has been
- * stamped and by phone where it has not (core/identity).
+ * never written.
  *
  * STRICTLY READ ONLY, and deliberately so. Two mongoose schemas share the
  * `users` collection and they diverge additively -- food alone has
@@ -90,7 +88,7 @@ export function buildUserFilter({ search = '', status = '', from = '', to = '' }
 export async function enrichUsers(users = []) {
     const ids = users.map((u) => u._id).filter(Boolean);
     const out = new Map(ids.map((id) => [String(id), {
-        orders: 0, orderValue: 0, foodOrders: 0, quickOrders: 0, rides: 0, walletBalance: 0, apps: [],
+        orders: 0, orderValue: 0, foodOrders: 0, rides: 0, walletBalance: 0, apps: [],
     }]));
     if (!ids.length) return out;
 
@@ -113,13 +111,6 @@ export async function enrichUsers(users = []) {
 
     const jobs = [];
 
-    /*
-     * Food orders only. Quick commerce and medical write to `qc_orders` -- the
-     * QC order model passes that as mongoose.model's third argument, which
-     * overrides the `food_orders` its schema declares -- and are counted below.
-     * This used to claim all three shared `food_orders`, and silently left out
-     * every grocery and pharmacy order.
-     */
     if (FoodOrder) {
         jobs.push(FoodOrder.aggregate([
             { $match: { userId: { $in: ids } } },
@@ -154,87 +145,13 @@ export async function enrichUsers(users = []) {
             }).catch((err) => logger.warn(`globalUsers: wallets failed: ${err.message}`)));
     }
 
-    /*
-     * Quick commerce and service provider still hold their own customer
-     * documents. Matched on the explicit link first, and on the last ten digits
-     * of the phone for the ones the backfill has not reached -- the same
-     * fallback core/activity/identityResolver.js uses.
-     */
-    const satellite = async (conn, name) => {
-        try {
-            const coll = mongoose.connection.collection(conn);
-            const rows = await coll.find(
-                {
-                    $or: [
-                        { platformUserId: { $in: ids } },
-                        // Satellite phones are stored in several shapes, so match
-                        // on the last ten digits rather than on equality.
-                        ...(phones.length ? [{ phone: { $in: phones.flatMap((t) => [t, `+91${t}`, `91${t}`]) } }] : []),
-                    ],
-                },
-                { projection: { platformUserId: 1, phone: 1 } },
-            ).toArray();
-            for (const r of rows) {
-                let e = r.platformUserId ? out.get(String(r.platformUserId)) : null;
-                if (!e && r.phone) {
-                    const owner = idByPhone.get(toTenDigits(r.phone));
-                    if (owner) e = out.get(owner);
-                }
-                if (e && !e.apps.includes(name)) e.apps.push(name);
-            }
-        } catch (err) {
-            logger.warn(`globalUsers: ${name} lookup failed: ${err.message}`);
-        }
-    };
-
-    /*
-     * Quick commerce and medical orders. They are keyed by the customer's
-     * `qc_users` id, not the platform one, so each qc_users row is first mapped
-     * to its owner -- by `platformUserId`, or by phone where the backfill has
-     * not reached -- and the orders summed onto that owner.
-     */
-    jobs.push((async () => {
-        try {
-            const qcUsers = await mongoose.connection.collection('qc_users').find(
-                {
-                    $or: [
-                        { platformUserId: { $in: ids } },
-                        ...(phones.length ? [{ phone: { $in: phones.flatMap((t) => [t, `+91${t}`, `91${t}`]) } }] : []),
-                    ],
-                },
-                { projection: { platformUserId: 1, phone: 1 } },
-            ).toArray();
-            const ownerOf = new Map();
-            for (const q of qcUsers) {
-                let owner = q.platformUserId && out.has(String(q.platformUserId)) ? String(q.platformUserId) : null;
-                if (!owner && q.phone) owner = idByPhone.get(toTenDigits(q.phone)) || null;
-                if (owner) ownerOf.set(String(q._id), owner);
-            }
-            if (!ownerOf.size) return;
-            const rows = await mongoose.connection.collection('qc_orders').aggregate([
-                { $match: { userId: { $in: [...ownerOf.keys()].map((id) => new mongoose.Types.ObjectId(id)) } } },
-                { $group: { _id: '$userId', n: { $sum: 1 }, value: { $sum: { $ifNull: ['$pricing.total', 0] } } } },
-            ]).toArray();
-            for (const r of rows) {
-                const e = out.get(ownerOf.get(String(r._id)));
-                if (!e) continue;
-                e.quickOrders += r.n;
-                e.orderValue += Math.round((r.value || 0) * 100) / 100;
-            }
-        } catch (err) {
-            logger.warn(`globalUsers: quick-commerce order counts failed: ${err.message}`);
-        }
-    })());
-
     await Promise.all(jobs);
-    await Promise.all([satellite('qc_users', 'quick'), satellite('sp_users', 'services')]);
 
-    // Apps derived from what they actually did, plus the satellites above.
+    // Apps derived from what they actually did.
     for (const [, e] of out) {
-        e.orders = e.foodOrders + e.quickOrders;
+        e.orders = e.foodOrders;
         e.orderValue = Math.round(e.orderValue * 100) / 100;
         if (e.foodOrders > 0 && !e.apps.includes('food')) e.apps.unshift('food');
-        if (e.quickOrders > 0 && !e.apps.includes('quick')) e.apps.push('quick');
         if (e.rides > 0 && !e.apps.includes('taxi')) e.apps.push('taxi');
     }
     return out;
@@ -277,7 +194,6 @@ const shape = (u, e = {}) => ({
     referralCount: Number(u.referralCount) || 0,
     orders: e?.orders || 0,
     foodOrders: e?.foodOrders || 0,
-    quickOrders: e?.quickOrders || 0,
     orderValue: e?.orderValue || 0,
     rides: e?.rides || 0,
     walletBalance: e?.walletBalance || 0,
@@ -309,7 +225,6 @@ const CSV_COLUMNS = [
     ['Verified', (u) => (u.isVerified ? 'Yes' : 'No')],
     ['Apps used', (u) => (u.apps || []).join(' / ')],
     ['Food orders', (u) => u.foodOrders],
-    ['Quick & medical orders', (u) => u.quickOrders],
     ['Order value', (u) => u.orderValue],
     ['Rides', (u) => u.rides],
     ['Wallet balance', (u) => u.walletBalance],

@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import { logger } from '../../utils/logger.js';
 
 /**
- * One rider, one balance, one cash-in-hand -- across taxi, food and groceries.
+ * One rider, one balance, one cash-in-hand -- across taxi and food.
  *
  * The same person drives a taxi and delivers food, and until now each vertical
  * answered "what do you have?" from its own arithmetic:
@@ -47,9 +47,9 @@ const toObjectId = (value) => {
 /**
  * Every identity the same person holds, from any one of them.
  *
- * taxidrivers is the hub: it carries legacyDeliveryPartnerId and
- * legacyQcPartnerId, and both partner records carry driverId back. So the walk
- * is at most two hops whichever end the caller starts from.
+ * taxidrivers is the hub: it carries legacyDeliveryPartnerId, and the partner
+ * record carries driverId back. So the walk is at most two hops whichever end
+ * the caller starts from.
  *
  * A partner with no driverId is NOT an error -- riders who signed up through the
  * delivery app before unification are unlinked, and they get their food figures
@@ -57,33 +57,25 @@ const toObjectId = (value) => {
  */
 export const resolveRiderIdentity = async (anyId) => {
     const id = toObjectId(anyId);
-    if (!id) return { driverId: null, foodPartnerId: null, qcPartnerId: null, linked: false };
+    if (!id) return { driverId: null, foodPartnerId: null, linked: false };
 
     const { Driver } = await import('../../modules/taxi/driver/models/Driver.js');
 
     let driver = await Driver.findById(id)
-        .select('_id legacyDeliveryPartnerId legacyQcPartnerId')
+        .select('_id legacyDeliveryPartnerId')
         .lean();
 
-    // Not a driver id, so it is one of the two partner ids: hop to the hub and
-    // re-read it, which is what picks up the OTHER vertical's partner id.
+    // Not a driver id, so it is the food partner id: hop to the hub and re-read
+    // it.
     if (!driver) {
-        const [{ FoodDeliveryPartner }, { FoodDeliveryPartner: QCDeliveryPartner }] = await Promise.all([
-            import('../../modules/food/delivery/models/deliveryPartner.model.js'),
-            import('../../modules/quickCommerce/modules/food/delivery/models/deliveryPartner.model.js'),
-        ]);
+        const { FoodDeliveryPartner } = await import('../../modules/food/delivery/models/deliveryPartner.model.js');
 
-        const foodPartner = await FoodDeliveryPartner.findById(id).select('_id driverId').lean();
-        const partner = foodPartner || (await QCDeliveryPartner.findById(id).select('_id driverId').lean());
+        const partner = await FoodDeliveryPartner.findById(id).select('_id driverId').lean();
 
         if (!partner) {
-            return { driverId: null, foodPartnerId: null, qcPartnerId: null, linked: false };
+            return { driverId: null, foodPartnerId: null, linked: false };
         }
-        // Labelled by the collection it was found in. This used to call every
-        // unlinked partner a food partner, quick-commerce riders included.
-        const unlinked = foodPartner
-            ? { driverId: null, foodPartnerId: partner._id, qcPartnerId: null, linked: false }
-            : { driverId: null, foodPartnerId: null, qcPartnerId: partner._id, linked: false };
+        const unlinked = { driverId: null, foodPartnerId: partner._id, linked: false };
 
         if (!partner.driverId) {
             // Unlinked: this partner id is the only identity there is.
@@ -91,7 +83,7 @@ export const resolveRiderIdentity = async (anyId) => {
         }
 
         driver = await Driver.findById(partner.driverId)
-            .select('_id legacyDeliveryPartnerId legacyQcPartnerId')
+            .select('_id legacyDeliveryPartnerId')
             .lean();
 
         if (!driver) {
@@ -103,7 +95,6 @@ export const resolveRiderIdentity = async (anyId) => {
     return {
         driverId: driver._id,
         foodPartnerId: driver.legacyDeliveryPartnerId || null,
-        qcPartnerId: driver.legacyQcPartnerId || null,
         linked: true,
     };
 };
@@ -139,10 +130,10 @@ export const resolveSharedCashLimit = async ({ partnerId } = {}) => {
      * The platform setting decides; the food admin figure is today's value and the
      * fallback until someone sets `finance.cashLimit` in Platform settings.
      *
-     * No vertical: a rider's limit is ONE figure across taxi, food and quick
-     * commerce -- the whole point of riderFinance -- so it is set globally, or per
-     * partner (keyed on the rider's hub id). Vertical overrides are for partners who
-     * work one vertical, such as service providers.
+     * No vertical: a rider's limit is ONE figure across taxi and food -- the
+     * whole point of riderFinance -- so it is set globally, or per partner
+     * (keyed on the rider's hub id). Vertical overrides are for partners who
+     * work one vertical.
      */
     const { resolveCashLimit } = await import('./cashLimit.service.js');
     const resolved = await resolveCashLimit({ partnerId, legacy });
@@ -199,20 +190,6 @@ export const splitSignedTaxiBalance = (signedBalance) => {
 
 /*
  * Where a rider's delivery money lives, per vertical. NOT shared collections.
- *
- * This used to say quick commerce wrote to the food_* collections, because its
- * models declare `collection: 'food_orders'` and so on. But each one also passes
- * an explicit third argument to mongoose.model(), and that wins:
- *
- *     mongoose.model('QCOrder', orderSchema, 'qc_orders')
- *
- * So every quick-commerce order, deposit, withdrawal and bonus is in a qc_*
- * collection, and reading only the food models meant this "single source of truth"
- * never saw any of them: QC earnings were not withdrawable, QC cash on delivery
- * never counted toward the shared cash limit, and -- the dangerous one -- an
- * APPROVED QC withdrawal was never subtracted, so money paid out through the
- * grocery app still showed as available to withdraw again. Confirmed by resolving
- * the models' collection names at runtime, not by reading schema options.
  */
 const DELIVERY_MONEY_SOURCES = [
     {
@@ -222,15 +199,6 @@ const DELIVERY_MONEY_SOURCES = [
             import('../../modules/food/delivery/models/foodDeliveryCashDeposit.model.js'),
             import('../../modules/food/delivery/models/foodDeliveryWithdrawal.model.js'),
             import('../../modules/food/admin/models/deliveryBonusTransaction.model.js'),
-        ]),
-    },
-    {
-        vertical: 'quickCommerce',
-        load: () => Promise.all([
-            import('../../modules/quickCommerce/modules/food/orders/models/order.model.js'),
-            import('../../modules/quickCommerce/modules/food/delivery/models/foodDeliveryCashDeposit.model.js'),
-            import('../../modules/quickCommerce/modules/food/delivery/models/foodDeliveryWithdrawal.model.js'),
-            import('../../modules/quickCommerce/modules/food/admin/models/deliveryBonusTransaction.model.js'),
         ]),
     },
 ];
@@ -250,13 +218,7 @@ const EMPTY_DELIVERY_MONEY = Object.freeze({
 });
 
 /**
- * Food + quick-commerce money, for every partner identity the rider holds.
- *
- * Every id is matched against BOTH verticals' collections, rather than the food id
- * against food and the QC id against QC. Pairing them depends on the identity
- * labels being right, and they were not (an unlinked QC partner was labelled a
- * food partner). Matching everywhere cannot double-count: the verticals are
- * separate collections, and a row carries exactly one deliveryPartnerId.
+ * Food delivery money, for every partner identity the rider holds.
  */
 const resolveDeliveryMoney = async (partnerIds) => {
     const ids = partnerIds.map(toObjectId).filter(Boolean);
@@ -411,7 +373,7 @@ const resolveBlockState = ({ taxiSigned, cashInHand, cashLimit, rules, snapshotB
 /**
  * The single source of truth. Everything else in this file exists to serve it.
  *
- * @param {string|object} anyId  a taxi driver id, a food partner id, or a QC partner id
+ * @param {string|object} anyId  a taxi driver id, or a food partner id
  */
 export const getRiderFinance = async (anyId, { driverWallet = null } = {}) => {
     const identity = await resolveRiderIdentity(anyId);
@@ -439,9 +401,9 @@ export const getRiderFinance = async (anyId, { driverWallet = null } = {}) => {
         // Partner overrides are keyed on the rider's hub identity: the taxi driver id
         // for a linked rider, else their own partner id.
         resolveSharedCashLimit({
-            partnerId: identity.driverId || identity.foodPartnerId || identity.qcPartnerId || undefined,
+            partnerId: identity.driverId || identity.foodPartnerId || undefined,
         }),
-        resolveDeliveryMoney([identity.foodPartnerId, identity.qcPartnerId]),
+        resolveDeliveryMoney([identity.foodPartnerId]),
     ]);
 
     const taxi = splitSignedTaxiBalance(wallet?.balance || 0);
@@ -470,7 +432,6 @@ export const getRiderFinance = async (anyId, { driverWallet = null } = {}) => {
     return {
         driverId: identity.driverId ? String(identity.driverId) : null,
         foodPartnerId: identity.foodPartnerId ? String(identity.foodPartnerId) : null,
-        qcPartnerId: identity.qcPartnerId ? String(identity.qcPartnerId) : null,
         linked: identity.linked,
 
         // The unified figures. Every screen shows these.

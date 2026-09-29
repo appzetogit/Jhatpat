@@ -5,21 +5,20 @@ const notificationSchema = new mongoose.Schema(
         /**
          * Which product the notification belongs to.
          *
-         * Added when the four verticals' inboxes were unified. Defaults to 'food' so
+         * Added when the verticals' inboxes were unified. Defaults to 'food' so
          * every existing document reads back exactly as it did.
          */
         vertical: {
             type: String,
-            enum: ['food', 'quickCommerce', 'taxi', 'serviceProvider'],
+            enum: ['food', 'taxi'],
             default: 'food',
             index: true
         },
 
         ownerType: {
             type: String,
-            // VENDOR/WORKER come from service-provider, DRIVER from taxi. Kept as one
-            // list rather than per-vertical enums so an inbox query never has to know
-            // which vertical a recipient belongs to.
+            // DRIVER comes from taxi. Kept as one list rather than per-vertical enums
+            // so an inbox query never has to know which vertical a recipient belongs to.
             enum: ['USER', 'RESTAURANT', 'DELIVERY_PARTNER', 'VENDOR', 'WORKER', 'DRIVER', 'ADMIN'],
             required: true,
             index: true
@@ -51,7 +50,6 @@ const notificationSchema = new mongoose.Schema(
         },
         source: {
             type: String,
-            // SUPPORT_RESPONSE came from quick-commerce, which had drifted ahead of food.
             enum: ['ADMIN_BROADCAST', 'FSSAI_EXPIRY', 'SUPPORT_RESPONSE', 'BOOKING', 'RIDE', 'ORDER', 'PAYMENT', 'SYSTEM', 'STOCK_ALERT'],
             default: 'ADMIN_BROADCAST',
             index: true
@@ -105,7 +103,7 @@ notificationSchema.index(
     { unique: true, partialFilterExpression: { broadcastId: { $type: 'objectId' } } }
 );
 
-export const NOTIFICATION_VERTICALS = Object.freeze(['food', 'quickCommerce', 'taxi', 'serviceProvider']);
+export const NOTIFICATION_VERTICALS = Object.freeze(['food', 'taxi']);
 
 export { notificationSchema };
 

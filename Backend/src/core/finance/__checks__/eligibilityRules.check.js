@@ -35,7 +35,7 @@ const check = (label, fn) => {
 
 /** A partner who passes everything, so each check can break exactly one thing. */
 const ok = (over = {}) => ({
-    capabilities: ['delivery', 'taxi', 'quickCommerce'],
+    capabilities: ['delivery', 'taxi'],
     requiredCapability: 'delivery',
     isAvailable: true,
     partnerStatus: 'approved',

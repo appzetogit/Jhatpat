@@ -14,9 +14,9 @@ import mongoose from 'mongoose';
  * row for the whole rule.
  *
  * driverKey is a plain string rather than an ObjectId ref because it can
- * point at three different identities depending on how this rider is
- * provisioned (a unified TaxiDriver, a standalone FoodDeliveryPartner, or a
- * standalone quick-commerce partner) — see resolveDriverContext.
+ * point at two different identities depending on how this rider is
+ * provisioned (a unified TaxiDriver, or a standalone FoodDeliveryPartner) —
+ * see resolveDriverContext.
  */
 const driverIncentiveCreditSchema = new mongoose.Schema(
     {

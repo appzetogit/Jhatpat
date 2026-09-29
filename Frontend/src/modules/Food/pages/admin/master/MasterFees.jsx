@@ -8,11 +8,9 @@ import { useAdminAccess, isRestricted, can, hasPanel } from "@food/utils/adminAc
 
 /**
  * Master > Platform Fee & GST: the platform fee on an order, and the GST on it,
- * set once for Food and Quick & Medical (core/finance/platformFees.service.js).
+ * set once for Food (core/finance/platformFees.service.js).
  *
  * Empty keeps each service's own fee setting, which is how it worked before.
- * GST on the platform fee is charged by Food and, since 2026-09-28, by Quick &
- * Medical too, at the rate set here (unset for Quick & Medical = not charged).
  */
 
 const KEYS = { platformFee: "fees.platformFee", platformFeeGstRate: "fees.platformFeeGstRate" }
@@ -20,15 +18,12 @@ const KEYS = { platformFee: "fees.platformFee", platformFeeGstRate: "fees.platfo
 const SCOPES = [
   { id: "*", level: "global", label: "All services" },
   { id: "food", level: "vertical", label: "Food" },
-  { id: "quickCommerce", level: "vertical", label: "Quick & Medical" },
 ]
-const SERVICE_LABEL = { food: "Food", quickCommerce: "Quick & Medical" }
-// Whose zones each tab's zone picker lists. A pharmacy order carries a Medical zone.
-const ZONE_MODULES = { "*": ["food", "quickCommerce", "medical"], food: ["food"], quickCommerce: ["quickCommerce", "medical"] }
+const SERVICE_LABEL = { food: "Food" }
+const ZONE_MODULES = { "*": ["food"], food: ["food"] }
 
 const OWN_SCREENS = [
   { label: "Food fee settings", path: "/admin/food/fee-settings" },
-  { label: "Quick & Medical fee settings", path: "/admin/quick-commerce/fee-settings" },
   { label: "Taxi platform fee (per vehicle)", path: "/taxi/admin/pricing/set-price" },
 ]
 
@@ -90,7 +85,7 @@ export default function MasterFees() {
   const access = useAdminAccess()
   const limited = isRestricted(access)
   const visibleScopes = limited
-    ? SCOPES.filter((s) => s.id !== "*" && (s.id === "quickCommerce" ? hasPanel(access, "quickCommerce") || hasPanel(access, "medical") : hasPanel(access, s.id)))
+    ? SCOPES.filter((s) => s.id !== "*" && hasPanel(access, s.id))
     : SCOPES
   useEffect(() => {
     if (limited && visibleScopes.length && !visibleScopes.some((s) => s.id === scopeId)) setScopeId(visibleScopes[0].id)
@@ -98,7 +93,6 @@ export default function MasterFees() {
   }, [limited, visibleScopes.length, scopeId])
 
   const scope = SCOPES.find((s) => s.id === scopeId) || SCOPES[0]
-  const isQuick = scopeId === "quickCommerce"
   // A zone of the current service, or none: the service's own value.
   const [zone, setZone] = useState({ id: "", name: "" })
   const target = zone.id
@@ -293,7 +287,6 @@ export default function MasterFees() {
                   suffix="%"
                   max={100}
                   disabled={saving}
-                  note={isQuick ? "Also applies to Medical (pharmacy) orders." : ""}
                 />
               </div>
             )}

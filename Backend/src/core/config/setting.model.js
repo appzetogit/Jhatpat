@@ -5,12 +5,12 @@ import { SCOPE_LEVELS } from './scope.js';
  * One row per (level, scope, key). The collection that replaces about
  * twenty-four settings models.
  *
- * `FoodFeeSettings`, its quick-commerce fork, `deliveryCashLimit`,
- * `businessSettings`, `cashbackSettings`, `referralSettings`, taxi's
- * `AdminBusinessSetting` and `AdminAppSetting`, SP's `Settings` -- most of them
- * singleton documents holding a bag of unrelated values, each one duplicated per
- * vertical. Changing a platform-wide rule means finding and editing all of them,
- * and nothing stops them disagreeing.
+ * `FoodFeeSettings`, `deliveryCashLimit`, `businessSettings`,
+ * `cashbackSettings`, `referralSettings`, taxi's `AdminBusinessSetting` and
+ * `AdminAppSetting` -- most of them singleton documents holding a bag of
+ * unrelated values, each one duplicated per vertical. Changing a
+ * platform-wide rule means finding and editing all of them, and nothing
+ * stops them disagreeing.
  *
  * A generic key/value store is normally the wrong answer, because it throws away
  * the schema. It is the right answer HERE for one reason: the thing being modelled

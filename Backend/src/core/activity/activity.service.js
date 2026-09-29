@@ -4,10 +4,10 @@ import { logger } from '../../utils/logger.js';
 /**
  * Status normalisation, per vertical.
  *
- * The four verticals share almost no vocabulary: food ends at `delivered`, taxi at
- * `completed`, service-provider at `work_done`, and each has its own set of cancelled
- * variants. Mapping once here is the whole reason the feed is usable -- otherwise
- * every client reimplements this, and they drift.
+ * The two verticals share almost no vocabulary: food ends at `delivered`, taxi at
+ * `completed`, and each has its own set of cancelled variants. Mapping once here is
+ * the whole reason the feed is usable -- otherwise every client reimplements this,
+ * and they drift.
  *
  * Anything unrecognised falls to ACTIVE rather than being dropped: a row in the feed
  * with a slightly wrong state is far better than a transaction the customer cannot see.
@@ -37,26 +37,7 @@ const STATUS_MAP = {
         completed: ACTIVITY_STATUS.COMPLETED,
         cancelled: ACTIVITY_STATUS.CANCELLED,
     },
-    serviceProvider: {
-        searching: ACTIVITY_STATUS.PENDING,
-        requested: ACTIVITY_STATUS.PENDING,
-        awaiting_payment: ACTIVITY_STATUS.PENDING,
-        pending: ACTIVITY_STATUS.PENDING,
-        confirmed: ACTIVITY_STATUS.ACTIVE,
-        accepted: ACTIVITY_STATUS.ACTIVE,
-        assigned: ACTIVITY_STATUS.ACTIVE,
-        journey_started: ACTIVITY_STATUS.ACTIVE,
-        visited: ACTIVITY_STATUS.ACTIVE,
-        in_progress: ACTIVITY_STATUS.ACTIVE,
-        work_done: ACTIVITY_STATUS.ACTIVE,
-        completed: ACTIVITY_STATUS.COMPLETED,
-        no_vendors: ACTIVITY_STATUS.CANCELLED,
-        cancelled: ACTIVITY_STATUS.CANCELLED,
-        rejected: ACTIVITY_STATUS.CANCELLED,
-    },
 };
-// quick-commerce is a fork of food and shares its status machine exactly.
-STATUS_MAP.quickCommerce = STATUS_MAP.food;
 
 export const normaliseStatus = (vertical, rawStatus) => {
     const key = String(rawStatus || '').trim().toLowerCase();

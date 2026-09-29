@@ -27,14 +27,6 @@ export function resolveAdminLevel(admin) {
       if (admin.servicesAccess?.includes('food') && admin.servicesAccess?.length === 1) {
         return ADMIN_LEVELS.FOOD_SUPERADMIN;
       }
-      // Same single-service rule for serviceProvider. Deliberately NOT generalised
-      // over every module: a taxi-only superadmin currently falls through to
-      // PLATFORM_SUPERADMIN, and changing that would silently demote live accounts.
-      // (It does not leak into this module -- SP gates on the servicesAccess array
-      // itself, see modules/serviceProvider/utils/serviceAccess.js.)
-      if (admin.servicesAccess?.includes('serviceProvider') && admin.servicesAccess?.length === 1) {
-        return ADMIN_LEVELS.SERVICE_PROVIDER_SUPERADMIN;
-      }
       return ADMIN_LEVELS.PLATFORM_SUPERADMIN;
     }
     

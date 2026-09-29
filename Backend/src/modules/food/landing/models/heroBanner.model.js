@@ -48,7 +48,7 @@ const foodHeroBannerSchema = new mongoose.Schema(
          */
         module: {
             type: String,
-            enum: ['food', 'taxi', 'quick_commerce', 'medical', 'porter', 'rental', 'services'],
+            enum: ['food', 'taxi', 'porter', 'rental'],
             default: 'food',
             index: true,
             trim: true

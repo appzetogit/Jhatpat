@@ -1,13 +1,11 @@
 import { Suspense, lazy } from "react";
-import { Routes, Route, Navigate, Outlet, useParams } from "react-router-dom";
+import { Routes, Route, Navigate, useParams } from "react-router-dom";
 
 /** Old per-panel edit links land on the one Master screen. */
 function RedirectAdminEdit() {
   const { id } = useParams();
   return <Navigate to={`/admin/master/admins/edit/${id}`} replace />;
 }
-import VerticalVocabulary from "./VerticalVocabulary";
-import { VERTICAL } from "@food/utils/verticalVocabulary";
 import ProtectedRoute from "./ProtectedRoute";
 import AdminLayout from "./AdminLayout";
 import Loader from "@food/components/Loader";
@@ -161,31 +159,10 @@ const EditRestaurant = lazy(() => import("@food/pages/admin/restaurant/EditResta
 const AdminLogin = lazy(() => import("@food/pages/admin/auth/AdminLogin"));
 const AdminSignup = lazy(() => import("@food/pages/admin/auth/AdminSignup"));
 const AdminForgotPassword = lazy(() => import("@food/pages/admin/auth/AdminForgotPassword"));
-import { SERVICE_PROVIDER_ENABLED } from "@/config/features";
-// The Services admin, on for sites that set VITE_ENABLE_SERVICE_PROVIDER
-// (config/features.js). Lazy, so a site with it off never downloads it.
-const SPAdminRoutes = lazy(() => import("@sp/admin/routes"));
-// One admin-accounts screen for every panel (food, quick commerce, medical, taxi).
-// Stock per product size, per store (quick commerce and medical only).
-const StockManager = lazy(() => import("@food/pages/shared/StockManager"));
+// One admin-accounts screen for every panel (food, taxi).
 const AdminAccounts = lazy(() => import("@food/pages/admin/management/AdminAccounts"));
-const MedicalPrescriptionOrders = lazy(() => import("@food/pages/admin/medical/PrescriptionOrders"));
-const MedicalDrugLicences = lazy(() => import("@food/pages/admin/medical/DrugLicences"));
-const MedicalRequests = lazy(() => import("@food/pages/admin/medical/MedicalRequests"));
-const PharmacyVerification = lazy(() => import("@food/pages/admin/medical/PharmacyVerification"));
-const MedicalCommission = lazy(() => import("@food/pages/admin/medical/MedicalCommission"));
 
-/**
- * The admin pages for one vertical.
- *
- * Rendered at BOTH /admin/food and /admin/quick-commerce. Quick-commerce is a fork of
- * this repo's own food module, so its admin API is the same route table on a different
- * prefix (/v1/qc/admin instead of /v1/food/admin) -- there is no second UI to port, and
- * shipping one would mean maintaining two copies of the same screens.
- *
- * The prefix swap happens once, in the axios request interceptor, keyed on the browser
- * path. Nothing below needs to know which vertical it is serving.
- */
+/** The admin pages for the food vertical, mounted at /admin/food. */
 const verticalAdminRoutes = (
   <>
             <Route index element={<AdminHome />} />
@@ -361,29 +338,6 @@ export default function AdminRouter() {
         <Route path="forgot-password" element={<AdminForgotPassword />} />
         <Route path="signup" element={<AdminSignup />} />
 
-        {/* SERVICE PROVIDER ADMIN -- per site, not per branch.
-            On only where VITE_ENABLE_SERVICE_PROVIDER=true (config/features.js),
-            and the Services tab in both panel switchers reads the same flag, so a
-            route and its tab can never be out of step: a route without its tab is
-            unreachable, and a tab without its route lands on the catch-all.
-
-            Deliberately OUTSIDE master's AdminLayout: the SP pages ship their own
-            AdminLayout (sidebar + a position:fixed header), so nesting them inside
-            master's shell stacked two sidebars and overlapped two headers. Taxi has
-            the same shape and is handled the same way -- it owns its chrome inside
-            TaxiApp. Auth is still shared: same ProtectedRoute, same /admin/login,
-            same token. */}
-        {SERVICE_PROVIDER_ENABLED && (
-          <Route
-            path="sp/*"
-            element={
-              <ProtectedRoute>
-                <SPAdminRoutes />
-              </ProtectedRoute>
-            }
-          />
-        )}
-
         {/* Protected Routes - With Layout */}
         <Route
           element={
@@ -429,53 +383,6 @@ export default function AdminRouter() {
 
           {/* TAXI ADMIN - Redirect to integrated taxi admin */}
           <Route path="taxi/*" element={<Navigate to="/taxi/admin/dashboard" replace />} />
-
-
-                    {/* QUICK COMMERCE ADMIN - the same screens, pointed at /v1/qc/admin. */}
-          {/* The vocabulary layer rewrites the shared screens' copy (Food -> Product,
-              Restaurant -> Seller) for every screen in this subtree, present and
-              future, instead of forking dozens of components for their strings. */}
-          <Route
-            path="quick-commerce/*"
-            element={
-              <VerticalVocabulary>
-                <Outlet />
-              </VerticalVocabulary>
-            }
-          >
-            {verticalAdminRoutes}
-            <Route path="stock" element={<StockManager scope="admin" />} />
-          </Route>
-
-          {/* MEDICAL ADMIN - the same screens again, on the same quick-commerce
-              API, narrowed to sellers whose storeType is 'pharmacy'.
-
-              A pharmacy is not a separate vertical: it is a quick-commerce
-              seller that must produce a drug licence and may only dispense
-              against a prescription. Forking a fourth copy of these screens to
-              say so would mean maintaining three copies of every fix. The
-              narrowing is one request parameter, added in the axios interceptor
-              for this path and enforced by the server, which refuses a store
-              type it does not recognise rather than widening the list. */}
-          <Route
-            path="medical/*"
-            element={
-              <VerticalVocabulary vertical={VERTICAL.MEDICAL}>
-                <Outlet />
-              </VerticalVocabulary>
-            }
-          >
-            {verticalAdminRoutes}
-            <Route path="stock" element={<StockManager scope="admin" />} />
-            {/* Only here: a prescription queue and a drug-licence register have
-                no meaning in food or in general quick-commerce, so they are not
-                in the shared route table. */}
-            <Route path="prescriptions" element={<MedicalPrescriptionOrders />} />
-            <Route path="drug-licences" element={<MedicalDrugLicences />} />
-            <Route path="requests" element={<MedicalRequests />} />
-            <Route path="verification" element={<PharmacyVerification />} />
-            <Route path="commission" element={<MedicalCommission />} />
-          </Route>
         </Route>
 
         {/* Redirect unknown admin routes to food admin */}

@@ -1,5 +1,5 @@
 import { safeRiderZoneFilter } from '../../../../core/zones/riderZones.js';
-import mongoose from 'mongoose';
+import mongoose from 'mongoose';
 import { referralSettingsFor } from '../../../../core/referral/referralSettings.service.js';
 import { zoneMatchFrom } from '../../../../core/admin/adminZoneScope.js';
 import { shouldAutoMark99, crossedInto99Cap } from '../../shared/ninetyNineStore.js';
@@ -4997,7 +4997,7 @@ export async function approveDeliveryPartner(id, { serviceCapabilities } = {}) {
     const partner = await FoodDeliveryPartner.findById(id);
     if (!partner) return null;
 
-    // Which verticals this driver will be offered -- food, quick-commerce, taxi.
+    // Which verticals this driver will be offered -- food, taxi.
     // Applied BEFORE the status flips so a rejected capability list leaves the
     // request untouched rather than approved-but-unconfigured. Defaults to food
     // only: that is what a food-app signup could always be offered, and the
@@ -5294,8 +5294,7 @@ export async function getWithdrawals(query = {}) {
  * withdrawal put the 400 back in the balance, withdrawable a second time. And
  * findByIdAndUpdate skipped the schema validators, so a status outside the enum
  * ('processed') was stored and then fell out of the balance maths entirely.
- * Mirrors the quick-commerce updateDeliveryWithdrawalStatus, which already
- * guarded transitions and read 'processed' as 'approved'.
+ * Guards transitions and reads 'processed' as 'approved'.
  *
  * The status flip is conditional on the row still being pending, so two admins
  * clicking approve and reject together cannot both win. Re-saving the same

@@ -20,7 +20,6 @@ const STATUS = Object.fromEntries(STATUSES.map((s) => [s.key, s]))
 const SERVICES = [
   { key: "", label: "All services" },
   { key: "food", label: "Food" },
-  { key: "quickCommerce", label: "Quick & Medical" },
   { key: "taxi", label: "Taxi" },
 ]
 

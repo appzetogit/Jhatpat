@@ -21,16 +21,14 @@ import { refreshAdminAccess } from "@food/utils/adminAccess"
 /**
  * Admin accounts, for every panel.
  *
- * One list and one form whichever panel it is opened from (Food, Quick
- * Commerce, Medical or Taxi): an account is a person, and the same person can be
- * given several panels. What each sub-admin may do is enforced by the server;
- * this screen is where it is decided.
+ * One list and one form whichever panel it is opened from (Food or Taxi): an
+ * account is a person, and the same person can be given several panels. What
+ * each sub-admin may do is enforced by the server; this screen is where it is
+ * decided.
  */
 
 const PANEL_TONE = {
   food: "bg-orange-50 text-orange-800 ring-orange-200",
-  quickCommerce: "bg-emerald-50 text-emerald-800 ring-emerald-200",
-  medical: "bg-sky-50 text-sky-800 ring-sky-200",
   taxi: "bg-amber-50 text-amber-900 ring-amber-200",
 }
 const ROLE_META = {
@@ -215,7 +213,6 @@ function AdminForm({ meta, editing, onClose, onSaved }) {
     levels: levelsFrom(editing?.permissions || []),
     serviceLocationIds: editing?.serviceLocationIds || [],
     foodZoneIds: editing?.foodZoneIds || [],
-    qcZoneIds: editing?.qcZoneIds || [],
     taxiZoneIds: editing?.taxiZoneIds || [],
     isActive: editing ? editing.isActive : true,
     // New sub-admins start without delete access; it is granted on purpose.
@@ -273,10 +270,6 @@ function AdminForm({ meta, editing, onClose, onSaved }) {
 
   const needsLocations = form.role !== "owner" && form.servicesAccess.includes("taxi")
   const showFoodZones = form.role !== "owner" && form.servicesAccess.includes("food") && (meta.foodZones || []).length > 0
-  const showQcZones =
-    form.role !== "owner" &&
-    (form.servicesAccess.includes("quickCommerce") || form.servicesAccess.includes("medical")) &&
-    (meta.qcZones || []).length > 0
   const showTaxiZones = form.role !== "owner" && form.servicesAccess.includes("taxi") && (meta.taxiZones || []).length > 0
 
   const submit = async (e) => {
@@ -302,7 +295,6 @@ function AdminForm({ meta, editing, onClose, onSaved }) {
       permissions,
       serviceLocationIds: needsLocations ? form.serviceLocationIds : [],
       foodZoneIds: showFoodZones ? form.foodZoneIds : [],
-      qcZoneIds: showQcZones ? form.qcZoneIds : [],
       taxiZoneIds: showTaxiZones ? form.taxiZoneIds : [],
       isActive: form.isActive,
       ...(form.role !== "owner" ? { canDelete: form.canDelete } : {}),
@@ -481,15 +473,6 @@ function AdminForm({ meta, editing, onClose, onSaved }) {
               value={form.foodZoneIds}
               onChange={(foodZoneIds) => set({ foodZoneIds })}
               note="Food shows this admin only the restaurants, orders, delivery partners and dashboard of these zones. With Zone settings below, they set earnings, incentives, cancellation and fees for these zones only."
-            />
-          )}
-          {showQcZones && (
-            <ZonePicker
-              title="Quick commerce & medical zones"
-              zones={meta.qcZones}
-              value={form.qcZoneIds}
-              onChange={(qcZoneIds) => set({ qcZoneIds })}
-              note="Quick Commerce and Medical show this admin only the stores, orders, delivery partners and dashboard of these zones. With Zone settings below, they set earnings, incentives, cancellation and fees for these zones only."
             />
           )}
           {showTaxiZones && (
@@ -825,7 +808,7 @@ export default function AdminAccounts() {
                             )}
                           </div>
                         </td>
-                        <td className="px-4 py-3"><PanelChips services={r.servicesAccess} labels={{ ...panelLabels, food: "Food", quickCommerce: "Quick Commerce", medical: "Medical", taxi: "Taxi" }} /></td>
+                        <td className="px-4 py-3"><PanelChips services={r.servicesAccess} labels={{ ...panelLabels, food: "Food", taxi: "Taxi" }} /></td>
                         <td className="px-4 py-3 text-xs text-neutral-500">
                           {when(r.createdAt)}
                           {r.createdBy && <span className="block">by {r.createdBy}</span>}

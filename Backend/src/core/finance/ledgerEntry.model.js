@@ -4,11 +4,11 @@ import { KEY_KINDS } from './idempotencyKeys.js';
 /**
  * One row per movement of money. The thing the platform does not currently have.
  *
- * Today a partner's balance is answered five different ways -- derived from orders
- * (food), from a stored field (quick commerce), from a signed embedded number
- * (taxi), from SP's own Transaction collection, and from `core/payments`' generic
- * ledger which only runs when BullMQ is on. None of them can answer "why did this
- * change?", because none of them records the movement, only the result.
+ * Today a partner's balance is answered different ways -- derived from orders
+ * (food), from a signed embedded number (taxi), and from `core/payments`'
+ * generic ledger which only runs when BullMQ is on. None of them can answer
+ * "why did this change?", because none of them records the movement, only the
+ * result.
  *
  * The shape here is deliberately NOT new. It is `WalletTransaction` -- the best
  * ledger in the repo, taxi's -- with the three fields it was missing:
@@ -46,7 +46,7 @@ import { KEY_KINDS } from './idempotencyKeys.js';
 
 export const LEDGER_OWNER_TYPES = Object.freeze(['partner', 'user', 'merchant', 'platform']);
 
-export const LEDGER_VERTICALS = Object.freeze(['food', 'quickCommerce', 'taxi', 'serviceProvider', 'platform']);
+export const LEDGER_VERTICALS = Object.freeze(['food', 'taxi', 'platform']);
 
 export const LEDGER_ENTRY_TYPES = Object.freeze([
     'EARNING',

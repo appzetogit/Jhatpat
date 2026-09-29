@@ -4,29 +4,25 @@ import { logger } from '../../utils/logger.js';
 /**
  * The one way any vertical records a gateway payment.
  *
- * Before this, food, quick-commerce and service-provider each had their own payment
- * or transaction model, so "how much did we take yesterday" had three answers and no
- * single query could produce a platform total.
+ * Before this, food and taxi each had their own payment or transaction model, so
+ * "how much did we take yesterday" had two answers and no single query could produce
+ * a platform total.
  *
  * SCOPE -- this is the GATEWAY PAYMENT aggregate only: money moving in or out through
- * a provider. It is deliberately NOT the wallet ledger. `SPTransaction` and taxi's
- * `WalletTransaction` carry balanceBefore/balanceAfter per actor; that is a different
- * aggregate with a different lifecycle and it keeps its own collections. Merging the
- * two would produce a table where half the columns are null on every row.
+ * a provider. It is deliberately NOT the wallet ledger. Taxi's `WalletTransaction`
+ * carries balanceBefore/balanceAfter per actor; that is a different aggregate with a
+ * different lifecycle and it keeps its own collection. Merging the two would produce
+ * a table where half the columns are null on every row.
  */
 
 const SUBJECT_BY_VERTICAL = Object.freeze({
     food: 'FoodOrder',
-    quickCommerce: 'QCOrder',
     taxi: 'TaxiRide',
-    serviceProvider: 'SPBooking',
 });
 
 const PAYER_BY_VERTICAL = Object.freeze({
     food: 'FoodUser',
-    quickCommerce: 'QCUser',
     taxi: 'TaxiUser',
-    serviceProvider: 'SPUser',
 });
 
 /**
@@ -80,15 +76,15 @@ export const recordPayment = async (input) => {
         status,
         subjectModel,
         ...(subjectId ? { subjectId } : {}),
-        // Mirror the subject into `orderId` for the order-shaped verticals. Both food
-        // and quick-commerce have readers that query { orderId } -- getPaymentsByOrder,
-        // findOrCreatePayment -- against an existing index, and leaving it unset made
-        // every lookup of a payment they had just written come back empty.
+        // Mirror the subject into `orderId` for the order-shaped verticals. Food
+        // has readers that query { orderId } -- getPaymentsByOrder, findOrCreatePayment
+        // -- against an existing index, and leaving it unset made every lookup of a
+        // payment they had just written come back empty.
         //
         // It is a QUERY key only. `orderId` still declares ref: 'FoodOrder', so
         // populate('orderId') is correct for food alone; anything polymorphic must
         // populate('subjectId'), which resolves through subjectModel.
-        ...(subjectId && (vertical === 'food' || vertical === 'quickCommerce') ? { orderId: subjectId } : {}),
+        ...(subjectId && vertical === 'food' ? { orderId: subjectId } : {}),
         ...(gatewayOrderId ? { gatewayOrderId } : {}),
         ...(gatewayPaymentId ? { gatewayPaymentId } : {}),
         ...(rawResponse ? { rawResponse } : {}),

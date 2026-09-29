@@ -57,16 +57,9 @@ export const createInboxNotifications = async ({ notifications = [] } = {}) => {
             link: String(item.link || '').trim(),
             category: String(item.category || 'broadcast').trim(),
             source: 'ADMIN_BROADCAST',
-            /*
-             * Named by the caller, not inferred from the model default.
-             *
-             * Quick commerce forked this entire service for one reason: its own
-             * model sets `vertical` to 'quickCommerce' by default, and calling
-             * master's would have labelled every grocery notification 'food'.
-             * Letting the caller say which vertical it is removes the reason for
-             * the fork. Omitted still falls back to the model default, so every
-             * existing caller is unaffected.
-             */
+            // Named by the caller, not inferred from the model default. Omitted
+            // still falls back to the model default, so every existing caller is
+            // unaffected.
             ...(item.vertical ? { vertical: String(item.vertical).trim() } : {}),
             metadata: item.metadata && typeof item.metadata === 'object' ? item.metadata : {},
         };

@@ -11,7 +11,7 @@ import { resolveDeliveryFormula, formulaFromSlabs } from './deliveryFormula.js';
  * bands, ids and all, is what keeps that intact.
  */
 
-const VERTICALS = Object.freeze(['food', 'quickCommerce', 'medical', 'taxi']);
+const VERTICALS = Object.freeze(['food', 'medical', 'taxi']);
 
 /** Each module's own bands, in the engine's shape. Empty when it has none. */
 async function legacyFor(vertical) {
@@ -21,25 +21,8 @@ async function legacyFor(vertical) {
         );
         return FoodDeliveryCommissionRule.find({ status: { $ne: false } }).lean();
     }
-    if (vertical === 'quickCommerce' || vertical === 'medical') {
-        const { FoodFeeSettings } = await import(
-            '../../modules/quickCommerce/modules/food/admin/models/feeSettings.model.js'
-        );
-        const doc = await FoodFeeSettings.findOne({ isActive: { $ne: false } })
-            .sort({ createdAt: -1 })
-            .lean();
-        // Quick commerce stores its bands inside fee settings under different
-        // names; translated here so the editor shows one shape for every module.
-        return (doc?.deliveryFeeRanges || []).map((r) => ({
-            _id: null,
-            minDistance: Number(r.min || 0),
-            maxDistance: r.max == null ? null : Number(r.max),
-            userDeliveryFee: Number(r.fee || 0),
-            commissionPerKm: Number(r.deliveryBoyPerKm || 0),
-            basePayout: Number(r.deliveryBoyBasePay || 0),
-        }));
-    }
-    // Taxi prices rides from its own fare rules, not a delivery band table.
+    // Taxi prices rides from its own fare rules, and medical has no legacy band
+    // table of its own -- neither has a module table to seed the editor from.
     return [];
 }
 
@@ -83,7 +66,7 @@ export async function getEarningsController(req, res, next) {
         // What is charged and paid today, written as the new formula, so the
         // editor can open on it and saving changes nothing until a number does.
         const currentAsFormula = formulaFromSlabs(table.slabs, {
-            riderRule: vertical === 'food' ? 'food' : 'quickCommerce',
+            riderRule: vertical === 'food' ? 'food' : 'base',
             commissionPercentByBand: vertical === 'food' ? await foodCommissionByBand() : {},
         });
 

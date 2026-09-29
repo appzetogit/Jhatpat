@@ -154,11 +154,11 @@ export async function resolveDeliveryFormula({ vertical, zoneId } = {}) {
  * Today's band table written as a formula, so switching changes nothing until
  * the admin edits a number. Exact for the fee side. The rider side follows each
  * module's old rule: food paid base payout + the customer fee less its per-band
- * commission %; quick commerce paid the base pay, else per km over the trip.
+ * commission %; other verticals paid the base pay, else per km over the trip.
  *
  * @param {Array} slabs      engine-shaped bands (deliveryEarnings.service.js)
  * @param {object} [opts]
- * @param {'food'|'quickCommerce'} [opts.riderRule]
+ * @param {'food'|'base'} [opts.riderRule]
  * @param {Object<string, number>} [opts.commissionPercentByBand] food's per-band commission, by band id
  */
 export function formulaFromSlabs(slabs, { riderRule = 'food', commissionPercentByBand = {} } = {}) {
@@ -178,7 +178,7 @@ export function formulaFromSlabs(slabs, { riderRule = 'food', commissionPercentB
         const customerPerKm = (flat > 0 ? 0 : perKm) + extra;
         let riderPay;
         let riderPerKm;
-        if (riderRule === 'quickCommerce') {
+        if (riderRule === 'base') {
             const base = Number(s.basePayout) || 0;
             riderPay = base > 0 ? base : perKm * fromKm;
             riderPerKm = (base > 0 ? 0 : perKm) + extra;

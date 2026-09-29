@@ -3,7 +3,7 @@
  *
  * Run: node tests/dispatch-stays-in-zone.smoke.mjs
  *
- * Reported live: food and quick-commerce requests reaching riders in other zones.
+ * Reported live: food requests reaching riders in other zones.
  * Production has two zones ~700km apart, Indore and Palampur, and two riders --
  * one standing in each. Dispatch had no zone test on any path, and the fallback
  * it takes when nobody is within 15km returned every online rider on the

@@ -32,7 +32,6 @@ export const DRIVER_CLASS_LIST = Object.freeze(Object.values(DRIVER_CLASSES));
 export const SERVICE_CAPABILITIES = Object.freeze({
     TAXI: 'taxi',
     DELIVERY: 'delivery',
-    QUICK_COMMERCE: 'quickCommerce',
     PARCEL: 'parcel',
 });
 
@@ -50,7 +49,6 @@ export const DRIVER_INTENTS = Object.freeze({
         label: 'Food + Daily needs + Medical + Bike parcel',
         capabilities: [
             SERVICE_CAPABILITIES.DELIVERY,
-            SERVICE_CAPABILITIES.QUICK_COMMERCE,
             SERVICE_CAPABILITIES.PARCEL,
         ],
     },

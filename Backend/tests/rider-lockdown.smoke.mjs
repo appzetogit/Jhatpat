@@ -78,15 +78,6 @@ try {
     const after = await hit('/v1/food/delivery/orders/available');
     check('rejected: refused on the next request', after.status === 403, after.status);
 
-    const qcToken = signAccessToken({ userId: String(other._id), role: 'DELIVERY_PARTNER' });
-    const { FoodDeliveryPartner: QCPartner } = await import('../src/modules/quickCommerce/modules/food/delivery/models/deliveryPartner.model.js');
-    const qcRider = await QCPartner.create({ name: 'QC', phone: '9000000066', status: 'approved' });
-    const qcHit = await fetch(`${base}/v1/food/delivery/orders/available`, {
-        headers: { Authorization: `Bearer ${signAccessToken({ userId: String(qcRider._id), role: 'DELIVERY_PARTNER' })}` },
-    });
-    check('a quick-commerce rider cannot use food rider routes', qcHit.status === 403, qcHit.status);
-    void qcToken;
-
     console.log('\ntaxi sign-in');
     const otpLogin = await fetch(`${base}/v1/taxi/users/otp-login`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ phone: String(buyer.phone || '9876543210') }),

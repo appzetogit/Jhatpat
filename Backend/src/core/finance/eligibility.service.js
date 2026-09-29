@@ -12,13 +12,12 @@ import {
  *
  * `eligibilityRules` decides; this fetches what it decides on, so every vertical
  * ends up consuming the SAME verdict rather than a similar one computed from its
- * own numbers. Today food recomputes cash from orders, quick-commerce reads a
- * stored field, taxi checks a cached flag at a different moment, and service
- * provider checks nothing.
+ * own numbers. Today food recomputes cash from orders, and taxi checks a cached
+ * flag at a different moment.
  *
  * Money comes from `getRiderFinance`, which is already the correct combined
- * answer across taxi, food and quick commerce -- it was simply never the answer
- * any dispatcher asked for. Nothing new is computed here.
+ * answer across taxi and food -- it was simply never the answer any dispatcher
+ * asked for. Nothing new is computed here.
  *
  * Everything is passed in where the caller already knows it (distance, zone,
  * vehicle), because the dispatchers have that in hand and a second lookup would
@@ -29,7 +28,6 @@ import {
 /** Which capability a vertical's work requires. */
 const CAPABILITY_FOR_VERTICAL = Object.freeze({
     food: 'delivery',
-    quickCommerce: 'quickCommerce',
     taxi: 'taxi',
 });
 
@@ -37,7 +35,7 @@ const CAPABILITY_FOR_VERTICAL = Object.freeze({
  * Assemble the context for one partner and one job.
  *
  * @param {object} args
- * @param {string} args.vertical            'food' | 'quickCommerce' | 'taxi'
+ * @param {string} args.vertical            'food' | 'taxi'
  * @param {any}    args.partnerId           a partner id OR a driver id -- riderFinance resolves either
  * @param {object} [args.partner]           the partner/driver doc, if the caller already has it
  * @param {number} [args.jobCashExposure]   cash this job would add to their float

@@ -7,9 +7,8 @@
  * Rs 1 capture against a Rs 900 order cleared it, and the restaurant was
  * dispatched an order nobody had paid for.
  *
- * The quick-commerce webhook has carried this comparison inline since it was
- * written; the food webhook never got it. Rather than copy the block a third
- * time when the two handlers merge, the rule lives here once.
+ * The rule lives here once so every webhook handler shares it rather than
+ * each carrying its own inline copy.
  *
  * Money is compared in PAISE, as integers. Comparing rupees as floats would make
  * 899.99 + 0.01 !== 900 on some orders and reject a correct payment.

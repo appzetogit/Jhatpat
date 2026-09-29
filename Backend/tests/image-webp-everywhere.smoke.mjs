@@ -93,7 +93,7 @@ await check('storage.service saveImageBuffer -> .webp on disk', async () => {
     assert.ok(isWebp(storedBytes(stored.path)));
 });
 
-await check('the food/quick-commerce Cloudinary shim -> .webp on disk', async () => {
+await check('the food Cloudinary shim -> .webp on disk', async () => {
     const stored = await shim.uploadImageBufferDetailed(jpeg, 'checks');
     assert.match(stored.secure_url, /\.webp$/);
     assert.equal(stored.format, 'webp');

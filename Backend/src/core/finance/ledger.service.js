@@ -24,8 +24,8 @@ import { kindOf } from './idempotencyKeys.js';
  * replica set member or mongos`, and this does not silently fall back to a
  * non-atomic path -- a financial primitive that quietly degrades to "probably
  * fine" is worse than one that refuses to start. The repo already runs
- * transactions in `recordTransaction` and the service-provider wallet flows, so
- * this is the same requirement those already carry.
+ * transactions in `recordTransaction`, so this is the same requirement that
+ * already carries.
  *
  * Within the transaction the order is deliberate:
  *

@@ -60,9 +60,7 @@ export const initializeFirebaseRealtime = () => {
     try {
         // Declared before the early return below. It used to be declared after it, and
         // the early return referenced it -- a TDZ ReferenceError that stayed invisible
-        // only because nothing else initialised Firebase first. The service-provider
-        // module does (its firebaseAdmin.js runs at import time, before server.js calls
-        // this), so that branch is now live.
+        // only because nothing else initialised Firebase first.
         const databaseURL = dbDatabaseUrl || config.firebaseDatabaseUrl;
 
         if (admin.apps.length > 0) {

@@ -1,13 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { Loader2, RefreshCw, ChevronDown } from "lucide-react"
 import { platformPnlAPI } from "@food/api"
-import { SERVICE_PROVIDER_ENABLED } from "@/config/features"
 
 /**
  * Master > Report Management > Platform Earnings.
  *
- * What the platform kept, across Food, Quick & Medical, Taxi and Services, from
- * each service's own record of how every order, ride or bill was split
+ * What the platform kept, across Food and Taxi, from each service's own
+ * record of how every order or ride was split
  * (core/finance/platformPnl.service.js). GST is shown beside income, not in it.
  */
 
@@ -146,9 +145,9 @@ export default function PlatformEarnings() {
     load()
   }, [load])
 
-  // Services is only listed where the module is switched on, or where it has earned something.
+  // The Services line only appears if it has actually earned something (the module is gone).
   const services = useMemo(
-    () => (data?.services || []).filter((s) => s.key !== "services" || SERVICE_PROVIDER_ENABLED || s.count > 0),
+    () => (data?.services || []).filter((s) => s.key !== "services" || s.count > 0),
     [data],
   )
   const totals = data?.totals

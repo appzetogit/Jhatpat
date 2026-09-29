@@ -57,15 +57,13 @@ const MASTER_KEYS = {
  * The rules in force for one service.
  *
  * Master > Cancellation Policy wins for anything set there (for every service
- * or this one). Otherwise each service keeps its own: Food's Order
- * cancellation screen, and for Quick & Medical the rule it always had --
- * cancel only before the store accepts. Quick runs the same order flow as Food
- * (it is a fork of it), so judgeUserCancel below applies to its orders as is.
+ * or this one). Otherwise the service keeps its own: Food's Order
+ * cancellation screen.
  *
  * A Master read that fails falls back to the service's own rule rather than
  * blocking or allowing every cancellation.
  *
- * @param {'food'|'quickCommerce'} vertical
+ * @param {'food'} vertical
  * @param {string} [zoneId]  the order's zone: a zone's own rules beat the service's
  */
 export async function getCancelRules(vertical = 'food', zoneId) {
@@ -138,7 +136,6 @@ const riderHasTheFood = (order) =>
  *   there is no deadline, i.e. still waiting for the restaurant).
  */
 export function judgeUserCancel(order, rules, now = new Date()) {
-  // 'store' for Quick & Medical (getCancelRules sets it), 'restaurant' for Food.
   const seller = rules?.sellerWord || 'restaurant';
   const status = String(order?.orderStatus || '');
   if (status === 'created') return { allowed: true, until: null, reason: '' };

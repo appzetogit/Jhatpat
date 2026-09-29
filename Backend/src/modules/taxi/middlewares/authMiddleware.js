@@ -24,12 +24,10 @@ const roleModelMap = {
   user: User,
 };
 
-// The three modules each spell the super-admin role differently -- taxi uses
-// `super-admin`, service-provider uses `super_admin`, and food/master issues
-// `ADMIN`. A single platform admin account can only carry ONE role string, so
-// whichever spelling it picks locks it out of the other panels: an account set to
-// `super_admin` (which the SP routes require) was rejected here with
-// "Insufficient permissions for this resource".
+// Taxi and food/master spell the super-admin role differently -- taxi uses
+// `super-admin`, food/master issues `ADMIN`. A single platform admin account
+// can only carry ONE role string, so whichever spelling it picks locks it out
+// of the other panel.
 //
 // Treat every spelling of the admin role as `admin`. This only widens which
 // spellings are RECOGNISED; it grants nothing a plain `admin` token did not already

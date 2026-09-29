@@ -769,7 +769,6 @@ availableCashLimit: deliveryman.availableCashLimit || 0,
                       <div className="mt-1 flex flex-wrap gap-2">
                         {[
                           ["delivery", "Food delivery"],
-                          ["quickCommerce", "Quick Commerce"],
                           ["taxi", "Taxi rides"],
                         ].map(([key, label]) => {
                           const current = capEdit.length ? capEdit : (viewDetails.serviceCapabilities || ["delivery"])

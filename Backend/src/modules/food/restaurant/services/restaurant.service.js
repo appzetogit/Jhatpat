@@ -1949,9 +1949,9 @@ export const listApprovedRestaurants = async (query = {}) => {
  * push tokens. Anyone could list /restaurants and harvest every restaurant's bank
  * and KYC details.
  *
- * A denylist rather than the quick-commerce allowlist: food's detail screen reads
- * many display fields, and an allowlist that missed one would break the customer
- * page. None of these are read by the customer restaurant, cart or menu screens.
+ * A denylist rather than an allowlist: food's detail screen reads many display
+ * fields, and an allowlist that missed one would break the customer page.
+ * None of these are read by the customer restaurant, cart or menu screens.
  * fssaiNumber stays -- a licence number food apps display.
  */
 export const PUBLIC_RESTAURANT_EXCLUDE = Object.freeze({

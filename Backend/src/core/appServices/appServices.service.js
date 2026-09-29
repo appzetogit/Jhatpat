@@ -56,12 +56,6 @@ const ZONE_SOURCES = {
             contains: polygonContains,
         };
     },
-    async quick() {
-        return qcZones('quick');
-    },
-    async medical() {
-        return qcZones('medical');
-    },
     async taxi() {
         const { Zone } = await import('../../modules/taxi/driver/models/Zone.js');
         return {
@@ -78,10 +72,10 @@ const ZONE_SOURCES = {
 
 /**
  * A module's zones for an admin picker: id, name, whether active.
- * `module` is the settings name ('food' | 'quickCommerce' | 'medical' | 'taxi').
+ * `module` is the settings name ('food' | 'taxi').
  */
 export async function listZonesFor(module) {
-    const key = { food: 'food', quickCommerce: 'quick', medical: 'medical', taxi: 'taxi' }[module];
+    const key = { food: 'food', taxi: 'taxi' }[module];
     if (!key) return null;
     const source = await ZONE_SOURCES[key]();
     const docs = await source.list();
@@ -90,19 +84,7 @@ export async function listZonesFor(module) {
         .sort((a, b) => Number(b.active) - Number(a.active) || a.name.localeCompare(b.name));
 }
 
-async function qcZones(vertical) {
-    const { zoneModelFor } = await import(
-        '../../modules/quickCommerce/modules/food/shared/zoneServiceability.js'
-    );
-    const Model = zoneModelFor(vertical);
-    return {
-        list: () => Model.find({}).select('name zoneName isActive coordinates').lean(),
-        active: (z) => z.isActive !== false,
-        contains: polygonContains,
-    };
-}
-
-/** Ray casting over the [{latitude, longitude}] rings food, quick and medical store. */
+/** Ray casting over the [{latitude, longitude}] rings food stores use. */
 function polygonContains(zone, lat, lng) {
     const ring = Array.isArray(zone?.coordinates) ? zone.coordinates : [];
     if (ring.length < 3) return false;

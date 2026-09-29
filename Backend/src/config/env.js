@@ -90,8 +90,8 @@ export const config = {
     // Food used to push images to Cloudinary. That account is disabled, so every
     // stored delivery URL 401s; local disk is now the store of record.
     // Must match the nginx `location /uploads/` alias, which already serves
-    // /var/www/uploads/ for quickCommerce. Food now writes into the same root
-    // under its own folder prefix.
+    // /var/www/uploads/. Food now writes into the same root under its own
+    // folder prefix.
     uploadStorageRoot: process.env.UPLOAD_STORAGE_ROOT
         || (process.env.NODE_ENV === 'production' ? '/var/www/uploads' : 'uploads'),
     /**
@@ -181,9 +181,9 @@ export const config = {
     petpoojaOutletId: process.env.PETPOOJA_OUTLET_ID || '',
     petpoojaApiUrl: process.env.PETPOOJA_API_URL || 'https://api.petpooja.com/v2',
 
-    // Background jobs: boot watchdog, seeders, offer/FSSAI expiry sweeps, and the
-    // service-provider booking scheduler. Default ON so normal deployments are
-    // unchanged; set BACKGROUND_JOBS_ENABLED=false on any SECOND instance sharing a
+    // Background jobs: boot watchdog, seeders, offer/FSSAI expiry sweeps. Default
+    // ON so normal deployments are unchanged; set BACKGROUND_JOBS_ENABLED=false
+    // on any SECOND instance sharing a
     // database with a primary.
     //
     // This is not a nice-to-have. recoverStuckOrders() nulls the delivery partner on
@@ -274,13 +274,6 @@ export const isOriginAllowed = (origin) => {
             url.hostname.endsWith('.vercel.app') ||
             url.hostname.endsWith('.k9rides.com') ||
             url.hostname === 'k9rides.com' ||
-            // Service-Provider (Homster/Truliq) front-ends. Only the admin panel moves
-            // into master's frontend; the user, vendor and worker apps stay on these
-            // domains and keep calling this backend through the legacy /api prefixes.
-            url.hostname.endsWith('.homster.in') ||
-            url.hostname === 'homster.in' ||
-            url.hostname.endsWith('.truliq.com') ||
-            url.hostname === 'truliq.com' ||
             url.hostname === 'localhost' ||
             url.hostname === '127.0.0.1'
         ) {

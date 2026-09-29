@@ -6,8 +6,8 @@
  * Through the real quote and placement: with no formula the module's band table
  * prices the order (Rs 30 delivery, rider paid the Rs 30 share); once a formula
  * is saved the customer pays its fee and the rider is paid its own figure, not
- * a share of the fee; a quick-commerce override leaves food alone; clearing it
- * restores the old table.
+ * a share of the fee; a taxi override leaves food alone; clearing it restores
+ * the old table.
  */
 import { startFoodWorld, makeChecker } from './food-order-fixture.mjs';
 
@@ -42,10 +42,10 @@ try {
     after.saved.pricing?.deliveryFeeBreakdown?.source === 'delivery_formula'
       || after.pricing?.deliveryFeeBreakdown?.source === 'delivery_formula');
 
-  await set('earnings.formula', { level: 'vertical', scopeId: 'quickCommerce', value: { ...formula, customer: { base: 99, includedKm: 50, perKm: 0 } } });
+  await set('earnings.formula', { level: 'vertical', scopeId: 'taxi', value: { ...formula, customer: { base: 99, includedKm: 50, perKm: 0 } } });
   invalidateCache();
   const other = await order();
-  check('a quick-commerce override leaves food on the global formula', other.pricing.deliveryFee === 45, other.pricing.deliveryFee);
+  check('a taxi override leaves food on the global formula', other.pricing.deliveryFee === 45, other.pricing.deliveryFee);
 
   await set('earnings.formula', { level: 'global', value: null });
   invalidateCache();

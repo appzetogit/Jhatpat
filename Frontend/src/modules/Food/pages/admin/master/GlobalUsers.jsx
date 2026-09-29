@@ -7,8 +7,7 @@ import { Loader2, Search, Download, Users, ChevronLeft, ChevronRight } from "luc
  * Master > Customers: every customer on the platform, in one list.
  *
  * Food and taxi customers are already the same documents in one `users`
- * collection; quick commerce and services keep their own, matched in by link or
- * by phone. So this screen replaces four per-vertical customer lists that could
+ * collection. So this screen replaces two per-vertical customer lists that could
  * each only see their own slice of the same person.
  *
  * READ AND EXPORT ONLY. Two schemas share that collection and diverge -- taxi
@@ -30,8 +29,6 @@ const STATUSES = [
 const APP_STYLES = {
   food: "bg-orange-50 text-orange-700 border-orange-200",
   taxi: "bg-blue-50 text-blue-700 border-blue-200",
-  quick: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  services: "bg-purple-50 text-purple-700 border-purple-200",
 }
 
 const inputCls =
@@ -220,7 +217,7 @@ export default function GlobalUsers() {
                         {u.orders}
                         {u.orders > 0 && (
                           <p className="text-[11px] text-neutral-400">
-                            {u.foodOrders} food · {u.quickOrders} quick
+                            {u.foodOrders} food
                           </p>
                         )}
                       </td>

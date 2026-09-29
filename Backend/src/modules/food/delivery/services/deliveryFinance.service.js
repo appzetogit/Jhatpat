@@ -273,8 +273,7 @@ export const requestDeliveryWithdrawal = async (deliveryPartnerId, payload) => {
      * request" had a gap: two Rs 400 requests against Rs 500, sent together,
      * both read 500 and both were created -- Rs 800 pending. Under the lock the
      * second request waits for the first to be written, then reads the balance
-     * again (now Rs 100) and is refused. The key is the PERSON, so a request
-     * from the quick-commerce app queues behind this one too.
+     * again (now Rs 100) and is refused. The key is the PERSON.
      */
     const lockKey = await riderWithdrawalLockKey(deliveryPartnerId);
     return withFinanceLock(lockKey, async () => {

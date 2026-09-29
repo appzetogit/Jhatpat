@@ -40,7 +40,7 @@ export const SETTINGS = Object.freeze({
         min: 0,
         scopes: ALL_SCOPES,
         label: 'Cash collection limit',
-        help: 'Most platform cash a partner may hold before new cash work is refused. 0 means no ceiling. Riders have ONE limit across taxi, food and quick commerce: set it globally or per rider (a vertical value does not apply to them). Service providers read the serviceProvider vertical value. Until a value is set here, each partner keeps the limit from its own admin screen.',
+        help: 'Most platform cash a partner may hold before new cash work is refused. 0 means no ceiling. Riders have ONE limit across taxi and food: set it globally or per rider (a vertical value does not apply to them). Until a value is set here, each partner keeps the limit from its own admin screen.',
     },
     'finance.enforceCashLimit': {
         type: 'boolean',

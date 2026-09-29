@@ -18,16 +18,15 @@ import { Driver } from '../models/Driver.js';
 /*
  * Food and taxi's entry points to the busy-lock, now delegating to the master one.
  *
- * These used to write `activeAssignment` directly, while quick-commerce claimed
- * through core/assignment/assignment.service.js and its `activeAssignments` array.
- * The mirror kept the two interoperable, but it meant two primitives deciding the
- * same question -- the exact shape this branch exists to remove. Now there is one:
+ * These used to write `activeAssignment` directly, while
+ * core/assignment/assignment.service.js claimed through its `activeAssignments`
+ * array. The mirror kept the two interoperable, but it meant two primitives
+ * deciding the same question -- the exact shape this branch exists to remove. Now there is one:
  * every vertical claims through the master service, and `activeAssignments` is the
  * record for all of them.
  *
  * Signatures and return values are unchanged, so no call site in food or taxi moves.
- * `type` maps onto a vertical: 'ride' is taxi, 'delivery' is food. Quick-commerce
- * calls the master service directly and never came through here.
+ * `type` maps onto a vertical: 'ride' is taxi, 'delivery' is food.
  */
 const verticalForLegacyType = (type) => (type === 'ride' ? 'taxi' : 'food');
 
@@ -103,12 +102,7 @@ export const reconcileDriverAssignment = async (driverId) => {
    * Delegates to the master reconciler.
    *
    * The implementation that used to live here resolved EVERY `type: 'delivery'`
-   * lock against FoodOrder. Quick-commerce orders live in their own collection,
-   * so once QC started taking the lock every QC hold would have been read as
-   * "job not found, therefore stale" and cleared on sight -- handing the rider a
-   * second job while they were still carrying the first. Simply making QC call
-   * the old primitive would have been worse than leaving it alone; the reconciler
-   * had to learn about verticals first.
+   * lock against FoodOrder.
    *
    * Signature and semantics are unchanged for the two existing callers
    * (driverController going online, and the sweep): still boolean, still writes

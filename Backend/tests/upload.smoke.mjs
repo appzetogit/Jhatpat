@@ -12,16 +12,16 @@
  *
  * Covers the multer surface the codebase depends on:
  *   - memoryStorage + .single()                 src/middleware/upload.js
- *   - limits.fileSize -> LIMIT_FILE_SIZE        src/modules/quickCommerce/middleware/upload.js
- *   - .fields() with maxCount                   serviceProvider uploadMiddleware
- *   - fileFilter rejection                      serviceProvider uploadMiddleware
- *   - multer.MulterError still an instanceof    serviceProvider handleMulterError
+ *   - limits.fileSize -> LIMIT_FILE_SIZE        src/middleware/upload.js
+ *   - .fields() with maxCount                   a CommonJS-style uploadMiddleware
+ *   - fileFilter rejection                      a CommonJS-style uploadMiddleware
+ *   - multer.MulterError still an instanceof    a CommonJS-style handleMulterError
  *   - diskStorage via { dest }                  taxi userSafety.routes
  *   - text fields alongside files in req.body   every registration form
  *
- * serviceProvider's module itself is not imported: it is CommonJS and constructs a
- * CloudinaryStorage at load time, which needs live credentials. Its multer surface is
- * reproduced here instead.
+ * The CommonJS-style middleware above is not imported from a real module: some
+ * uploaders are CommonJS and construct a CloudinaryStorage at load time, which
+ * needs live credentials. Their multer surface is reproduced here instead.
  *
  * No database required.
  *
@@ -97,10 +97,10 @@ await test('memoryStorage .single() parses the file into req.file.buffer', async
 });
 
 // ── limits.fileSize ───────────────────────────────────────────────────────────
-await test('the quick-commerce size cap still raises LIMIT_FILE_SIZE', async () => {
+await test('the size cap still raises LIMIT_FILE_SIZE', async () => {
     // Small cap via the module's own env knob, so the real module is under test.
     process.env.MAX_UPLOAD_BYTES = '1024';
-    const { upload } = await import('../src/modules/quickCommerce/middleware/upload.js');
+    const { upload } = await import(`../src/middleware/upload.js?cachebust=${Date.now()}`);
     const srv = await serve((app) => {
         app.post('/u', upload.single('image'), (req, res) => res.json({ ok: true }));
         app.use((err, _req, res, _next) => {

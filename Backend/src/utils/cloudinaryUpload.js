@@ -7,10 +7,10 @@
  * so every taxi image upload was failing in production: driver documents and
  * selfies, pooling route images, and the landing-page content uploader.
  *
- * The food and quick-commerce modules hit the same wall earlier and were
- * repointed at services/storage.service.js (see cloudinary.service.js, which
- * does this for their sixty-odd call sites). Taxi was left on the live API and
- * kept failing.
+ * The food module hit the same wall earlier and was repointed at
+ * services/storage.service.js (see cloudinary.service.js, which does this
+ * for its sixty-odd call sites). Taxi was left on the live API and kept
+ * failing.
  *
  * Same names, same arguments, same return shape, so no caller changes. What is
  * different is where the bytes go and what they become: storage.service.js

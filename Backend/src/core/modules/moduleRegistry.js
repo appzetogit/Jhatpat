@@ -1,8 +1,8 @@
 /**
  * The verticals this platform serves, and whether each is currently accepting traffic.
  *
- * Why a kill-switch exists at all: this is one process serving food, taxi,
- * quick-commerce and service-provider. When one vertical misbehaves -- a pricing bug
+ * Why a kill-switch exists at all: this is one process serving food and taxi.
+ * When one vertical misbehaves -- a pricing bug
  * mis-charging every order, a dispatch loop hammering the database, a payment
  * provider outage that only affects one flow -- the options today are to fix it under
  * pressure or restart the whole API and take the other three down with it. Turning
@@ -24,8 +24,6 @@
 export const MODULES = Object.freeze({
     FOOD: 'food',
     TAXI: 'taxi',
-    QUICK_COMMERCE: 'quickCommerce',
-    SERVICE_PROVIDER: 'serviceProvider',
 });
 
 export const ALL_MODULES = Object.freeze(Object.values(MODULES));

@@ -26,7 +26,7 @@ const DEFAULTS = {
     email: SEED_ADMIN_EMAIL,
     password: SEED_ADMIN_PASSWORD,
     name: "K9 Rides Admin",
-    servicesAccess: ["food", "quickCommerce", "taxi"],
+    servicesAccess: ["food", "taxi"],
   },
   user: {
     phone: "9407046608",

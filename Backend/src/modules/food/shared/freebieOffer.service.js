@@ -66,8 +66,7 @@ export async function resolveFreebieForOrder(restaurantId, subtotal, claimed = f
  * Scoped to the restaurant and to sellable records: a reward pointing at a
  * withdrawn dish, another shop's item, or an unapproved add-on resolves to null,
  * and the caller drops the freebie rather than failing the order. The lookups
- * are lazy imports because this module is pulled into the pricing path, which
- * both the food and quick-commerce stacks load.
+ * are lazy imports because this module is pulled into the pricing path.
  */
 async function loadReward(restaurantId, tier) {
     if (!tier) return null;

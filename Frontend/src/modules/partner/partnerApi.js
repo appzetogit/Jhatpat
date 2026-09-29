@@ -2,8 +2,10 @@ import apiClient, { RESTAURANT_VERTICAL_KEY } from "@food/api/axios"
 import { setAuthData } from "@food/utils/auth"
 
 /**
- * Partner sign-up API (/qc/partner). Stores and medical stores only; restaurants
- * keep their own sign-up under /food/restaurant.
+ * Partner sign-up API. Restaurants keep their own sign-up under
+ * /food/restaurant instead (see ChoosePartner), so nothing here is reachable
+ * from the UI today; kept for the /partner/login/:type and /partner/apply/:type
+ * routes a future partner type would use.
  *
  * The onboarding token is sent explicitly and the request carries its own
  * context module, so the shared client never attaches a customer or admin login
@@ -69,22 +71,13 @@ export const PARTNER_TYPES = {
     label: "Restaurant",
     blurb: "Cloud kitchens, cafés and restaurants delivering food.",
   },
-  store: {
-    label: "Store",
-    blurb: "Grocery, kirana, supermarket and daily essentials.",
-  },
-  medical: {
-    label: "Medical store",
-    blurb: "Pharmacies taking prescription orders.",
-  },
 }
 
 /**
- * Sign an approved store or medical store into the web dashboard.
+ * Sign an approved non-restaurant partner into the restaurant web dashboard.
  *
- * The restaurant dashboard serves them too, against quick commerce: the mark
- * set here sends its requests to /qc (see RESTAURANT_VERTICAL_KEY in axios.js).
- * Set after setAuthData, which clears it for an ordinary restaurant login.
+ * Not reachable today -- restaurant is the only partner type -- kept for a
+ * future partner type that would share this dashboard.
  */
 export const openSellerDashboard = (session, navigate) => {
   setAuthData("restaurant", session.accessToken, session.user || null, session.refreshToken || null)

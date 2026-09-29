@@ -3,12 +3,12 @@ import { logger } from '../../utils/logger.js';
 import { forBonus, forOrderRiderEarning, forSourceRow } from './idempotencyKeys.js';
 
 /**
- * Project food and quick-commerce rider money into the master ledger.
+ * Project food rider money into the master ledger.
  *
  * WHY A PROJECTOR AND NOT A DUAL-WRITE. Taxi has one writer that moves a stored
- * balance, so ledgerMirror copies each movement as it happens. Food and quick
- * commerce have no stored rider balance at all: riderFinance DERIVES it on every
- * read, from whatever state four collections are in right now --
+ * balance, so ledgerMirror copies each movement as it happens. Food has no
+ * stored rider balance at all: riderFinance DERIVES it on every read, from
+ * whatever state four collections are in right now --
  *
  *   earned     delivered orders' riderEarning
  *   cash       delivered cash orders' pricing.total, less Completed deposits
@@ -53,7 +53,6 @@ const EPSILON = 0.005;
 /** Collection names used in source-row keys. Fixed strings, not read from models. */
 export const SOURCE_COLLECTIONS = Object.freeze({
     food: { deposit: 'food_delivery_cash_deposits', withdrawal: 'food_delivery_withdrawals' },
-    quickCommerce: { deposit: 'qc_delivery_cash_deposits', withdrawal: 'qc_delivery_withdrawals' },
 });
 
 /**
@@ -78,7 +77,7 @@ export const targetsFor = ({ ownerId, vertical, orders = [], deposits = [], bonu
         out.push({
             key: at(forOrderRiderEarning(o._id)),
             type: 'EARNING',
-            jobType: vertical === 'food' ? 'foodDelivery' : 'quickCommerceDelivery',
+            jobType: 'foodDelivery',
             jobId: String(o._id),
             amount: delivered ? round2(o.riderEarning) : 0,
             cash: delivered && o?.payment?.method === 'cash' ? round2(o?.pricing?.total) : 0,

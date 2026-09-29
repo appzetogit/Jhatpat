@@ -68,8 +68,7 @@ const roomNames = {
     delivery: (id) => `delivery:${String(id)}`,
     tracking: (orderId) => `tracking:${String(orderId)}`,
     // Support is a shared inbox: any signed-in admin should see a customer's
-    // message, so admins share one room and it carries no id. This mirrors the
-    // quick-commerce fork, whose chat service this module's chat is ported from.
+    // message, so admins share one room and it carries no id.
     admin: () => 'admin:all'
 };
 

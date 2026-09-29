@@ -32,7 +32,6 @@ import {
   Wallet,
   Award,
   Truck,
-  Wrench,
   Package,
   CreditCard,
   Settings,
@@ -52,8 +51,6 @@ import {
   IndianRupee,
   PiggyBank,
   Lock,
-  ShoppingBasket,
-  Pill,
   Percent,
   ShieldCheck,
 } from "lucide-react"
@@ -62,12 +59,10 @@ import { Input } from "@food/components/ui/input"
 
 import { adminSidebarMenu } from "@food/utils/adminSidebarMenu"
 import { masterSidebarMenu } from "@food/utils/masterSidebarMenu"
-import { rulesFor, VERTICAL } from "@food/utils/verticalVocabulary"
 import { getCachedSettings, loadBusinessSettings } from "@food/utils/businessSettings"
 import quickSpicyLogo from "@food/assets/k9-logo.jpg"
 import { useSettings } from "../../../Taxi/shared/context/SettingsContext"
 import { useAdminAccess, filterMenuForAccess, hasPanel, isRestricted } from "@food/utils/adminAccess"
-import { SERVICE_PROVIDER_ENABLED } from "@/config/features"
 /**
  * Which service tabs this admin may see.
  *
@@ -78,7 +73,7 @@ import { SERVICE_PROVIDER_ENABLED } from "@/config/features"
  */
 const useServiceAccess = () =>
   useMemo(() => {
-    const showAll = { food: true, taxi: true, serviceProvider: true, quickCommerce: true }
+    const showAll = { food: true, taxi: true }
     try {
       const raw = localStorage.getItem("admin_user") || sessionStorage.getItem("admin_user")
       if (!raw) return showAll
@@ -89,8 +84,6 @@ const useServiceAccess = () =>
       return {
         food: access.includes("food"),
         taxi: access.includes("taxi"),
-        serviceProvider: access.includes("serviceProvider"),
-        quickCommerce: access.includes("quickCommerce"),
       }
     } catch {
       return showAll
@@ -113,7 +106,6 @@ const iconMap = {
   Ticket,
   Percent,
   ShieldCheck,
-  Pill,
   UtensilsCrossed,
   Building2,
   FileText,
@@ -160,164 +152,24 @@ const iconMap = {
 /**
  * Which vertical's admin the operator is currently in.
  *
- * The menu in adminSidebarMenu hardcodes 68 /admin/food/... paths. Quick-commerce
- * renders these SAME screens (see AdminRouter), so without rebasing, its sidebar shows
- * food's links and clicking any of them navigates the operator back out into food.
- *
- * Add a base here when another vertical starts reusing these screens.
+ * Food is the only vertical with a shared-screen admin, so this always resolves
+ * to the food base.
  */
 const FOOD_ADMIN_BASE = "/admin/food"
-const REUSED_ADMIN_BASES = ["/admin/quick-commerce", "/admin/medical"]
 
-export const currentAdminBase = (pathname = "") =>
-  REUSED_ADMIN_BASES.find((base) => pathname.startsWith(base)) || FOOD_ADMIN_BASE
+export const currentAdminBase = () => FOOD_ADMIN_BASE
 
 export const getVerticalTitle = (base = "", customName = "") => {
   const name = (customName || "Quick Drop").trim()
-  if (base === "/admin/medical") {
-    return name.toLowerCase().endsWith("medical") ? name : `${name} Medical`
-  }
-  if (base === "/admin/quick-commerce") {
-    return name.toLowerCase().endsWith("quick") ? name : `${name} Quick`
-  }
   if (base === "/admin/food") {
     return name.toLowerCase().endsWith("food") ? name : `${name} Food`
   }
   return name
 }
 
-/**
- * What the panel calls itself per vertical. The screens are shared; the words on them
- * must not be, or the operator cannot tell which vertical they are editing -- which is
- * exactly how quick-commerce banner uploads ended up in food.
- */
+/** What the panel calls itself. Only the food base exists now. */
 const VERTICAL_BRANDING = {
   "/admin/food": { title: "Quick Drop Food", labels: {} },
-  "/admin/quick-commerce": {
-    title: "Quick Drop Quick",
-    labels: {
-      "FOOD MANAGEMENT": "PRODUCT MANAGEMENT",
-      "RESTAURANT MANAGEMENT": "SELLER MANAGEMENT",
-    },
-    // Word-level rewrites applied to EVERY menu label, not just section headers.
-    // The first branding pass only mapped the two headers, so the items under them
-    // ("Food Approval", "Restaurants List") still read as the food vertical.
-    //
-    // Sourced from verticalVocabulary.js rather than listed here, so the sidebar and
-    // the in-page shim cannot drift apart -- this copy had only the title-case half
-    // of the table and would have missed a lower-case label.
-    words: rulesFor(VERTICAL.QUICK_COMMERCE),
-    // A restaurant's delivery radius exists only on the food API; the
-    // quick-commerce fork has no such route, so the link would open a page
-    // that can only fail.
-    // Food only: the cancellation window lives on the food API.
-    hiddenPaths: ['/admin/food/delivery-radius', '/admin/food/order-cancellation'],
-    hiddenSections: [],
-    // Stock is counted per product size in quick commerce; food dishes are not.
-    // First in the menu: it is what a grocery operator checks most.
-    extraSectionsFirst: true,
-    extraSections: [
-      {
-        type: "section",
-        label: "INVENTORY",
-        items: [{ type: "link", label: "Stock", path: "/admin/quick-commerce/stock", icon: "Package" }],
-      },
-    ],
-  },
-  /*
-   * Medical is quick-commerce narrowed to pharmacies (the API scope lives in
-   * services/api/axios.js), so it inherits quick-commerce's word rewrites and
-   * then renames the two things that are genuinely different: the sellers are
-   * pharmacies and the products are medicines.
-   */
-  "/admin/medical": {
-    title: "Quick Drop Medical",
-    labels: {
-      "FOOD MANAGEMENT": "MEDICINE MANAGEMENT",
-      "RESTAURANT MANAGEMENT": "PHARMACY MANAGEMENT",
-    },
-    // Sourced from verticalVocabulary.js, like quick-commerce above, so the
-    // sidebar and the in-page shim cannot drift apart.
-    words: rulesFor(VERTICAL.MEDICAL),
-    hiddenPaths: [],
-    hiddenSections: [],
-    /*
-     * Medical shows two of the shared screens and no more.
-     *
-     * It inherits the whole quick-commerce admin -- sixty-odd links for
-     * catalogue, offers, combos, delivery fees, subscriptions, reports -- and a
-     * pharmacy operator needs none of it. What they need is the zones the
-     * platform serves and the list of pharmacies in them; everything specific
-     * to dispensing is in the MEDICAL section below, which this does not touch.
-     *
-     * An ALLOWLIST rather than a list of things to hide. Hiding would mean
-     * naming sixty-six paths and remembering to add the sixty-seventh the day
-     * somebody extends the shared menu -- and a link nobody remembered to hide
-     * is how food's screens turned up in quick-commerce before. Naming what
-     * belongs here means anything new is absent until somebody decides it
-     * belongs.
-     *
-     * Paths are the food ones, because this filter runs before rebasing.
-     */
-    onlyPaths: [
-      '/admin/food/zone-setup',
-      '/admin/food/restaurants',
-    ],
-    /*
-     * Screens that exist only here. A prescription queue and a drug-licence
-     * register have no meaning in food or general quick-commerce, so they are
-     * added for this base rather than put in the shared menu and hidden from
-     * the other two -- a hidden entry is one someone forgets to hide when the
-     * next vertical arrives.
-     *
-     * Paths are already based here, so rebaseAdminMenu leaves them alone.
-     */
-    extraSectionsFirst: true,
-    extraSections: [
-      {
-        type: "section",
-        label: "MEDICAL",
-        items: [
-          {
-            type: "link",
-            label: "Stock",
-            path: "/admin/medical/stock",
-            icon: "Package",
-          },
-          {
-            type: "link",
-            label: "Pharmacy Verification",
-            path: "/admin/medical/verification",
-            icon: "ShieldCheck",
-          },
-          {
-            type: "link",
-            label: "Commission",
-            path: "/admin/medical/commission",
-            icon: "Percent",
-          },
-          {
-            type: "link",
-            label: "Prescription Orders",
-            path: "/admin/medical/prescriptions",
-            icon: "FileText",
-          },
-          {
-            type: "link",
-            label: "Drug Licences",
-            path: "/admin/medical/drug-licences",
-            icon: "ShieldCheck",
-          },
-          {
-            type: "link",
-            label: "Prescription Requests",
-            path: "/admin/medical/requests",
-            icon: "Send",
-          },
-        ],
-      },
-    ],
-  },
 }
 
 export const brandingFor = (base) => VERTICAL_BRANDING[base] || VERTICAL_BRANDING[FOOD_ADMIN_BASE]
@@ -390,9 +242,9 @@ export default function AdminSidebar({ isOpen = false, onClose, onCollapseChange
    * An operator who switched to Master was still looking at Food.
    *
    * While inside Master the menu is the MASTER section and nothing else, and
-   * everywhere else that section is gone: it was repeated at the top of Food,
-   * Quick and Medical, so the same five screens appeared in four places. The
-   * switcher tab is how you reach Master now, exactly as for every other panel.
+   * everywhere else that section is gone: it was repeated at the top of every
+   * panel, so the same five screens appeared multiple times. The switcher tab
+   * is how you reach Master now, exactly as for every other panel.
    */
   const inMaster = location.pathname.startsWith("/admin/master")
   const allowedMenu = useMemo(
@@ -426,17 +278,8 @@ export default function AdminSidebar({ isOpen = false, onClose, onCollapseChange
     ? {
         food: hasPanel(access, "food"),
         taxi: hasPanel(access, "taxi"),
-        serviceProvider: SERVICE_PROVIDER_ENABLED && hasPanel(access, "serviceProvider"),
-        quickCommerce: hasPanel(access, "quickCommerce"),
-        medical: hasPanel(access, "medical"),
       }
-    : {
-        ...storedAccess,
-        medical: storedAccess.quickCommerce,
-        // Off on a site that has not switched the module on, whatever the
-        // stored session says -- the tab would lead to a route that is absent.
-        serviceProvider: SERVICE_PROVIDER_ENABLED && storedAccess.serviceProvider !== false,
-      }
+    : storedAccess
   const [searchQuery, setSearchQuery] = useState("")
   const [badges, setBadges] = useState({})
 
@@ -1204,70 +1047,6 @@ export default function AdminSidebar({ isOpen = false, onClose, onCollapseChange
                   )}
                 />
                 Taxi
-              </button>
-              )}
-              {/* SERVICE PROVIDER TAB -- per site (config/features.js). The flag
-                  also gates the /admin/sp route, so the two stay together. */}
-              {serviceAccess.serviceProvider && (
-              <button
-                type="button"
-                onClick={() => navigate("/admin/sp/dashboard")}
-                className={cn(
-                  "flex-1 min-w-0 flex flex-col items-center justify-center gap-1 px-1 py-2 text-[11px] leading-none font-bold rounded-lg transition-all duration-300",
-                  location.pathname.startsWith("/admin/sp")
-                    ? "bg-[var(--sb-active-bg)] text-[var(--sb-active-ink)] shadow-[0_2px_8px_rgba(26,26,26,0.18)]"
-                    : "text-[var(--sb-ink-faint)] hover:text-[var(--sb-ink-soft)] hover:bg-[var(--sb-hover)]"
-                )}
-              >
-                <Wrench
-                  className={cn(
-                    "w-3.5 h-3.5",
-                    location.pathname.startsWith("/admin/sp") ? "text-[var(--sb-active-ink)]" : "text-[var(--sb-ink-faint)]"
-                  )}
-                />
-                Services
-              </button>
-              )}
-              {serviceAccess.quickCommerce && (
-              <button
-                type="button"
-                onClick={() => navigate("/admin/quick-commerce")}
-                className={cn(
-                  "flex-1 min-w-0 flex flex-col items-center justify-center gap-1 px-1 py-2 text-[11px] leading-none font-bold rounded-lg transition-all duration-300",
-                  location.pathname.startsWith("/admin/quick-commerce")
-                    ? "bg-[var(--sb-active-bg)] text-[var(--sb-active-ink)] shadow-[0_2px_8px_rgba(26,26,26,0.18)]"
-                    : "text-[var(--sb-ink-faint)] hover:text-[var(--sb-ink-soft)] hover:bg-[var(--sb-hover)]"
-                )}
-              >
-                <ShoppingBasket
-                  className={cn(
-                    "w-3.5 h-3.5",
-                    location.pathname.startsWith("/admin/quick-commerce") ? "text-[var(--sb-active-ink)]" : "text-[var(--sb-ink-faint)]"
-                  )}
-                />
-                Quick
-              </button>
-              )}
-              {/* Medical: the quick-commerce panel narrowed to pharmacies. Its own
-                  switch in admin accounts, so a pharmacy team need not see groceries. */}
-              {serviceAccess.medical && (
-              <button
-                type="button"
-                onClick={() => navigate("/admin/medical")}
-                className={cn(
-                  "flex-1 min-w-0 flex flex-col items-center justify-center gap-1 px-1 py-2 text-[11px] leading-none font-bold rounded-lg transition-all duration-300",
-                  location.pathname.startsWith("/admin/medical")
-                    ? "bg-[var(--sb-active-bg)] text-[var(--sb-active-ink)] shadow-[0_2px_8px_rgba(26,26,26,0.18)]"
-                    : "text-[var(--sb-ink-faint)] hover:text-[var(--sb-ink-soft)] hover:bg-[var(--sb-hover)]"
-                )}
-              >
-                <Pill
-                  className={cn(
-                    "w-3.5 h-3.5",
-                    location.pathname.startsWith("/admin/medical") ? "text-[var(--sb-active-ink)]" : "text-[var(--sb-ink-faint)]"
-                  )}
-                />
-                Medical
               </button>
               )}
             </div>

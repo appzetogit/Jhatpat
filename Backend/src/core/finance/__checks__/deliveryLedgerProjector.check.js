@@ -74,15 +74,10 @@ check('only Completed deposits settle cash', () => {
     assert.ok(ts.every((t) => t.amount === 0), 'a deposit moves cash, never the balance');
 });
 
-check('keys carry the owner and a real key kind, and QC rows name QC collections', () => {
+check('keys carry the owner and a real key kind', () => {
     const [t] = targetsFor({ ownerId: A, vertical: 'food', orders: [order()] });
     assert.equal(t.key, `order_rider_earning:o1@${A}`);
     assert.equal(kindOf(t.key), 'order_rider_earning');
-    const [q] = targetsFor({
-        ownerId: A, vertical: 'quickCommerce',
-        withdrawals: [{ _id: 'w1', amount: 1, status: 'pending', deliveryPartnerId: A }],
-    });
-    assert.equal(q.key, `source_row:qc_delivery_withdrawals:w1@${A}`);
 });
 
 // --- planning -----------------------------------------------------------------

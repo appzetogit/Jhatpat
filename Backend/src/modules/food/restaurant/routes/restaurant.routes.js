@@ -177,12 +177,6 @@ router.put('/combos/:comboId', authMiddleware, requireRestaurant, updateComboCon
 router.delete('/combos/:comboId', authMiddleware, requireRestaurant, deleteComboController);
 router.patch('/profile', authMiddleware, requireRestaurant, updateRestaurantProfileController);
 router.delete('/profile/account', authMiddleware, requireRestaurant, deleteCurrentRestaurantAccountController);
-// Same handler under the name quick-commerce uses. The restaurant app serves both
-// verticals off one set of paths, rewriting only the `/food` prefix to `/qc` — an
-// invariant that holds for every other seller route, and broke here because the
-// two forks named account deletion differently. Aliasing is cheaper and safer
-// than teaching the client that one path is special.
-router.delete('/current', authMiddleware, requireRestaurant, deleteCurrentRestaurantAccountController);
 router.patch('/availability', authMiddleware, requireRestaurant, updateRestaurantAcceptingOrdersController);
 router.patch('/dining-settings', authMiddleware, requireRestaurant, updateCurrentRestaurantDiningSettingsController);
 router.get('/outlet-timings', authMiddleware, requireRestaurant, getCurrentRestaurantOutletTimingsController);

@@ -3,18 +3,17 @@ import { logger } from '../../../utils/logger.js';
 
 /**
  * Mirror a verified taxi gateway payment into the shared `payments` collection, so
- * taxi revenue appears in the cross-vertical totals alongside food, quick-commerce
- * and service-provider.
+ * taxi revenue appears in the cross-vertical totals alongside food.
  *
- * Taxi is the odd one out of the four: it has no gateway-payment model of its own to
+ * Taxi is the odd one out: it has no gateway-payment model of its own to
  * cut over. `WalletTransaction` is a driver-side ledger (it is what records the credit
  * to a driver's balance), not a record of the customer's payment. So this adds the
  * missing record rather than moving an existing one, and nothing taxi already does
  * changes.
  *
- * Taxi verifies inline in five handlers rather than through one choke point the way
- * service-provider does, so this exists to keep the call site down to a single line
- * and the shape identical across all five.
+ * Taxi verifies inline in five handlers rather than through one choke point, so
+ * this exists to keep the call site down to a single line and the shape
+ * identical across all five.
  *
  * NEVER THROWS. Every call site sits after the signature has been checked, the amount
  * has been read back from the gateway, and money has moved. A reporting write must not

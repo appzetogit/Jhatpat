@@ -184,12 +184,12 @@ export class OtpDeliveryError extends Error {
 /**
  * @param {string} phone
  * @param {string} [scope]    keeps one vertical's OTPs from overwriting another's
- *                            for the same phone. Quick commerce uses `qc:*`.
+ *                            for the same phone.
  * @param {{service?: string}} [opts]  which service to ATTRIBUTE the request to.
  *                            The budget is shared per phone either way -- this only
  *                            decides what the rate-limit row is labelled, and a
- *                            quick-commerce request logged as food is a support
- *                            question nobody can answer.
+ *                            taxi request logged as food is a support question
+ *                            nobody can answer.
  */
 export const createOrUpdateOtp = async (phone, scope = 'default', { service = OTP_SERVICES.FOOD } = {}) => {
     const normalizedPhone = normalizeOtpPhone(phone);
@@ -210,7 +210,7 @@ export const createOrUpdateOtp = async (phone, scope = 'default', { service = OT
 
     // Platform-wide rate limit. Replaces the old per-scope counter below: that let one
     // phone pull a full quota from each scope (user / restaurant / delivery), and did
-    // nothing about the same number also hitting taxi and service-provider.
+    // nothing about the same number also hitting taxi.
     const quota = await consumeOtpQuota(phone, { service });
     if (!quota.allowed) {
         throw new ValidationError(otpRateLimitMessage(quota));

@@ -1,8 +1,6 @@
 import mongoose from 'mongoose';
 import { FoodDeliveryPartner } from '../../../modules/food/delivery/models/deliveryPartner.model.js';
-import { FoodDeliveryPartner as QCDeliveryPartner } from '../../../modules/quickCommerce/modules/food/delivery/models/deliveryPartner.model.js';
 import { FoodOrder } from '../../../modules/food/orders/models/order.model.js';
-import { FoodOrder as QCOrder } from '../../../modules/quickCommerce/modules/food/orders/models/order.model.js';
 import { Driver } from '../../../modules/taxi/driver/models/Driver.js';
 import { Ride } from '../../../modules/taxi/user/models/Ride.js';
 import { DriverIncentiveRule } from '../models/driverIncentiveRule.model.js';
@@ -59,9 +57,9 @@ function windowBoundsFor(rule, at = new Date()) {
 }
 
 /**
- * Resolves the caller's unified identity from any one of its three possible
- * starting points, so a food order, a QC order and a ride all agree on the
- * same rider for progress-counting and credit idempotency.
+ * Resolves the caller's unified identity from either of its two possible
+ * starting points, so a food order and a ride both agree on the same rider
+ * for progress-counting and credit idempotency.
  *
  * `driverKey` is what DriverIncentiveCredit dedupes on. A linked (unified)
  * rider always resolves to the SAME driverKey regardless of which vertical's
@@ -71,30 +69,25 @@ function windowBoundsFor(rule, at = new Date()) {
  */
 async function resolveDriverContext({ startFrom, id }) {
     let foodPartnerId = null;
-    let qcPartnerId = null;
     let driver = null;
 
     if (startFrom === 'taxiDriver') {
         driver = await Driver.findById(id)
-            .select('workMode legacyDeliveryPartnerId legacyQcPartnerId')
+            .select('workMode legacyDeliveryPartnerId')
             .lean();
         if (!driver) return null;
         foodPartnerId = driver.legacyDeliveryPartnerId || null;
-        qcPartnerId = driver.legacyQcPartnerId || null;
     } else {
-        const PartnerModel = startFrom === 'qcPartner' ? QCDeliveryPartner : FoodDeliveryPartner;
-        const partner = await PartnerModel.findById(id).select('driverId').lean();
+        const partner = await FoodDeliveryPartner.findById(id).select('driverId').lean();
         if (!partner) return null;
-        if (startFrom === 'qcPartner') qcPartnerId = partner._id;
-        else foodPartnerId = partner._id;
+        foodPartnerId = partner._id;
 
         if (partner.driverId) {
             driver = await Driver.findById(partner.driverId)
-                .select('workMode legacyDeliveryPartnerId legacyQcPartnerId')
+                .select('workMode legacyDeliveryPartnerId')
                 .lean();
             if (driver) {
                 foodPartnerId = foodPartnerId || driver.legacyDeliveryPartnerId || null;
-                qcPartnerId = qcPartnerId || driver.legacyQcPartnerId || null;
             }
         }
     }
@@ -102,14 +95,11 @@ async function resolveDriverContext({ startFrom, id }) {
     const taxiDriverId = driver?._id || null;
     const driverKey = taxiDriverId
         ? `driver:${taxiDriverId}`
-        : foodPartnerId
-            ? `foodPartner:${foodPartnerId}`
-            : `qcPartner:${qcPartnerId}`;
+        : `foodPartner:${foodPartnerId}`;
 
     return {
         driverKey,
         foodPartnerId,
-        qcPartnerId,
         taxiDriverId,
         // Only meaningful when a unified driver was actually found — the
         // read path uses it to guess which segment to show before the rider
@@ -177,7 +167,7 @@ async function ladderFor(segment, zoneId = null, vehicleTypeId = null, windowTyp
     return { rule: null, scope: {} };
 }
 
-/** Mongo filter narrowing a food/quick order count to the ladder's zones. */
+/** Mongo filter narrowing a food order count to the ladder's zones. */
 function orderZoneFilter(scope = {}) {
     if (scope.onlyZone) return { zoneId: scope.onlyZone };
     if (scope.excludeZones?.length) return { zoneId: { $nin: scope.excludeZones } };
@@ -244,14 +234,6 @@ async function countCompletedToday(ctx, segment, { start, end }, scope = {}) {
             ...zone,
         });
     }
-    if (ctx.qcPartnerId) {
-        total += await QCOrder.countDocuments({
-            'dispatch.deliveryPartnerId': ctx.qcPartnerId,
-            orderStatus: 'delivered',
-            'deliveryState.deliveredAt': { $gte: start, $lte: end },
-            ...zone,
-        });
-    }
     return total;
 }
 
@@ -260,8 +242,8 @@ async function countCompletedToday(ctx, segment, { start, end }, scope = {}) {
  *
  * A linked (unified) rider is paid through the taxi driver wallet —
  * applyDriverWalletAdjustment — because that is the balance getRiderFinance
- * folds everything into for a unified person. An unlinked, food/QC-only
- * partner has no taxi driver record to credit, so they're paid through a
+ * folds everything into for a unified person. An unlinked, food-only partner
+ * has no taxi driver record to credit, so they're paid through a
  * DeliveryBonusTransaction row instead, same as an admin-granted bonus.
  */
 async function payTierReward({ ctx, rule, tier, completedOrders, periodKey }) {
@@ -287,7 +269,7 @@ async function payTierReward({ ctx, rule, tier, completedOrders, periodKey }) {
         return 'taxi_driver_wallet';
     }
 
-    const partnerId = ctx.foodPartnerId || ctx.qcPartnerId;
+    const partnerId = ctx.foodPartnerId;
     if (!partnerId) throw new Error('No wallet to credit — rider resolved to neither a driver nor a delivery partner');
 
     // Unique per (day, tier, partner) — via the schema's unique index, a
@@ -375,9 +357,9 @@ async function creditWindow({ ctx, segment, zoneId, vehicleTypeId, windowType })
             }
 
             // notifyOwnerSafely's DELIVERY_PARTNER type only resolves against the
-            // food-vertical partner collection, not the QC one — so a QC-only,
-            // unlinked rider (ctx.foodPartnerId null) quietly gets no push here.
-            // The wallet credit above is unaffected either way.
+            // food-vertical partner collection — so an unlinked rider with no
+            // foodPartnerId quietly gets no push here. The wallet credit above is
+            // unaffected either way.
             if (ctx.foodPartnerId) {
                 notifyOwnerSafely(
                     { ownerType: 'DELIVERY_PARTNER', ownerId: ctx.foodPartnerId },
@@ -399,10 +381,10 @@ async function creditWindow({ ctx, segment, zoneId, vehicleTypeId, windowType })
     }
 }
 
-/** Called after a food or quick-commerce order is marked delivered. */
-export function onFoodOrQuickCommerceOrderCompleted({ deliveryPartnerId, vertical, zoneId = null }) {
+/** Called after a food order is marked delivered. */
+export function onFoodOrderCompleted({ deliveryPartnerId, zoneId = null }) {
     return maybeCreditIncentive({
-        startFrom: vertical === 'quickCommerce' ? 'qcPartner' : 'foodPartner',
+        startFrom: 'foodPartner',
         id: deliveryPartnerId,
         segment: 'foodAndQuick',
         zoneId,
@@ -435,16 +417,10 @@ async function currentZoneOf(ctx, segment) {
         const { taxiZoneIdOfRide } = await import('../../zones/taxiZone.js');
         return taxiZoneIdOfRide(last);
     }
-    const latest = await Promise.all([
-        ctx.foodPartnerId
-            ? FoodOrder.findOne({ 'dispatch.deliveryPartnerId': ctx.foodPartnerId }).sort({ updatedAt: -1 }).select('zoneId updatedAt').lean()
-            : null,
-        ctx.qcPartnerId
-            ? QCOrder.findOne({ 'dispatch.deliveryPartnerId': ctx.qcPartnerId }).sort({ updatedAt: -1 }).select('zoneId updatedAt').lean()
-            : null,
-    ]);
-    const newest = latest.filter(Boolean).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0];
-    return newest?.zoneId || null;
+    const latest = ctx.foodPartnerId
+        ? await FoodOrder.findOne({ 'dispatch.deliveryPartnerId': ctx.foodPartnerId }).sort({ updatedAt: -1 }).select('zoneId updatedAt').lean()
+        : null;
+    return latest?.zoneId || null;
 }
 
 /**
@@ -465,11 +441,9 @@ async function currentVehicleTypeOf(ctx) {
  * entry points below — [getCurrentIncentiveForFoodPartner] and
  * [getCurrentIncentiveForDriver] only differ in how `ctx` was resolved.
  *
- * Segment guess for a linked rider: the server has no separate "quick
- * commerce toggle" signal today (see DutySegment.resolve in the Flutter app
- * for the fuller client-side rule this approximates), so a 'taxi' or 'all'
- * workMode is treated as the taxi segment and anything else as food/QC —
- * the same fallback the client itself uses. A rider resolved straight from a
+ * Segment guess for a linked rider: so a 'taxi' or 'all' workMode is treated
+ * as the taxi segment and anything else as food — the same fallback the
+ * client itself uses. A rider resolved straight from a
  * taxi driver id has no other option to guess between, so is always taxi.
  *
  * Daily and weekly ladders exist independently (see maybeCreditIncentive),
@@ -521,7 +495,7 @@ async function buildCurrentIncentive(ctx, { forceSegment } = {}) {
 }
 
 /**
- * Entry point for a food/QC delivery partner opening their home screen.
+ * Entry point for a food delivery partner opening their home screen.
  * Always the foodAndQuick segment: the endpoint itself already says which
  * card is being asked for, so this must not re-guess from the driver's
  * CURRENT workMode the way buildCurrentIncentive's fallback does.
@@ -542,7 +516,7 @@ export async function getCurrentIncentiveForFoodPartner(foodPartnerId) {
 
 /**
  * Entry point for a taxi driver opening their home screen — including a
- * driver with no linked food/QC partner at all, who [getCurrentIncentiveForFoodPartner]
+ * driver with no linked food partner at all, who [getCurrentIncentiveForFoodPartner]
  * has no id to start from for. Always the taxiAndPorter segment: there is no
  * workMode to guess from when the caller is already known to be a taxi driver.
  */

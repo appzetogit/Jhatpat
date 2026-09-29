@@ -2,11 +2,11 @@
  * Which setting wins, and the ability to say why.
  *
  * Today a rule that applies to the whole platform is stored once per vertical --
- * `FoodFeeSettings`, its quick-commerce fork, taxi's `AdminBusinessSetting`, SP's
- * `Settings` -- so "the cash limit is 2000" is four facts that can disagree, and
- * an admin who changes one has changed it for one vertical. There is no way to
- * express "2000 everywhere, 2500 for taxi, 2200 in Indore, 1500 for this driver"
- * at all, and no way to answer "why is this partner's limit 1500?".
+ * `FoodFeeSettings`, taxi's `AdminBusinessSetting` -- so "the cash limit is
+ * 2000" is two facts that can disagree, and an admin who changes one has
+ * changed it for one vertical. There is no way to express "2000 everywhere,
+ * 2500 for taxi, 2200 in Indore, 1500 for this driver" at all, and no way to
+ * answer "why is this partner's limit 1500?".
  *
  * This is the precedence, kept pure so it can be checked without a database and
  * without the models that will eventually feed it.

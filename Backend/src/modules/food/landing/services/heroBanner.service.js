@@ -8,7 +8,7 @@ import {
  * The set of sections a banner can head. Kept beside the schema enum so a new
  * section is added in one place.
  */
-export const HERO_BANNER_MODULES = ['food', 'taxi', 'quick_commerce', 'medical', 'porter', 'rental', 'services'];
+export const HERO_BANNER_MODULES = ['food', 'taxi', 'porter', 'rental'];
 
 /**
  * Normalises whatever a caller sent into a module key, or null when they sent
@@ -28,18 +28,9 @@ export const normalizeHeroBannerModule = (value) => {
         taxi: 'taxi',
         ride: 'taxi',
         cab: 'taxi',
-        quick_commerce: 'quick_commerce',
-        quick: 'quick_commerce',
-        qc: 'quick_commerce',
-        grocery: 'quick_commerce',
-        medical: 'medical',
-        pharmacy: 'medical',
-        medicine: 'medical',
         porter: 'porter',
         parcel: 'porter',
         rental: 'rental',
-        services: 'services',
-        sp: 'services'
     };
 
     return aliases[raw] || null;

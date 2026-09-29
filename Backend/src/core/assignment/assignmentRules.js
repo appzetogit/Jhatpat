@@ -5,25 +5,19 @@
  * slot -- `Driver.activeAssignment: {type, id, at} | null` -- so "one at a time"
  * is not a configured policy, it is the shape of the data. Stacking a second food
  * order, or letting a rider carry a grocery order to the same building, is not
- * switched off; it is unrepresentable. And quick-commerce never takes the lock at
- * all, so a rider on a QC order still reads as free to food and taxi.
+ * switched off; it is unrepresentable.
  *
  * This module is the policy, kept pure so the combination matrix can be checked
  * without a database. The service beside it does the atomic write.
  *
  * The default policy reproduces TODAY'S BEHAVIOUR EXACTLY: one job, any vertical,
- * no stacking. Nothing changes the day this ships except that quick-commerce
- * finally participates. Stacking becomes a configuration change later, not a
- * rewrite -- which is the whole point of doing it this way rather than copying
- * food's wrapper into the QC fork.
+ * no stacking. Stacking becomes a configuration change later, not a rewrite.
  */
 
 /** The job kinds a partner can be holding. One vocabulary for all four verticals. */
 export const JOB_TYPES = Object.freeze({
     FOOD_DELIVERY: 'foodDelivery',
-    QUICK_COMMERCE_DELIVERY: 'quickCommerceDelivery',
     TAXI_RIDE: 'taxiRide',
-    SERVICE_BOOKING: 'serviceBooking',
 });
 
 export const ALL_JOB_TYPES = Object.freeze(Object.values(JOB_TYPES));
@@ -54,9 +48,7 @@ export const DEFAULT_POLICY = Object.freeze({
     maxConcurrentJobs: 1,
     allowedCombinations: Object.freeze({
         [JOB_TYPES.FOOD_DELIVERY]: Object.freeze([]),
-        [JOB_TYPES.QUICK_COMMERCE_DELIVERY]: Object.freeze([]),
         [JOB_TYPES.TAXI_RIDE]: Object.freeze([]),
-        [JOB_TYPES.SERVICE_BOOKING]: Object.freeze([]),
     }),
 });
 
@@ -72,10 +64,8 @@ export const DEFAULT_POLICY = Object.freeze({
 export const EXAMPLE_STACKING_POLICY = Object.freeze({
     maxConcurrentJobs: 2,
     allowedCombinations: Object.freeze({
-        [JOB_TYPES.FOOD_DELIVERY]: Object.freeze([JOB_TYPES.FOOD_DELIVERY, JOB_TYPES.QUICK_COMMERCE_DELIVERY]),
-        [JOB_TYPES.QUICK_COMMERCE_DELIVERY]: Object.freeze([JOB_TYPES.QUICK_COMMERCE_DELIVERY, JOB_TYPES.FOOD_DELIVERY]),
+        [JOB_TYPES.FOOD_DELIVERY]: Object.freeze([JOB_TYPES.FOOD_DELIVERY]),
         [JOB_TYPES.TAXI_RIDE]: Object.freeze([]),
-        [JOB_TYPES.SERVICE_BOOKING]: Object.freeze([]),
     }),
 });
 

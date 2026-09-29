@@ -485,8 +485,8 @@ export const settleCompletedRideWallet = async ({ rideId }) => {
      * The platform incentive, from Master > Delivery Earnings.
      *
      * Taxi drivers sat outside that engine: an admin who set an incentive for
-     * "All modules" paid food and quick-commerce riders and silently paid taxi
-     * drivers nothing. The fare TABLE is still taxi's own -- a ride is priced by
+     * "All modules" paid food riders and silently paid taxi drivers nothing.
+     * The fare TABLE is still taxi's own -- a ride is priced by
      * base fare, per km and per minute, which no delivery distance band can
      * express -- but the incentive is the same shape everywhere, so it is the
      * part that unifies.

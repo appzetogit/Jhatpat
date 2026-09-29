@@ -10,14 +10,14 @@ import mongoose from 'mongoose';
  * going forward; `module` is kept in step by a pre-save hook so nothing that reads it
  * breaks.
  */
-export const PAYMENT_VERTICALS = Object.freeze(['food', 'quickCommerce', 'taxi', 'serviceProvider']);
+export const PAYMENT_VERTICALS = Object.freeze(['food', 'taxi']);
 
 /**
  * Model each vertical's payer and subject documents live in. Defaults reproduce the
  * previous hard refs exactly, so existing documents populate as they always did.
  */
-const PAYER_MODELS = Object.freeze(['FoodUser', 'TaxiUser', 'SPUser', 'QCUser']);
-const SUBJECT_MODELS = Object.freeze(['FoodOrder', 'QCOrder', 'TaxiRide', 'SPBooking']);
+const PAYER_MODELS = Object.freeze(['FoodUser', 'TaxiUser']);
+const SUBJECT_MODELS = Object.freeze(['FoodOrder', 'TaxiRide']);
 
 const paymentSchema = new mongoose.Schema(
     {
@@ -51,8 +51,6 @@ const paymentSchema = new mongoose.Schema(
 
         method: {
             type: String,
-            // 'cod' and 'collected_by_vendor' come from service-provider, which settles
-            // cash through the vendor rather than the rider.
             enum: ['cash', 'cod', 'collected_by_vendor', 'razorpay', 'razorpay_qr', 'wallet', 'upi', 'card', 'netbanking'],
             required: true
         },

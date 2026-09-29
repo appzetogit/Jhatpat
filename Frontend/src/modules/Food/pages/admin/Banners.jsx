@@ -21,10 +21,6 @@ export default function Banners() {
   const HERO_BANNER_MODULES = [
     { value: 'food', label: 'Food' },
     { value: 'taxi', label: 'Rides' },
-    { value: 'quick_commerce', label: 'Quick Commerce' },
-    // Medical shares the quick-commerce backend but is its own screen, so it
-    // gets its own artwork rather than inheriting Quick's.
-    { value: 'medical', label: 'Medical' },
     { value: 'porter', label: 'Porter' },
   ]
 

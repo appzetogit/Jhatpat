@@ -3,7 +3,7 @@
  *
  * Run: node tests/admin-zone-scope.smoke.mjs
  *
- *   - the form saves food and quick-commerce zones, and /me reports them;
+ *   - the form saves food zones, and /me reports them;
  *   - the zone middleware limits a zone-limited sub-admin, and a zone outside
  *     their list matches nothing; owners and unlimited sub-admins are untouched;
  *   - the food store list and order list only return their zones' rows;
@@ -33,7 +33,7 @@ const check = async (label, fn) => {
 
 const owner = (await FoodAdmin.create({
   name: 'Owner', email: 'owner@t.test', password: 'owner-pass', role: 'ADMIN', admin_type: 'superadmin',
-  adminLevel: 'platform_superadmin', servicesAccess: ['food', 'quickCommerce', 'medical', 'taxi'], permissions: ['*'],
+  adminLevel: 'platform_superadmin', servicesAccess: ['food', 'taxi'], permissions: ['*'],
 })).toObject();
 const [north, south] = await FoodZone.collection.insertMany([{ name: 'North', isActive: true }, { name: 'South', isActive: true }])
   .then((r) => [r.insertedIds[0], r.insertedIds[1]]);

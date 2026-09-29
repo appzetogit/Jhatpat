@@ -18,10 +18,10 @@ const throws = (fn, re) => assert.throws(fn, re);
 // --- normalizeCapabilities ------------------------------------------------
 
 assert.deepEqual(normalizeCapabilities(['delivery']), ['delivery']);
-assert.deepEqual(normalizeCapabilities(['taxi', 'delivery', 'quickCommerce']), ['taxi', 'delivery', 'quickCommerce']);
+assert.deepEqual(normalizeCapabilities(['taxi', 'delivery', 'parcel']), ['taxi', 'delivery', 'parcel']);
 
 // Stable order regardless of how the boxes were ticked.
-assert.deepEqual(normalizeCapabilities(['quickCommerce', 'taxi']), ['taxi', 'quickCommerce']);
+assert.deepEqual(normalizeCapabilities(['parcel', 'taxi']), ['taxi', 'parcel']);
 
 // Dedupes, trims, tolerates case, accepts a comma string.
 assert.deepEqual(normalizeCapabilities(['delivery', ' delivery ', 'DELIVERY']), ['delivery']);
@@ -44,7 +44,7 @@ try {
 }
 
 // The exported list is the source of truth for the enum.
-assert.deepEqual([...SERVICE_CAPABILITIES], ['taxi', 'delivery', 'quickCommerce']);
+assert.deepEqual([...SERVICE_CAPABILITIES], ['taxi', 'delivery', 'parcel']);
 
 // --- coerceWorkMode --------------------------------------------------------
 
@@ -56,18 +56,13 @@ assert.equal(coerceWorkMode('delivery', ['taxi', 'delivery']), 'delivery');
 // Single capability: 'all' is illegal (setWorkMode requires two), so it collapses.
 assert.equal(coerceWorkMode('all', ['taxi']), 'taxi');
 assert.equal(coerceWorkMode('all', ['delivery']), 'delivery');
-assert.equal(coerceWorkMode('all', ['quickCommerce']), 'delivery');
+
+// Parcel is dispatched through the taxi mode, so it counts as "can taxi".
+assert.equal(coerceWorkMode('all', ['parcel']), 'taxi');
 
 // Revoked stream: a driver parked on it is moved somewhere they can work.
 assert.equal(coerceWorkMode('taxi', ['delivery']), 'delivery');
 assert.equal(coerceWorkMode('delivery', ['taxi']), 'taxi');
-
-// The retired 'quickCommerce' mode maps onto the shared delivery toggle.
-assert.equal(coerceWorkMode('quickCommerce', ['quickCommerce']), 'delivery');
-assert.equal(coerceWorkMode('quickCommerce', ['taxi', 'quickCommerce']), 'delivery');
-
-// Grocery alone still satisfies the delivery toggle (one toggle covers both).
-assert.equal(coerceWorkMode('delivery', ['quickCommerce']), 'delivery');
 
 // Nothing stored yet: widest legal mode.
 assert.equal(coerceWorkMode(undefined, ['taxi', 'delivery']), 'all');

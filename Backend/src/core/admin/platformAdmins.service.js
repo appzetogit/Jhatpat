@@ -1,10 +1,9 @@
 /**
  * Admin accounts for every panel, in one place.
  *
- * Food, quick commerce and taxi each had an admin screen writing to the same
- * `admins` collection in three different shapes. This service is the one they
- * all use now: one account can be given any mix of panels, with the shared
- * permissions from adminAccessPolicy.js.
+ * Food and taxi each had an admin screen writing to the same `admins` collection
+ * in different shapes. This service is the one they all use now: one account can
+ * be given any mix of panels, with the shared permissions from adminAccessPolicy.js.
  */
 import mongoose from 'mongoose';
 import { FoodAdmin } from './admin.model.js';
@@ -141,7 +140,7 @@ export async function getMeta(admin) {
     }
   }
 
-  // Zones for food and for quick commerce / medical, limited to the caller's own.
+  // Zones for food, limited to the caller's own.
   const zonesOf = async (load, own) => {
     try {
       const Model = await load();
@@ -155,17 +154,7 @@ export async function getMeta(admin) {
   const foodZones = caller.servicesAccess.includes('food')
     ? await zonesOf(async () => (await import('../../modules/food/admin/models/zone.model.js')).FoodZone, caller.foodZoneIds)
     : [];
-  // Quick and Medical draw separate zones; one list covers both, labelled.
-  const qcZones = caller.servicesAccess.some((s) => s === 'quickCommerce' || s === 'medical')
-    ? [
-      ...(await zonesOf(async () => (await import('../../modules/quickCommerce/modules/food/admin/models/zone.model.js')).QCZone, caller.qcZoneIds))
-        .map((z) => ({ ...z, name: `${z.name} · Quick` })),
-      ...(await zonesOf(async () => {
-        const { zoneModelFor } = await import('../../modules/quickCommerce/modules/food/shared/zoneServiceability.js');
-        return zoneModelFor('medical');
-      }, caller.qcZoneIds)).map((z) => ({ ...z, name: `${z.name} · Medical` })),
-    ]
-    : [];
+  const qcZones = [];
   const taxiZones = caller.servicesAccess.includes('taxi')
     ? await zonesOf(async () => (await import('../../modules/taxi/driver/models/Zone.js')).Zone, caller.taxiZoneIds || [])
     : [];
@@ -309,7 +298,7 @@ async function validatePayload(admin, caller, body, { creating }) {
     out.serviceLocationIds = [];
   }
 
-  // Food and quick commerce zones: empty means every zone. A limited caller can
+  // Food and medical zones: empty means every zone. A limited caller can
   // only hand out zones they have, and cannot give "every zone".
   const zonesFor = (ids, own, enabled, label) => {
     if (!enabled) return [];
@@ -322,7 +311,7 @@ async function validatePayload(admin, caller, body, { creating }) {
     return list;
   };
   out.foodZoneIds = zonesFor(body.foodZoneIds, caller.foodZoneIds, services.includes('food'), 'food');
-  out.qcZoneIds = zonesFor(body.qcZoneIds, caller.qcZoneIds, services.includes('quickCommerce') || services.includes('medical'), 'quick commerce');
+  out.qcZoneIds = zonesFor(body.qcZoneIds, caller.qcZoneIds, services.includes('medical'), 'medical');
   out.taxiZoneIds = zonesFor(body.taxiZoneIds, caller.taxiZoneIds || [], services.includes('taxi'), 'taxi');
   return out;
 }
@@ -340,7 +329,7 @@ function applyTo(doc, data, admin) {
     doc.admin_type = 'superadmin';
     doc.module = null;
     doc.permissions = ['*'];
-    doc.servicesAccess = ['food', 'quickCommerce', 'medical', 'taxi', 'serviceProvider'];
+    doc.servicesAccess = ['food', 'medical', 'taxi'];
     doc.canDelete = true;
   } else {
     if (data.canDelete !== undefined) doc.canDelete = data.canDelete;

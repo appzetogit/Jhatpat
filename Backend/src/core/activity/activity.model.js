@@ -4,9 +4,9 @@ import mongoose from 'mongoose';
  * One row per customer-facing transaction, across every vertical.
  *
  * This is deliberately a thin INDEX, not a merged aggregate. A food order has 130
- * fields, a ride 173, a service booking 119, and they share about five. Forcing them
- * into one document would produce a row that is ~90% null whichever vertical wrote it,
- * with four contradictory status machines fighting over one enum.
+ * fields and a ride 173, and they share about five. Forcing them into one document
+ * would produce a row that is ~90% null whichever vertical wrote it, with two
+ * contradictory status machines fighting over one enum.
  *
  * So the detail stays in each vertical's own collection and this holds only what a
  * unified activity feed actually needs: who, which product, what state, how much,
@@ -18,13 +18,12 @@ import mongoose from 'mongoose';
  *   - "what have they spent with us across the platform"
  */
 
-export const ACTIVITY_VERTICALS = Object.freeze(['food', 'quickCommerce', 'taxi', 'serviceProvider']);
+export const ACTIVITY_VERTICALS = Object.freeze(['food', 'taxi']);
 
 /**
- * Normalised lifecycle, shared by all four. The verticals disagree on almost
- * everything else -- food says `delivered`, taxi `completed`, service-provider
- * `work_done` -- so the feed needs one vocabulary or the client ends up reimplementing
- * this mapping per vertical.
+ * Normalised lifecycle, shared by both. The verticals disagree on almost
+ * everything else -- food says `delivered`, taxi `completed` -- so the feed needs one
+ * vocabulary or the client ends up reimplementing this mapping per vertical.
  */
 export const ACTIVITY_STATUS = Object.freeze({
     PENDING: 'pending',     // created, not yet acted on

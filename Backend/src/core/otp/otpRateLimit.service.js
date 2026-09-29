@@ -7,10 +7,9 @@ import { logger } from '../../utils/logger.js';
  * Platform-wide OTP request budget.
  *
  * Before this, each service counted separately: food throttled per-scope in Mongo,
- * Service-Provider throttled in Redis (and therefore not at all, since REDIS_ENABLED
- * is unset and that path fails open), and taxi did not throttle at all. One phone
- * number could pull OTP_RATE_LIMIT codes from each service, times three taxi entry
- * points -- so the effective limit on SMS spend per number was roughly "no limit".
+ * and taxi did not throttle at all. One phone number could pull OTP_RATE_LIMIT
+ * codes from food, times three taxi entry points -- so the effective limit on
+ * SMS spend per number was roughly "no limit".
  *
  * Every OTP send path now consumes from this one budget.
  *
@@ -19,11 +18,9 @@ import { logger } from '../../utils/logger.js';
 
 const SERVICES = Object.freeze({
     FOOD: 'food',
-    QUICK_COMMERCE: 'quickCommerce',
     TAXI_USER: 'taxi:user',
     TAXI_DRIVER: 'taxi:driver',
     TAXI_ONBOARDING: 'taxi:onboarding',
-    SERVICE_PROVIDER: 'serviceProvider'
 });
 
 /**

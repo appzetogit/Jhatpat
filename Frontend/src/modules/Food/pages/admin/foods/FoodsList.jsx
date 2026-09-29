@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useCallback } from "react"
-import { useLocation, useSearchParams } from "react-router-dom"
+import { useSearchParams } from "react-router-dom"
 import { Search, Trash2, Loader2, Eye, Pencil, Plus, Save, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react"
 import { adminAPI, uploadAPI } from "@food/api"
 import { toast } from "sonner"
@@ -112,9 +112,8 @@ export default function FoodsList() {
   const [foodFormMode, setFoodFormMode] = useState("add")
   const [foodForm, setFoodForm] = useState(createFoodForm())
   const [editingFood, setEditingFood] = useState(null)
-  // Stock is counted in quick commerce and medical, not food (dishes aren't).
-  const { pathname } = useLocation()
-  const isStockPanel = /^\/admin\/(quick-commerce|medical)(\/|$)/.test(pathname)
+  // Stock tracking belonged to the panels that sold packaged items; food dishes don't carry it.
+  const isStockPanel = false
   /** Product-level stock for the save: only what changed since the form opened. */
   const productStockPayload = () => {
     const was = (v) => (v === null || v === undefined ? "" : String(v))

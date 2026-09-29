@@ -60,7 +60,7 @@ await check('no ceiling set: the code keeps exactly what it asks for', async () 
 await check('a global ceiling reaches every module', async () => {
   await set('promo.maxUsesPerUser', { level: 'global', value: 3 });
   invalidateCache();
-  for (const vertical of ['taxi', 'food', 'quickCommerce', 'medical']) {
+  for (const vertical of ['taxi', 'food']) {
     const l = await effectivePromoLimits({ vertical, ownPerUser: 10, ownTotal: 0 });
     assert.equal(l.perUser, 3, vertical);
   }

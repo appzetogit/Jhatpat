@@ -38,7 +38,7 @@ await check('delivery formula: zone > food > all modules', async () => {
   const fee = async (zoneId) => priceDelivery((await resolveDeliveryFormula({ vertical: 'food', zoneId })).formula, 3).customerFee;
   assert.equal(await fee(INDORE), 40);
   assert.equal(await fee(DEWAS), 30);
-  assert.equal(priceDelivery((await resolveDeliveryFormula({ vertical: 'quickCommerce', zoneId: DEWAS })).formula, 3).customerFee, 20);
+  assert.equal(priceDelivery((await resolveDeliveryFormula({ vertical: 'taxi', zoneId: DEWAS })).formula, 3).customerFee, 20);
 });
 await check('platform fee: a zone\'s own fee', async () => {
   const { withMasterFees } = await import('../src/core/finance/platformFees.service.js');
@@ -63,7 +63,7 @@ await check('order hold: a zone\'s own hold', async () => {
   await save('orders.holdSeconds', 'zone', INDORE, 90);
   assert.equal(await holdSecondsFor('food', INDORE), 90);
   assert.equal(await holdSecondsFor('food', DEWAS), 30);
-  assert.equal(await holdSecondsFor('quickCommerce', DEWAS), 0);
+  assert.equal(await holdSecondsFor('taxi', DEWAS), 0);
 });
 await check('a zone value cannot be set per rider (partner level still refused)', async () => {
   await assert.rejects(() => set('orders.holdSeconds', { level: 'partner', scopeId: 'r1', value: 5 }));

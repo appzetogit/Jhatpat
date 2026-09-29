@@ -6,7 +6,7 @@
  * because some call sites never attached a rejection handler, took the whole API
  * process down with an unhandled rejection.
  *
- * Roughly sixty call sites across food and quickCommerce import these two
+ * Dozens of call sites across food import these two
  * functions. Rather than edit each one, the functions keep their names, their
  * arguments and their return shapes, and write to local storage instead. The
  * detailed variant still returns `secure_url` and `public_id` because that is

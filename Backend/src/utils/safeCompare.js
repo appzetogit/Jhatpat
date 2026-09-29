@@ -11,9 +11,6 @@ import crypto from 'crypto';
  *
  * Non-string or empty input is a mismatch, never a pass.
  *
- * Service-Provider code cannot import this (it is CommonJS by its own package.json)
- * and inlines the same three lines.
- *
  * @param {string} expected signature computed server-side
  * @param {string} actual signature supplied by the caller
  * @returns {boolean}

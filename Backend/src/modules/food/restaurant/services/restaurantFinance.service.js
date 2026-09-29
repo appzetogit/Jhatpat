@@ -209,9 +209,6 @@ export async function getRestaurantFinance(restaurantId, query = {}) {
         // opposite things and this line is labelled "withdrawn".
         totalWithdrawn: totalApprovedWithdrawals,
         estimatedPayout: availableBalance,
-        // Same figure under the name quick-commerce uses, because the one
-        // seller app reads both and must not get 0 from whichever module
-        // happens to be serving it.
         withdrawableBalance: availableBalance,
         netAvailable: availableBalance,
         minimumWithdrawalAmount,
@@ -280,8 +277,7 @@ export async function getRestaurantFinance(restaurantId, query = {}) {
             address
         },
         // `wallet` is what the seller app parses; `currentCycle` is what this
-        // module has always sent. One object, both names -- exactly the pairing
-        // the quick-commerce service already publishes, and without it a food
+        // module has always sent. One object, both names -- without it a food
         // seller was shown a zero balance they could not withdraw.
         wallet: currentCycle,
         currentCycle,

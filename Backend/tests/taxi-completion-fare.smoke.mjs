@@ -176,7 +176,7 @@ const main = async () => {
      * The platform incentive from Master > Delivery Earnings.
      *
      * Taxi drivers sat outside that engine: an admin who set an incentive for
-     * "All modules" paid food and quick-commerce riders and paid taxi drivers
+     * "All modules" paid food riders and paid taxi drivers
      * nothing. It has to reach the driver WITHOUT the rider being charged more
      * -- the platform funds it, exactly like a promo.
      */

@@ -5,7 +5,7 @@
  *
  * What this guards:
  *   - a sub-admin reaches only the sections ticked for them -- read-only means
- *     read-only -- in Food, Quick Commerce / Medical and Taxi alike;
+ *     read-only -- in Food and Taxi alike;
  *   - a panel not given is closed, whatever the permissions say;
  *   - owners and legacy owner accounts (made before admin levels existed) are
  *     never refused, so the guard cannot lock the business out;
@@ -69,15 +69,11 @@ const legacyOwner = await FoodAdmin.collection.insertOne({ email: 'first@x.in', 
   .then((r) => FoodAdmin.findById(r.insertedId));
 const owner = await FoodAdmin.create({
   email: 'owner@x.in', password: 'secret1', name: 'Owner', adminLevel: 'platform_superadmin',
-  admin_type: 'superadmin', permissions: ['*'], servicesAccess: ['food', 'quickCommerce', 'medical', 'taxi'],
+  admin_type: 'superadmin', permissions: ['*'], servicesAccess: ['food', 'taxi'],
 });
 const ordersReader = await FoodAdmin.create({
   email: 'orders@x.in', password: 'secret1', name: 'Orders reader', parentAdminId: owner._id,
   adminLevel: 'subadmin', admin_type: 'subadmin', permissions: ['orders.read', 'restaurants.write'], servicesAccess: ['food'],
-});
-const medicalOnly = await FoodAdmin.create({
-  email: 'med@x.in', password: 'secret1', name: 'Medical', parentAdminId: owner._id,
-  adminLevel: 'subadmin', admin_type: 'subadmin', permissions: ['orders.write'], servicesAccess: ['medical'],
 });
 // Made by taxi's own form: role 'subadmin', 'x.view' permissions, no servicesAccess.
 const taxiLegacy = await FoodAdmin.collection.insertOne({
@@ -163,14 +159,7 @@ await check('write permission allows the change', async () => {
 console.log('\nother panels');
 
 await check('a panel not given is closed', async () => {
-  assert.ok(refused(await call(ordersReader, 'GET', '/v1/qc/admin/orders')));
   assert.ok(refused(await call(ordersReader, 'GET', '/v1/taxi/admin/drivers')));
-  assert.ok(refused(await call(medicalOnly, 'GET', '/v1/food/admin/orders')));
-});
-
-await check('Medical access opens the quick-commerce API, within its sections', async () => {
-  assert.ok(through(await call(medicalOnly, 'GET', '/v1/qc/admin/orders')));
-  assert.ok(refused(await call(medicalOnly, 'GET', '/v1/qc/admin/customers')));
 });
 
 await check('a taxi sub-admin keeps drivers and nothing else', async () => {
@@ -187,15 +176,15 @@ await check('platform settings are not a sub-admin\'s to change', async () => {
 console.log('\nadmin accounts');
 
 let manager;
-await check('an owner creates a sub-admin for several panels', async () => {
+await check('an owner creates a sub-admin for the food panel', async () => {
   const r = await call(owner, 'POST', '/v1/platform/admins', {
     name: 'Ops lead', email: 'ops@x.in', password: 'secret1', password_confirmation: 'secret1',
-    role: 'custom', servicesAccess: ['food', 'medical'],
+    role: 'custom', servicesAccess: ['food'],
     permissions: ['orders.write', 'customers.read', 'subadmins.write'],
   });
   assert.equal(r.status, 200, r.json?.message);
   manager = await FoodAdmin.findOne({ email: 'ops@x.in' });
-  assert.deepEqual([...manager.servicesAccess].sort(), ['food', 'medical']);
+  assert.deepEqual([...manager.servicesAccess].sort(), ['food']);
   assert.equal(policy.effectiveAdminLevel(manager), 'subadmin');
   assert.equal(String(manager.parentAdminId), String(owner._id));
 });
@@ -228,7 +217,7 @@ await check('nobody gives what they do not hold', async () => {
 let junior;
 await check('a manager creates within their own scope and sees only their people', async () => {
   const r = await call(manager, 'POST', '/v1/platform/admins', {
-    name: 'Junior', email: 'junior@x.in', password: 'secret1', role: 'custom', servicesAccess: ['medical'], permissions: ['orders.read'],
+    name: 'Junior', email: 'junior@x.in', password: 'secret1', role: 'custom', servicesAccess: ['food'], permissions: ['orders.read'],
   });
   assert.equal(r.status, 200, r.json?.message);
   junior = await FoodAdmin.findOne({ email: 'junior@x.in' });
@@ -240,10 +229,10 @@ await check('a manager creates within their own scope and sees only their people
 });
 
 await check('switching an admin off takes effect on their next request', async () => {
-  assert.ok(through(await call(junior, 'GET', '/v1/qc/admin/orders')));
+  assert.ok(through(await call(junior, 'GET', '/v1/food/admin/orders')));
   const r = await call(manager, 'PATCH', `/v1/platform/admins/${junior._id}/status`, { isActive: false });
   assert.equal(r.status, 200, r.json?.message);
-  assert.ok(refused(await call(junior, 'GET', '/v1/qc/admin/orders')));
+  assert.ok(refused(await call(junior, 'GET', '/v1/food/admin/orders')));
 });
 
 await check('narrowing an admin takes effect on their next request', async () => {
@@ -274,7 +263,7 @@ await check('/me tells the panel what to show', async () => {
   const r = await call(manager, 'GET', '/v1/platform/admins/me');
   assert.equal(r.json.data.isSuperAdmin, false);
   assert.ok(r.json.data.permissions.includes('customers.read'));
-  assert.deepEqual([...r.json.data.servicesAccess].sort(), ['food', 'medical']);
+  assert.deepEqual([...r.json.data.servicesAccess].sort(), ['food']);
   const o = await call(legacyOwner, 'GET', '/v1/platform/admins/me');
   assert.equal(o.json.data.isOwner, true);
 });

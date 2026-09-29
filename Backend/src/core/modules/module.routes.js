@@ -14,7 +14,7 @@ import { getModuleStates, setModuleEnabled } from './moduleState.service.js';
  */
 const router = express.Router();
 
-// Read is open to any signed-in admin — seeing that quick-commerce is off is how you
+// Read is open to any signed-in admin — seeing that a vertical is off is how you
 // explain the 503s people are reporting.
 router.get('/', authMiddleware, requireRoles('ADMIN'), async (_req, res) => {
     const states = await getModuleStates();

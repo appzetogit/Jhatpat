@@ -8,9 +8,6 @@ import { ValidationError } from '../../../core/auth/errors.js';
  *           constraint the server refuses to break, not a marketing number.
  *   price — what the customer actually pays. The discount is the gap.
  *
- * Ported from the quick-commerce module, which already had exactly this, so the
- * two verticals agree on what MRP means rather than drifting into two rules.
- *
  * `null` means "not recorded" and is the default: most existing rows predate the
  * field, and treating an absent MRP as 0 would make every one of them look like
  * it was being sold above MRP.
@@ -41,7 +38,7 @@ export function normalizeMrpInput(body = {}) {
  * Deliberately not validated against `price`: being cheaper than the rival price
  * you typed is the normal case, and the whole point of showing it. The client
  * strikes it through only when it is higher, so a lower value simply renders
- * nothing. 0 means "not set", matching what quick-commerce stores.
+ * nothing. 0 means "not set".
  */
 export function normalizeOtherPriceInput(body = {}) {
     if (body?.otherPrice === undefined) return undefined;

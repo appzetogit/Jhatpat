@@ -1,5 +1,5 @@
 /**
- * Integration credentials for CommonJS code (the service-provider module).
+ * Integration credentials for any CommonJS code that needs them.
  *
  * Same answer as platformProfile.service.js -- Master settings if saved there,
  * else .env -- read from the getters that module publishes on globalThis. That

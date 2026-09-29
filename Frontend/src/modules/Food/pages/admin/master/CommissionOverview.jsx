@@ -2,16 +2,15 @@ import { useCallback, useEffect, useMemo, useState } from "react"
 import { Link } from "react-router-dom"
 import { Loader2, RefreshCw, ExternalLink, Search, AlertTriangle } from "lucide-react"
 import { commissionOverviewAPI } from "@food/api"
-import { SERVICE_PROVIDER_ENABLED } from "@/config/features"
 
 /**
  * Master > Report Management > Commission Overview.
  *
  * What the platform takes from every partner, in one place
  * (core/finance/commissionOverview.service.js). Each seller's rate is the one
- * its next order would be charged, from the services' own rate functions --
- * schedules and the Medical default included -- beside what it actually paid
- * over the last 30 days. Read-only: each block links to where its rates are set.
+ * its next order would be charged, from the services' own rate functions,
+ * beside what it actually paid over the last 30 days. Read-only: each block
+ * links to where its rates are set.
  */
 
 const SOURCE = {
@@ -125,7 +124,7 @@ export default function CommissionOverview() {
   }, [load])
 
   const services = useMemo(
-    () => (data?.services || []).filter((s) => s.key !== "services" || SERVICE_PROVIDER_ENABLED),
+    () => (data?.services || []).filter((s) => s.key !== "services"),
     [data],
   )
   const query = q.trim().toLowerCase()
@@ -178,23 +177,15 @@ export default function CommissionOverview() {
                   {s.key === "food" && s.mode === "plan" && (
                     <p className="text-sm text-emerald-800">Restaurants are on a subscription plan, so no commission is charged.</p>
                   )}
-                  {s.key === "quick" && (
-                    <p className="text-sm text-neutral-600">
-                      Pharmacies with no rate of their own pay the Medical default:{" "}
-                      <span className="font-medium text-neutral-900">{s.medicalDefault?.value > 0 ? rateText(s.medicalDefault) : "not set"}</span>.
-                    </p>
-                  )}
                   {s.key === "taxi" && <p className="text-sm text-neutral-600">Taken from the driver&rsquo;s fare, set on each vehicle and city price row.</p>}
                   <Summary s={s.summary} />
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {s.key === "quick" && <EditLink to="/admin/medical/commission">Medical default</EditLink>}
                   <EditLink to={s.editPath}>Change rates</EditLink>
                 </div>
               </div>
 
               {s.key === "food" && <SellerTable rows={s.rows} q={query} />}
-              {s.key === "quick" && <SellerTable rows={s.rows} q={query} showKind />}
 
               {s.key === "taxi" &&
                 (s.rows.length ? (

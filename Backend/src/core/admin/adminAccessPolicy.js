@@ -1,14 +1,14 @@
 /**
- * One permission model for every admin panel: Food, Quick Commerce, Medical, Taxi.
+ * One permission model for every admin panel: Food, Medical, Taxi.
  *
  * Why this exists: each vertical grew its own permission list, and none of them
- * was enforced on the API. Food checked a permission on 9 of ~300 routes, quick
- * commerce admitted every platform admin as a superadmin, taxi checked only its
- * admin-management screen. A sub-admin therefore saw and changed everything --
- * the sidebar was the only thing that looked restricted, and it did not filter.
+ * was enforced on the API. Food checked a permission on 9 of ~300 routes, taxi
+ * checked only its admin-management screen. A sub-admin therefore saw and changed
+ * everything -- the sidebar was the only thing that looked restricted, and it did
+ * not filter.
  *
  * The model:
- *   - servicesAccess  which panels the admin may open (food, quickCommerce, medical, taxi)
+ *   - servicesAccess  which panels the admin may open (food, medical, taxi)
  *   - permissions     'resource.read' / 'resource.write' strings, the same resource
  *                     names in every panel ("Orders" means food orders, grocery
  *                     orders, medicine orders and taxi rides alike)
@@ -23,14 +23,13 @@ import { resolveAdminLevel, resolveAdminModule } from './adminHierarchy.service.
 
 export const ADMIN_SERVICES = [
   { key: 'food', label: 'Food' },
-  { key: 'quickCommerce', label: 'Quick Commerce' },
   { key: 'medical', label: 'Medical' },
   { key: 'taxi', label: 'Taxi' },
 ];
 export const ADMIN_SERVICE_KEYS = ADMIN_SERVICES.map((s) => s.key);
 
-const ALL = ['food', 'quickCommerce', 'medical', 'taxi'];
-const STORES = ['food', 'quickCommerce', 'medical'];
+const ALL = ['food', 'medical', 'taxi'];
+const STORES = ['food', 'medical'];
 
 /**
  * What a sub-admin can be given. `services` decides which panels a resource is
@@ -197,15 +196,14 @@ export function effectiveServices(admin) {
   return module && ADMIN_SERVICE_KEYS.includes(module) ? [module] : ['food'];
 }
 
-/** The quick-commerce API serves both the Quick Commerce and the Medical panel. */
 export function servicesForApi(api) {
-  return api === 'quickCommerce' ? ['quickCommerce', 'medical'] : [api];
+  return [api];
 }
 
 /**
- * The single decision. `service` is the panel's API ('food' | 'quickCommerce' |
- * 'taxi'); `resource` is what the request touches, OPEN for shared lookups, or
- * null when the path is not mapped.
+ * The single decision. `service` is the panel's API ('food' | 'taxi'); `resource`
+ * is what the request touches, OPEN for shared lookups, or null when the path is
+ * not mapped.
  */
 export const OPEN = '__open__';
 
@@ -283,8 +281,7 @@ export function denialMessage(decision) {
 const rule = (pattern, resource, methods = null) => ({ pattern, resource, methods });
 
 /*
- * Food and quick commerce share one admin API shape (quick commerce is a fork),
- * so one table serves both. Paths are relative to the admin router. First match
+ * Food's admin API shape. Paths are relative to the admin router. First match
  * wins, so specific rules sit above the prefix they would otherwise fall under.
  */
 const STORE_ADMIN_RULES = [

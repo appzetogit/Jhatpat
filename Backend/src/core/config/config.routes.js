@@ -83,13 +83,12 @@ router.get('/cancellation/overview', async (req, res, next) => {
     try {
         const { getCancelRules } = await import('../../modules/food/orders/services/cancellationPolicy.js');
         const { holdSecondsFor } = await import('../orders/orderHold.js');
-        const [food, quickCommerce, foodHold, quickHold] = await Promise.all([
-            getCancelRules('food'), getCancelRules('quickCommerce'),
-            holdSecondsFor('food'), holdSecondsFor('quickCommerce'),
+        const [food, foodHold] = await Promise.all([
+            getCancelRules('food'),
+            holdSecondsFor('food'),
         ]);
         res.json({ success: true, data: { services: [
             { vertical: 'food', ...food, holdSeconds: foodHold },
-            { vertical: 'quickCommerce', ...quickCommerce, holdSeconds: quickHold },
         ] } });
     } catch (err) {
         next(err);

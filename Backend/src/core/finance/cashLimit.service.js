@@ -3,11 +3,9 @@ import { logger } from '../../utils/logger.js';
 /**
  * The cash limit, from one place.
  *
- * Before this, "how much platform cash may a partner hold" was three unrelated
- * numbers: the food admin's delivery cash limit (which riderFinance applied to
- * taxi, food and quick commerce alike), and service-provider's per-vendor
- * `wallet.cashLimit`, pushed onto every vendor document by SP's own settings
- * screen. Changing the rule meant knowing which screen owned which partner.
+ * Before this, "how much platform cash may a partner hold" was set from the
+ * food admin's delivery cash limit, which riderFinance applied to taxi and
+ * food alike. Changing the rule meant knowing which screen owned which partner.
  *
  * Now every reader asks this module, which asks the platform settings
  * (core/config, Master > Platform settings) under the one precedence the whole

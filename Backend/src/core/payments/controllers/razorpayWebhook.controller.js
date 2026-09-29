@@ -15,35 +15,15 @@ import { logger } from '../../../utils/logger.js';
 /**
  * Which vertical's order collection this provider event belongs to.
  *
- * There is ONE Razorpay account and one webhook secret, but the platform kept TWO
- * handlers -- master's, reading food_orders, and the quick-commerce fork's, reading
- * qc_orders. Razorpay accepts one URL per event, so whichever handler was not
- * configured simply never ran, and that vertical's orders reconciled only when the
- * customer's app happened to call /verify. Close the app after paying and the money
- * was stranded.
- *
- * So the handler resolves the collection instead of assuming it. Food is tried first
- * because it is the larger table and the common case; a miss costs one indexed
- * lookup. Returning the MODEL rather than a name keeps every query below identical
- * for both verticals -- the alternative is a branch per query, which is how the two
- * handlers drifted apart in the first place.
+ * There is ONE Razorpay account and one webhook secret, resolving the order
+ * collection rather than assuming it. Returning the MODEL rather than a name keeps
+ * every query below identical regardless of which vertical it came from.
  */
 const ORDER_SOURCES = [
     {
         vertical: 'food',
         load: async () => (await import('../../../modules/food/orders/models/order.model.js')).FoodOrder,
         ledger: async () => import('../../../modules/food/orders/services/foodTransaction.service.js'),
-    },
-    {
-        vertical: 'quickCommerce',
-        load: async () => (await import('../../../modules/quickCommerce/modules/food/orders/models/order.model.js')).FoodOrder,
-        /*
-         * Quick commerce keeps its own transaction service over its own
-         * qc_transactions collection. Using food's here would look up a QC order id
-         * in food_transactions, find nothing, and report success -- the ledger row
-         * for a captured payment would silently never be written.
-         */
-        ledger: async () => import('../../../modules/quickCommerce/modules/food/orders/services/foodTransaction.service.js'),
     },
 ];
 
@@ -79,8 +59,7 @@ export const handleRazorpayWebhook = async (req, res) => {
     // Constant-time, via the shared util. A plain compare short-circuits on the first
     // differing byte, so response timing reveals how many leading characters matched --
     // and this signature is the ONLY thing standing between a stranger and "this order
-    // is paid". The quick-commerce fork already used this util; the inline copy that
-    // stood here is gone with it.
+    // is paid".
     if (!safeSignatureEqual(expected, String(signature))) {
         logger.warn('Razorpay Webhook: Signature verification failed.');
         return res.status(400).send('Invalid signature');
@@ -103,10 +82,6 @@ export const handleRazorpayWebhook = async (req, res) => {
              * WHICH amount was captured. Without this, a capture of any size marked the
              * order paid -- a Rs 1 payment against a Rs 900 order cleared it, and the
              * restaurant was dispatched an order nobody had paid for.
-             *
-             * The quick-commerce fork has carried this check since it was written; the
-             * food handler never got it, which is the fork's cost in one bug. Ported
-             * verbatim so the two behave identically until they become one handler.
              *
              * Mismatch is NOT an error to Razorpay -- returning non-200 makes the provider
              * retry an event that will never succeed. The order is marked failed and the
@@ -142,9 +117,7 @@ export const handleRazorpayWebhook = async (req, res) => {
                 }
                 if (dead) {
                     try {
-                        const helper = vertical === 'quickCommerce'
-                            ? await import('../../../modules/quickCommerce/modules/food/orders/helpers/razorpay.helper.js')
-                            : await import('../../../modules/food/orders/helpers/razorpay.helper.js');
+                        const helper = await import('../../../modules/food/orders/helpers/razorpay.helper.js');
                         const amount = Number(paymentObj.amount || 0) / 100;
                         const refund = await helper.initiateRazorpayRefund(rzPaymentId, amount);
                         logger.warn(`Webhook [payment.captured]: late capture ${rzPaymentId} on ${status} order ${existingOrder._id} -- refunded (${refund?.refundId || 'no id'})`);
@@ -222,16 +195,6 @@ export const handleRazorpayWebhook = async (req, res) => {
                 } catch (ledgerErr) {
                     logger.error(`Webhook Ledger Error (Order ${order.orderId}): ${ledgerErr.message}`);
                 }
-                /*
-                 * These two are food's own follow-ups and stay scoped to it.
-                 *
-                 * The quick-commerce handler never ran them, so applying them to QC
-                 * orders here would not be "unifying" -- it would be adding coupon
-                 * accounting and restaurant pushes to a vertical that has never had
-                 * them, inside a change whose purpose is that no vertical's
-                 * behaviour moves. QC's equivalents belong in a deliberate change of
-                 * their own.
-                 */
                 if (vertical === 'food') {
                     // The order is paid, so its coupon now counts as used. Idempotent
                     // against /verify, which may arrive before or after this.
