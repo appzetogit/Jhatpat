@@ -48,7 +48,7 @@ export default function AboutUs() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [aboutData, setAboutData] = useState({
-    appName: 'Quick Drop Food',
+    appName: 'Jhatpat Food',
     version: '1.0.0',
     description: '',
     logo: '',

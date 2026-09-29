@@ -18,9 +18,9 @@ const partners = [
   },
   {
     type: 'restaurant', icon: Store,
-    title: 'Sell on Quick Drop',
+    title: 'Sell on Jhatpat',
     subtitle: 'Restaurants',
-    description: 'List your restaurant on Quick Drop. Reach thousands of local customers and use our delivery fleet — register in minutes and start taking orders once approved.',
+    description: 'List your restaurant on Jhatpat. Reach thousands of local customers and use our delivery fleet — register in minutes and start taking orders once approved.',
     benefits: ['Access to extensive customer database', 'Advanced order & dashboard analytics', 'Flexible pricing & promotional campaigns', 'Professional delivery network integration'],
     ctaText: 'Become a partner', ctaHref: '/partner',
     color: '#FFB800', gradient: 'from-[#FFB800] to-[#ff5100]',
@@ -75,7 +75,7 @@ export default function Partners() {
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ff5100] via-[#e11d48] via-[#1d4ed8] to-[#10b981]">
               Earn
             </span>{' '}
-            with Quick Drop
+            with Jhatpat
           </h2>
           <p className="text-slate-400 text-sm leading-relaxed max-w-lg mx-auto">
             We support localized economic growth. Whether you are an independent driver or a local culinary business, our tools are built to scale your business.

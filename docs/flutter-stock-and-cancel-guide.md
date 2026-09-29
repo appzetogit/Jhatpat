@@ -6,8 +6,8 @@ additions. Nothing here needs a server change.
 
 | App | Repo | Commits already pushed |
 |---|---|---|
-| Partner app (restaurant / store / medical) | `Rish1811/quickdrop_restaurant` | `01e6e0a` Stock screen, `1b90373` stock in product form, `2cd2cb4` send only changed stock |
-| Customer app | `Rish1811/quickdropnew` | `5b8ac88` cancel window + countdown |
+| Partner app (restaurant / store / medical) | `Rish1811/jhatpat_restaurant` | `01e6e0a` Stock screen, `1b90373` stock in product form, `2cd2cb4` send only changed stock |
+| Customer app | `Rish1811/jhatpatnew` | `5b8ac88` cancel window + countdown |
 
 > **Before you build:** run `git fetch` and check `git log origin/main` matches the commits
 > above. GitHub has been force-pushed with injected files (`.vscode/tasks.json`,

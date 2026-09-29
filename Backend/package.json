@@ -1,8 +1,8 @@
 {
-  "name": "k9-rides-backend",
+  "name": "jhatpat-backend",
   "version": "1.0.0",
   "type": "module",
-  "description": "K9 Rides Product Backend",
+  "description": "Jhatpat Product Backend",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

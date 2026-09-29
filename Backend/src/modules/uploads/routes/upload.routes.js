@@ -52,7 +52,7 @@ const runUpload = (req, res, next) => {
  * Coerce a client-supplied folder into something the storage layer accepts.
  *
  * Shipped clients — including Flutter builds already on people's phones, which
- * cannot be updated on our schedule — send `K9 Rides/restaurant/menu-items`.
+ * cannot be updated on our schedule — send `Jhatpat/restaurant/menu-items`.
  * That space fails the storage folder pattern, so rejecting it would break
  * every existing app install. Slugify instead: the old clients keep working and
  * land somewhere sane, and nothing about the stored path is trusted anyway

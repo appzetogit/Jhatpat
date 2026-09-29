@@ -3206,7 +3206,7 @@ export const forgotPassword = async (email) => {
   // Send real email
   await sendEmail({
     to: email,
-    subject: `Password Reset OTP for ${process.env.APP_NAME || 'Quick Drop'}`,
+    subject: `Password Reset OTP for ${process.env.APP_NAME || 'Jhatpat'}`,
     text: `Your OTP for password reset is: ${otp}. It will expire in 10 minutes.`,
     html: `
       <div style="font-family: sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 10px; max-width: 500px;">
@@ -3218,7 +3218,7 @@ export const forgotPassword = async (email) => {
         </div>
         <p>This OTP is valid for 10 minutes. If you did not request this, please ignore this email.</p>
         <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
-        <p style="font-size: 12px; color: #666;">Regards,<br>Team ${process.env.APP_NAME || 'Quick Drop'}</p>
+        <p style="font-size: 12px; color: #666;">Regards,<br>Team ${process.env.APP_NAME || 'Jhatpat'}</p>
       </div>
     `,
   });
@@ -8887,17 +8887,17 @@ export const getRentalTrackingDashboard = async () => {
       paginator: {
         current_page: 1,
         data: results,
-        first_page_url: "https://k9rides.onrender.com/api/v1/admin/goods-types?page=1",
+        first_page_url: "https://jhatpat.onrender.com/api/v1/admin/goods-types?page=1",
         from: 1,
         last_page: 1,
-        last_page_url: "https://k9rides.onrender.com/api/v1/admin/goods-types?page=1",
+        last_page_url: "https://jhatpat.onrender.com/api/v1/admin/goods-types?page=1",
         links: [
           { url: null, label: "&laquo; Previous", active: false },
-          { url: "https://k9rides.onrender.com/api/v1/admin/goods-types?page=1", label: "1", active: true },
+          { url: "https://jhatpat.onrender.com/api/v1/admin/goods-types?page=1", label: "1", active: true },
           { url: null, label: "Next &raquo;", active: false }
         ],
         next_page_url: null,
-        path: "https://k9rides.onrender.com/api/v1/admin/goods-types",
+        path: "https://jhatpat.onrender.com/api/v1/admin/goods-types",
         per_page: 50,
         prev_page_url: null,
         to: results.length,
@@ -8982,10 +8982,10 @@ export const getRentalTrackingDashboard = async () => {
         to: results.length,
         links: [
           { url: null, label: "&laquo; Previous", active: false },
-          { url: "https://k9rides.onrender.com/api/v1/admin/rental-package-types?page=1", label: "1", active: true },
+          { url: "https://jhatpat.onrender.com/api/v1/admin/rental-package-types?page=1", label: "1", active: true },
           { url: null, label: "Next &raquo;", active: false }
         ],
-        path: "https://k9rides.onrender.com/api/v1/admin/rental-package-types"
+        path: "https://jhatpat.onrender.com/api/v1/admin/rental-package-types"
       }
     };
   };

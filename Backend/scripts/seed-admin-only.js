@@ -15,7 +15,7 @@ dotenv.config();
 
 const email = String(process.env.SEED_ADMIN_EMAIL || '').toLowerCase().trim();
 const password = process.env.SEED_ADMIN_PASSWORD || '';
-const name = process.env.SEED_ADMIN_NAME || 'K9 Admin';
+const name = process.env.SEED_ADMIN_NAME || 'Jhatpat Admin';
 
 if (!email || !password) {
   console.error('Set SEED_ADMIN_EMAIL and SEED_ADMIN_PASSWORD. Aborting.');

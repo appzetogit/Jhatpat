@@ -285,7 +285,7 @@ export async function approveFoodItem(id, options = {}) {
                 {
                     title: 'Dish Approved! 🍲',
                     body: `Your dish "${updated.name}" has been approved and is now visible to customers.`,
-                    image: updated.image || 'https://i.ibb.co/5GzXz7r/Quick Drop-Brand-Image.png',
+                    image: updated.image || 'https://i.ibb.co/5GzXz7r/Jhatpat-Brand-Image.png',
                     data: {
                         type: 'food_approved',
                         foodId: String(updated._id),
@@ -333,7 +333,7 @@ export async function rejectFoodItem(id, reason) {
                 {
                     title: 'Dish Rejected ❌',
                     body: `Your dish "${updated.name}" was rejected. Reason: ${r}`,
-                    image: updated.image || 'https://i.ibb.co/5GzXz7r/Quick Drop-Brand-Image.png',
+                    image: updated.image || 'https://i.ibb.co/5GzXz7r/Jhatpat-Brand-Image.png',
                     data: {
                         type: 'food_rejected',
                         foodId: String(updated._id),

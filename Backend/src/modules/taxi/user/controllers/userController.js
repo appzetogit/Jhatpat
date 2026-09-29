@@ -182,7 +182,7 @@ const getFrontendBaseUrl = () => {
     .map((value) => value.trim())
     .find((value) => value && value !== '*');
 
-  return (configuredOrigin || 'https://k9rides.onrender.com').replace(/\/+$/, '');
+  return (configuredOrigin || 'https://jhatpat.onrender.com').replace(/\/+$/, '');
 };
 
 const getPhonePeBaseUrl = (environment = 'test') => (

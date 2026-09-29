@@ -348,7 +348,7 @@ function AdminForm({ meta, editing, onClose, onSaved }) {
               </label>
               <label className="space-y-1 text-sm sm:col-span-2">
                 <span className="font-medium text-neutral-800">Email</span>
-                <input className={inputCls} value={form.email} onChange={(e) => set({ email: e.target.value })} placeholder="priya@quickdropsindia.com" type="email" autoComplete="off" />
+                <input className={inputCls} value={form.email} onChange={(e) => set({ email: e.target.value })} placeholder="priya@jhatpatsindia.com" type="email" autoComplete="off" />
               </label>
               <label className="space-y-1 text-sm">
                 <span className="font-medium text-neutral-800">{isEdit ? "New password" : "Password"}</span>

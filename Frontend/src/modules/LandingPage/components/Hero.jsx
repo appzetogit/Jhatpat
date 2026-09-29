@@ -127,7 +127,7 @@ export default function Hero({ settings }) {
         >
           {/* Section Heading Name */}
           <p className="text-xs font-black uppercase tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-r from-[#d94600] via-[#be123c] to-[#1e40af]">
-            Welcome to Quick Drop
+            Welcome to Jhatpat
           </p>
 
           {/* Headline Slogans Carousel wrapper */}

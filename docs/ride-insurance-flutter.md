@@ -1,4 +1,4 @@
-# Ride insurance — Flutter implementation guide (quickdropnew, taxi module)
+# Ride insurance — Flutter implementation guide (jhatpatnew, taxi module)
 
 The backend is done. A rider sees the plans the admin created for the chosen
 vehicle (Admin → Price Management → Ride Insurance), may pick one, and the ride

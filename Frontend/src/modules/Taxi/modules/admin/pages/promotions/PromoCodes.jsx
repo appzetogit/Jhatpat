@@ -24,7 +24,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { adminService } from '../../services/adminService';
 import { BACKEND_ORIGIN } from '../../../../shared/api/runtimeConfig';
 
-const API_ORIGIN = String(globalThis.__LEGACY_BACKEND_ORIGIN__ || BACKEND_ORIGIN || 'https://k9rides.onrender.com').replace(/\/+$/, '');
+const API_ORIGIN = String(globalThis.__LEGACY_BACKEND_ORIGIN__ || BACKEND_ORIGIN || 'https://jhatpat.onrender.com').replace(/\/+$/, '');
 const ADMIN_API_BASE = API_ORIGIN + '/api/v1/admin';
 const TAXI_ADMIN_API_BASE = API_ORIGIN + '/api/v1/taxi/admin';
 const BASE = ADMIN_API_BASE + '/promos';

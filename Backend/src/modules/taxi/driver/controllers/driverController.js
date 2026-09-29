@@ -1743,7 +1743,7 @@ const getBiometricFingerHand = (fingerCode = "") => {
 };
 
 const getBiometricEncryptionKey = () =>
-  crypto.createHash("sha256").update(String(env.jwtSecret || "Quick Drop-biometric-secret")).digest();
+  crypto.createHash("sha256").update(String(env.jwtSecret || "Jhatpat-biometric-secret")).digest();
 
 const encryptBiometricTemplate = (template = "") => {
   const raw = String(template || "");
@@ -4790,7 +4790,7 @@ const getFrontendBaseUrl = () => {
     .map((value) => value.trim())
     .find((value) => value && value !== "*");
 
-  return (configuredOrigin || "https://k9rides.onrender.com").replace(/\/+$/, "");
+  return (configuredOrigin || "https://jhatpat.onrender.com").replace(/\/+$/, "");
 };
 
 const getPhonePeBaseUrl = (environment = "test") =>

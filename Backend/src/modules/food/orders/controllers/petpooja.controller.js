@@ -6,7 +6,7 @@ import { getPetpoojaSettings } from '../services/petpooja.service.js';
 import { logger } from '../../../../utils/logger.js';
 
 /**
- * Handles incoming webhooks from Petpooja POS to update order states on K9.
+ * Handles incoming webhooks from Petpooja POS to update order states on Jhatpat.
  */
 export async function petpoojaWebhookController(req, res, next) {
     try {

@@ -561,7 +561,7 @@ const DeliveryTrackingMap = ({
               <div className="relative w-11 h-11 rounded-full bg-white shadow-xl border-[3px] border-amber-500 flex items-center justify-center overflow-hidden">
                 <img 
                   src={k9Logo}
-                  alt="Quick Drop"
+                  alt="Jhatpat"
                   className="w-full h-full object-cover"
                 />
               </div>

@@ -127,7 +127,7 @@ const startServer = async () => {
             try {
                 const { BusService } = await import('./src/modules/taxi/admin/models/BusService.js');
                 await BusService.updateMany(
-                    { operatorName: "K9 Travels" },
+                    { operatorName: "Jhatpat Travels" },
                     {
                         $set: {
                             "schedules.$[].activeDays": ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
@@ -153,14 +153,14 @@ const startServer = async () => {
                         driver = new BusDriver({ phone });
                     }
                     driver.name = "Rajesh Kumar";
-                    driver.email = "rajesh.driver@k9rides.com";
+                    driver.email = "rajesh.driver@jhatpat.com";
                     driver.approve = true;
                     driver.active = true;
                     driver.status = "approved";
                     driver.assignedBusServiceId = bus._id;
-                    driver.operatorName = bus.operatorName || "K9 Travels";
+                    driver.operatorName = bus.operatorName || "Jhatpat Travels";
                     driver.busName = bus.busName || "Sleeper Premium AC";
-                    driver.serviceNumber = bus.serviceNumber || "K9-1002";
+                    driver.serviceNumber = bus.serviceNumber || "JHATPAT-1002";
                     driver.registrationNumber = bus.registrationNumber || "MP04AB9999";
                     driver.routeName = bus.route?.routeName || "Bhopal - Indore";
                     driver.originCity = bus.route?.originCity || "Bhopal";

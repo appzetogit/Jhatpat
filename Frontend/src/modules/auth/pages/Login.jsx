@@ -11,7 +11,7 @@ import { useSettings } from "../../Taxi/shared/context/SettingsContext"
 // file path is unchanged because the asset itself still lives there; note that
 // renaming the file would not change the artwork inside it.
 const FALLBACK_LOGO = "/k9-logo.png"
-const COMPANY_NAME = "Quick Drop"
+const COMPANY_NAME = "Jhatpat"
 
 export default function UnifiedOTPFastLogin({ viewType = "auth" }) {
   const RESEND_COOLDOWN_SECONDS = 60
@@ -98,7 +98,7 @@ export default function UnifiedOTPFastLogin({ viewType = "auth" }) {
   // }, [viewType, navigate, location])
 
   useEffect(() => {
-    document.title = "Login | Quick Drop"
+    document.title = "Login | Jhatpat"
   }, [])
 
   const normalizedPhone = () => {

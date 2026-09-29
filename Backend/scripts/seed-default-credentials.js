@@ -10,7 +10,7 @@ dotenv.config();
 
 // Seed credentials come from the environment so no real password lives in the repo.
 // Set SEED_ADMIN_EMAIL / SEED_ADMIN_PASSWORD in .env before running this script.
-const SEED_ADMIN_EMAIL = process.env.SEED_ADMIN_EMAIL || "admin@k9rides.local";
+const SEED_ADMIN_EMAIL = process.env.SEED_ADMIN_EMAIL || "admin@jhatpat.local";
 const SEED_ADMIN_PASSWORD = process.env.SEED_ADMIN_PASSWORD || "";
 
 if (!SEED_ADMIN_PASSWORD) {
@@ -25,20 +25,20 @@ const DEFAULTS = {
   admin: {
     email: SEED_ADMIN_EMAIL,
     password: SEED_ADMIN_PASSWORD,
-    name: "K9 Rides Admin",
+    name: "Jhatpat Admin",
     servicesAccess: ["food", "taxi"],
   },
   user: {
     phone: "9407046608",
     countryCode: "+91",
-    name: "K9 Rides User",
+    name: "Jhatpat User",
   },
   restaurant: {
     phone: "9009925021",
     countryCode: "+91",
-    restaurantName: "K9 Rides Demo Restaurant",
-    ownerName: "K9 Rides Restaurant Owner",
-    ownerEmail: "restaurant@K9 Rides.com",
+    restaurantName: "Jhatpat Demo Restaurant",
+    ownerName: "Jhatpat Restaurant Owner",
+    ownerEmail: "restaurant@Jhatpat.com",
     city: "Bhopal",
     state: "Madhya Pradesh",
     status: "approved",
@@ -46,7 +46,7 @@ const DEFAULTS = {
   delivery: {
     phone: "7610416911",
     countryCode: "+91",
-    name: "K9 Rides Delivery Partner",
+    name: "Jhatpat Delivery Partner",
     city: "Bhopal",
     state: "Madhya Pradesh",
     vehicleType: "bike",

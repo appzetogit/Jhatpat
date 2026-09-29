@@ -1,5 +1,5 @@
 export const APP_CONFIG = {
-  NAME: 'Quick Drop',
+  NAME: 'Jhatpat',
   VERSION: '1.0.0',
 };
 

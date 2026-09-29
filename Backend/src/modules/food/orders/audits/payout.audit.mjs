@@ -11,7 +11,7 @@ import { computeBill } from '../../shared/billing.js';
 process.chdir(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../../..'));
 dotenv.config();
 const mongod = await MongoMemoryServer.create();
-await mongoose.connect(mongod.getUri('quickdrop_payout_audit'));
+await mongoose.connect(mongod.getUri('jhatpat_payout_audit'));
 
 const { FoodRestaurantCommission } = await import('../../admin/models/restaurantCommission.model.js');
 const { FoodOffer } = await import('../../admin/models/offer.model.js');

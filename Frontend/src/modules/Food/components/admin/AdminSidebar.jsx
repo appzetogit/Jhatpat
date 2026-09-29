@@ -160,7 +160,7 @@ const FOOD_ADMIN_BASE = "/admin/food"
 export const currentAdminBase = () => FOOD_ADMIN_BASE
 
 export const getVerticalTitle = (base = "", customName = "") => {
-  const name = (customName || "Quick Drop").trim()
+  const name = (customName || "Jhatpat").trim()
   if (base === "/admin/food") {
     return name.toLowerCase().endsWith("food") ? name : `${name} Food`
   }
@@ -169,7 +169,7 @@ export const getVerticalTitle = (base = "", customName = "") => {
 
 /** What the panel calls itself. Only the food base exists now. */
 const VERTICAL_BRANDING = {
-  "/admin/food": { title: "Quick Drop Food", labels: {} },
+  "/admin/food": { title: "Jhatpat Food", labels: {} },
 }
 
 export const brandingFor = (base) => VERTICAL_BRANDING[base] || VERTICAL_BRANDING[FOOD_ADMIN_BASE]

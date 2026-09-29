@@ -10,7 +10,7 @@ const PartnerStatus = lazy(() => import("./pages/PartnerStatus"))
 const FONT_HREF = "https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"
 
 /**
- * /partner -- one door for everyone who sells on Quick Drop.
+ * /partner -- one door for everyone who sells on Jhatpat.
  *
  *   /partner                 choose Restaurant, Store or Medical store
  *   /partner/login/:type     phone and OTP (restaurants go to their own login)
@@ -52,12 +52,12 @@ export default function PartnerApp() {
               <Package className="h-5 w-5" />
             </span>
             <span className="whitespace-nowrap text-lg font-bold tracking-tight sm:text-xl">
-              Quick Drop <span className="font-semibold text-emerald-600">Partner</span>
+              Jhatpat <span className="font-semibold text-emerald-600">Partner</span>
             </span>
           </Link>
           <nav className="flex items-center gap-3 md:gap-5">
             <Link to="/" className="hidden text-sm text-slate-500 hover:text-slate-800 md:inline">
-              quickdropsindia.com
+              jhatpatsindia.com
             </Link>
             <Link
               to="/support"

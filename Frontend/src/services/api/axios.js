@@ -1,6 +1,6 @@
 /**
  * Central API client for backend (auth and future APIs).
- * - baseURL from VITE_API_BASE_URL (e.g. https://k9rides.onrender.com/api/v1)
+ * - baseURL from VITE_API_BASE_URL (e.g. https://jhatpat.onrender.com/api/v1)
  * - When baseURL ends with /api/v1, request paths must NOT include /v1 (use /food/..., /auth/...)
  * - Attaches Bearer token (user or admin based on request URL)
  * - On 401: attempts refresh, retries once; on refresh failure logs out

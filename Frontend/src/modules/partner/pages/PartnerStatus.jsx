@@ -57,7 +57,7 @@ export default function PartnerStatus() {
           <h1 className="mt-3 text-2xl font-bold">{app?.restaurantName || label} is live</h1>
           <p className="mt-1 text-slate-600">
             Your {label.toLowerCase()} is approved. Take orders, manage stock and see payouts on the dashboard here, or in
-            the Quick Drop Partner app — sign in with +91 {session.phone}.
+            the Jhatpat Partner app — sign in with +91 {session.phone}.
           </p>
           <div className="mt-5 flex flex-wrap gap-3">
             <Link

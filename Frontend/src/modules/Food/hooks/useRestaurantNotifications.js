@@ -400,10 +400,10 @@ export const useRestaurantNotifications = () => {
       let suggestedBackendUrl = null;
       
       // Common patterns:
-      // - If frontend is on foods.K9 Rides.com, backend might be api.foods.K9 Rides.com or foods.K9 Rides.com
-      if (frontendHost.includes('foods.Quick Drop.com')) {
-        suggestedBackendUrl = `${frontendProtocol}//api.foods.Quick Drop.com/api`;
-      } else if (frontendHost.includes('Quick Drop.com')) {
+      // - If frontend is on foods.Jhatpat.com, backend might be api.foods.Jhatpat.com or foods.Jhatpat.com
+      if (frontendHost.includes('foods.Jhatpat.com')) {
+        suggestedBackendUrl = `${frontendProtocol}//api.foods.Jhatpat.com/api`;
+      } else if (frontendHost.includes('Jhatpat.com')) {
         suggestedBackendUrl = `${frontendProtocol}//api.${frontendHost}/api`;
       }
       
@@ -446,8 +446,8 @@ export const useRestaurantNotifications = () => {
     
     // Construct Socket.IO URL
     // IMPORTANT: Socket.IO server is on the origin (not /api/v1).
-    // Our API baseURL is typically like: https://k9rides.onrender.com/api/v1
-    // So for sockets we always connect to: https://k9rides.onrender.com
+    // Our API baseURL is typically like: https://jhatpat.onrender.com/api/v1
+    // So for sockets we always connect to: https://jhatpat.onrender.com
     let socketOrigin = backendUrl;
     try {
       socketOrigin = new URL(backendUrl).origin;

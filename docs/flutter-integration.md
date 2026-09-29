@@ -1,4 +1,4 @@
-# QuickDrop — Customer App Integration
+# Jhatpat — Customer App Integration
 
 Five backend changes are live on production. One is already returning errors to
 real users on every order that trips it, one makes a value the app hardcodes
@@ -13,7 +13,7 @@ ignore, but shouldn't.
 | **Required** | The 99 store price point | The shelf can run at ₹59. Anything hardcoding "99" is now wrong — read the live cap. |
 | **Required** | The itemised bill | Three new lines, and tax is no longer whole rupees. Totals still work, but the summary is now wrong without them. |
 
-- API base: `https://quickdropsindia.com/api/v1`
+- API base: `https://jhatpatsindia.com/api/v1`
 - Backend commit: `63e11d9`
 - Every payload below is a real response captured from production, not an example.
 

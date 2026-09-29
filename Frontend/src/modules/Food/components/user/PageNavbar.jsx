@@ -234,7 +234,7 @@ export default function PageNavbar({
       return coordPattern.test(str.trim())
     }
 
-    // Priority 0: Use mainTitle (K9 Rides-STYLE) - Exact building/cafe name
+    // Priority 0: Use mainTitle (Jhatpat-STYLE) - Exact building/cafe name
     // This is the most accurate - directly from Google Maps components
     // If mainTitle is available, show it with area if area is different
     if (location?.mainTitle && location.mainTitle.trim() !== "" && location.mainTitle !== "Location Found") {
@@ -245,7 +245,7 @@ export default function PageNavbar({
         location.area.toLowerCase() !== location?.city?.toLowerCase()) {
         mainLocation = `${location.mainTitle}, ${location.area}`;
       }
-      debugLog("??? K9 Rides-STYLE: Using mainTitle for display:", mainLocation);
+      debugLog("??? Jhatpat-STYLE: Using mainTitle for display:", mainLocation);
     }
 
     // Priority 1: Use formattedAddress if it contains complete detailed address (has multiple parts)

@@ -89,4 +89,4 @@ export const openSellerDashboard = (session, navigate) => {
   navigate("/food/restaurant", { replace: true })
 }
 
-export const PARTNER_APP_URL = "https://play.google.com/store/apps/details?id=com.quickdrop.restaurant"
+export const PARTNER_APP_URL = "https://play.google.com/store/apps/details?id=com.jhatpat.restaurant"

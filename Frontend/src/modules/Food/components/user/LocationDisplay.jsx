@@ -9,7 +9,7 @@ const debugError = (...args) => {}
 /**
  * LocationDisplay Component
  * 
- * K9 Rides-style location display showing "Delivering to [Area Name]"
+ * Jhatpat-style location display showing "Delivering to [Area Name]"
  * 
  * Features:
  * - Shows area/subLocality name (e.g., "New Palasia")

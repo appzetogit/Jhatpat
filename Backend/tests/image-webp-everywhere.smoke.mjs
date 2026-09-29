@@ -135,15 +135,15 @@ await check('  and a caller asking to keep the original format still gets WebP',
     assert.ok(isWebp(storedBytes(stored.publicId)));
 });
 
-await check('THE UPLOAD BUG: a folder with a space (CLOUDINARY_FOLDER "Quick Drop-taxi") still uploads', async () => {
+await check('THE UPLOAD BUG: a folder with a space (CLOUDINARY_FOLDER "Jhatpat-taxi") still uploads', async () => {
     // Every taxi admin upload was refused: "Folder may only contain letters,
     // numbers, /, _, and -".
     const stored = await taxi.uploadBufferToCloudinary({
         buffer: jpeg,
         mimeType: 'image/jpeg',
-        folder: 'Quick Drop-taxi/app-modules',
+        folder: 'Jhatpat-taxi/app-modules',
     });
-    assert.match(stored.publicId, /^Quick-Drop-taxi\/app-modules\//);
+    assert.match(stored.publicId, /^Jhatpat-taxi\/app-modules\//);
     assert.ok(isWebp(storedBytes(stored.publicId)));
 });
 

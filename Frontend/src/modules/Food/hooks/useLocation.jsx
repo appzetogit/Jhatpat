@@ -392,7 +392,7 @@ export function useLocation() {
 
         debugLog("?? Parsing formatted address for area:", { formattedAddress, addressParts, city, state, currentArea: area })
 
-        // K9 Rides-STYLE: If we have 3+ parts, first part is ALWAYS the area/locality
+        // Jhatpat-STYLE: If we have 3+ parts, first part is ALWAYS the area/locality
         // Format: "New Palasia, Indore, Madhya Pradesh" -> area = "New Palasia"
         if (addressParts.length >= 3) {
           const firstPart = addressParts[0]
@@ -525,7 +525,7 @@ export function useLocation() {
       }
 
       // FINAL FALLBACK: If area is still empty, force extract from formatted_address
-      // This is the last resort - be very aggressive (K9 Rides-STYLE)
+      // This is the last resort - be very aggressive (Jhatpat-STYLE)
       // Even if formatted_address only has 2 parts (City, State), try to extract area
       if (!area && formattedAddress) {
         const parts = formattedAddress.split(',').map(p => p.trim()).filter(p => p.length > 0)
@@ -570,7 +570,7 @@ export function useLocation() {
 
         // If we have 3+ parts, extract area from first part
         if (parts.length >= 3) {
-          // K9 Rides PATTERN: "New Palasia, Indore, Madhya Pradesh"
+          // Jhatpat PATTERN: "New Palasia, Indore, Madhya Pradesh"
           // First part = Area, Second = City, Third = State
           const potentialArea = parts[0]
           // Validate it's not state, city, or generic names
@@ -582,7 +582,7 @@ export function useLocation() {
             area = potentialArea
             if (!city && parts[1]) city = parts[1]
             if (!state && parts[2]) state = parts[2]
-            debugLog("??? K9 Rides-STYLE EXTRACTION:", { area, city, state })
+            debugLog("??? Jhatpat-STYLE EXTRACTION:", { area, city, state })
           }
         } else if (parts.length === 2) {
           // Only 2 parts: "Indore, Madhya Pradesh" - area is missing

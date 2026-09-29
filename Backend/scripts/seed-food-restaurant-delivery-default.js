@@ -7,9 +7,9 @@ const DEFAULTS = {
   restaurant: {
     phone: "9009925021",
     countryCode: "+91",
-    restaurantName: "K9 Rides Demo Restaurant",
-    ownerName: "K9 Rides Restaurant Owner",
-    ownerEmail: "restaurant@K9 Rides.com",
+    restaurantName: "Jhatpat Demo Restaurant",
+    ownerName: "Jhatpat Restaurant Owner",
+    ownerEmail: "restaurant@Jhatpat.com",
     city: "Bhopal",
     state: "Madhya Pradesh",
     status: "approved",
@@ -17,7 +17,7 @@ const DEFAULTS = {
   delivery: {
     phone: "7610416911",
     countryCode: "+91",
-    name: "K9 Rides Delivery Partner",
+    name: "Jhatpat Delivery Partner",
     city: "Bhopal",
     state: "Madhya Pradesh",
     vehicleType: "bike",

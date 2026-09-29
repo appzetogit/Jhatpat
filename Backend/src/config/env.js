@@ -227,7 +227,7 @@ export const env = {
         cloudName: config.cloudinaryCloudName,
         apiKey: config.cloudinaryApiKey,
         apiSecret: config.cloudinaryApiSecret,
-        folder: process.env.CLOUDINARY_FOLDER || 'Quick Drop-taxi',
+        folder: process.env.CLOUDINARY_FOLDER || 'Jhatpat-taxi',
     },
     firebase: {
         databaseURL: config.firebaseDatabaseUrl,
@@ -262,7 +262,7 @@ export const isOriginAllowed = (origin) => {
         .map((value) => value.trim())
         .filter(Boolean);
 
-    const list = allowed.length > 0 ? allowed : ['https://k9rides.onrender.com'];
+    const list = allowed.length > 0 ? allowed : ['https://jhatpat.onrender.com'];
 
     if (list.includes('*') || list.includes(origin)) {
         return true;
@@ -272,8 +272,8 @@ export const isOriginAllowed = (origin) => {
         const url = new URL(origin);
         if (
             url.hostname.endsWith('.vercel.app') ||
-            url.hostname.endsWith('.k9rides.com') ||
-            url.hostname === 'k9rides.com' ||
+            url.hostname.endsWith('.jhatpat.com') ||
+            url.hostname === 'jhatpat.com' ||
             url.hostname === 'localhost' ||
             url.hostname === '127.0.0.1'
         ) {

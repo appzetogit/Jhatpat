@@ -17,7 +17,7 @@ export default function Navbar({ settings }) {
 
   const navLinks = [
     { name: 'Services', href: '#services' },
-    { name: 'Why Quick Drop', href: '#why-us' },
+    { name: 'Why Jhatpat', href: '#why-us' },
     { name: 'Partner With Us', href: '#partners' },
     { name: 'FAQs', href: '#faq' },
   ]
@@ -46,10 +46,10 @@ export default function Navbar({ settings }) {
             {/* Logo */}
             <a href="#" className="flex items-center gap-3 group">
               {appLogo ? (
-                <img src={appLogo} alt="Quick Drop" className="h-10 w-auto object-contain" />
+                <img src={appLogo} alt="Jhatpat" className="h-10 w-auto object-contain" />
               ) : (
                 <span className="font-black text-xl tracking-tight text-slate-900">
-                  Quick Drop
+                  Jhatpat
                 </span>
               )}
             </a>
@@ -123,7 +123,7 @@ export default function Navbar({ settings }) {
             >
               <div className="flex items-center justify-between mb-10">
                 {settings?.logo_url ? (
-                  <img src={settings.logo_url} alt="Quick Drop" className="h-10 w-auto object-contain" />
+                  <img src={settings.logo_url} alt="Jhatpat" className="h-10 w-auto object-contain" />
                 ) : (
                   <span className="font-black text-xl text-slate-900">Quick <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ff5100] via-[#e11d48] via-[#1d4ed8] to-[#10b981]">Drop</span></span>
                 )}

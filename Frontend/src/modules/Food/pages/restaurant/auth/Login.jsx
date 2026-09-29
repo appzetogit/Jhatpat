@@ -15,8 +15,8 @@ const DEFAULT_COUNTRY_CODE = "+91"
 
 export default function RestaurantLogin() {
   const companyName = useCompanyName()
-  // How this site writes its own name ("Quick Drops"), set per build; the
-  // business-settings name ("QuickDrop") otherwise.
+  // How this site writes its own name ("Jhatpats"), set per build; the
+  // business-settings name ("Jhatpat") otherwise.
   const brandName = import.meta.env.VITE_BRAND_NAME || companyName
   const navigate = useNavigate()
   const phoneInputRef = useRef(null)

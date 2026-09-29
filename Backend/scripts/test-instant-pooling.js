@@ -18,9 +18,9 @@ const testPoolingLifecycle = async () => {
   await mongoose.connect(config.mongodbUri);
 
   console.log('Cleaning up existing mock data...');
-  const mockEmail = 'pooling.test.driver@k9rides.com';
-  const mockUserEmailA = 'passenger.a@k9rides.com';
-  const mockUserEmailB = 'passenger.b@k9rides.com';
+  const mockEmail = 'pooling.test.driver@jhatpat.com';
+  const mockUserEmailA = 'passenger.a@jhatpat.com';
+  const mockUserEmailB = 'passenger.b@jhatpat.com';
 
   await Driver.deleteMany({ email: mockEmail });
   await User.deleteMany({ email: { $in: [mockUserEmailA, mockUserEmailB] } });

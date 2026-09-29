@@ -126,7 +126,7 @@ export async function pushOrderToPetpooja(orderMongoId) {
                 subtotal: order.pricing?.subtotal || 0,
                 packaging_charge: order.pricing?.packagingFee || 0,
                 platform_fee: order.pricing?.platformFee || 0,
-                order_source: 'Quick Drop',
+                order_source: 'Jhatpat',
                 order_time: order.createdAt
             },
             customer: {
@@ -219,9 +219,9 @@ export async function pushOrderToPetpooja(orderMongoId) {
 }
 
 /**
- * Synchronizes order status transitions from K9 rides to Petpooja.
+ * Synchronizes order status transitions from Jhatpat to Petpooja.
  * @param {string} orderMongoId 
- * @param {string} status - New K9 status
+ * @param {string} status - New Jhatpat status
  */
 export async function updateOrderStatusInPetpooja(orderMongoId, status) {
     try {
@@ -239,7 +239,7 @@ export async function updateOrderStatusInPetpooja(orderMongoId, status) {
             return;
         }
 
-        // Map K9 orderStatus to Petpooja order statuses
+        // Map Jhatpat orderStatus to Petpooja order statuses
         // Petpooja typical statuses: 'dispatched' (out for delivery), 'completed' (delivered), 'cancelled' (cancelled)
         let petpoojaStatus = '';
         if (status === 'picked_up') {

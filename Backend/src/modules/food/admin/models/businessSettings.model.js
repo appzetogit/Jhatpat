@@ -2,8 +2,8 @@ import mongoose from 'mongoose';
 
 const businessSettingsSchema = new mongoose.Schema(
     {
-        companyName: { type: String, required: true, default: 'Quick Drop' },
-        email: { type: String, required: true, default: 'admin@quickdropsindia.com' },
+        companyName: { type: String, required: true, default: 'Jhatpat' },
+        email: { type: String, required: true, default: 'admin@jhatpatsindia.com' },
         phone: {
             countryCode: { type: String, default: '+91' },
             number: { type: String, default: '' }
