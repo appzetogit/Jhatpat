@@ -762,7 +762,7 @@ export const getProfile = async (userId, role) => {
 };
 
 // Every value the model accepts.
-const ADMIN_SERVICES_ALLOWED = ["food", "medical", "taxi"];
+const ADMIN_SERVICES_ALLOWED = ["food", "taxi"];
 
 /** Update admin profile (name, email, phone, profileImage). Only for ADMIN role. */
 export const updateAdminProfile = async (userId, body) => {

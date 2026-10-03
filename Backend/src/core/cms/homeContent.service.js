@@ -25,7 +25,6 @@ import { decideAdminAccess } from '../admin/adminAccessPolicy.js';
 const SECTIONS = [
   ['food', 'Food'],
   ['taxi', 'Rides'],
-  ['medical', 'Medical'],
   ['porter', 'Parcel'],
   ['rental', 'Rental'],
   ['services', 'Services'],

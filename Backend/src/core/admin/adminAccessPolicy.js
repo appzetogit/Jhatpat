@@ -23,13 +23,12 @@ import { resolveAdminLevel, resolveAdminModule } from './adminHierarchy.service.
 
 export const ADMIN_SERVICES = [
   { key: 'food', label: 'Food' },
-  { key: 'medical', label: 'Medical' },
   { key: 'taxi', label: 'Taxi' },
 ];
 export const ADMIN_SERVICE_KEYS = ADMIN_SERVICES.map((s) => s.key);
 
-const ALL = ['food', 'medical', 'taxi'];
-const STORES = ['food', 'medical'];
+const ALL = ['food', 'taxi'];
+const STORES = ['food'];
 
 /**
  * What a sub-admin can be given. `services` decides which panels a resource is
