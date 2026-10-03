@@ -311,7 +311,6 @@ async function validatePayload(admin, caller, body, { creating }) {
     return list;
   };
   out.foodZoneIds = zonesFor(body.foodZoneIds, caller.foodZoneIds, services.includes('food'), 'food');
-  out.qcZoneIds = zonesFor(body.qcZoneIds, caller.qcZoneIds, services.includes('medical'), 'medical');
   out.taxiZoneIds = zonesFor(body.taxiZoneIds, caller.taxiZoneIds || [], services.includes('taxi'), 'taxi');
   return out;
 }
@@ -329,7 +328,7 @@ function applyTo(doc, data, admin) {
     doc.admin_type = 'superadmin';
     doc.module = null;
     doc.permissions = ['*'];
-    doc.servicesAccess = ['food', 'medical', 'taxi'];
+    doc.servicesAccess = ['food', 'taxi'];
     doc.canDelete = true;
   } else {
     if (data.canDelete !== undefined) doc.canDelete = data.canDelete;

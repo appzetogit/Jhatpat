@@ -37,7 +37,7 @@ const adminSchema = new mongoose.Schema(
         },
         servicesAccess: {
             type: [String],
-            enum: ['food', 'medical', 'taxi'],
+            enum: ['food', 'taxi'],
             default: ['food']
         },
         // --- Admin Hierarchy Fields ---
