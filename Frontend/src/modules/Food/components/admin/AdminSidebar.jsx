@@ -60,7 +60,6 @@ import { Input } from "@food/components/ui/input"
 import { adminSidebarMenu } from "@food/utils/adminSidebarMenu"
 import { masterSidebarMenu } from "@food/utils/masterSidebarMenu"
 import { getCachedSettings, loadBusinessSettings } from "@food/utils/businessSettings"
-import quickSpicyLogo from "@food/assets/k9-logo.jpg"
 import { useSettings } from "../../../Taxi/shared/context/SettingsContext"
 import { useAdminAccess, filterMenuForAccess, hasPanel, isRestricted } from "@food/utils/adminAccess"
 /**
@@ -325,13 +324,11 @@ export default function AdminSidebar({ isOpen = false, onClose, onCollapseChange
   const displayTitle = inMaster ? "Master" : getVerticalTitle(adminBase, companyName)
 
   // Business settings ship logo.url as "" until an operator uploads one, so on a fresh
-  // install both activeLogo and logoUrl are empty and the expanded rail rendered
-  // <img src="">, which paints a broken-image icon. Resolve the source once, fall back
-  // to the bundled mark, and let a dead remote URL fall back the same way.
-  const logoSrc = activeLogo || logoUrl || quickSpicyLogo
-  const handleLogoError = (e) => {
-    if (e.target.src !== quickSpicyLogo) e.target.src = quickSpicyLogo
-  }
+  // install both activeLogo and logoUrl are empty. Rendering <img src=""> paints a
+  // broken-image icon, so the JSX below renders a "J" mark instead of an <img> when
+  // there is no source yet, rather than falling back to a bundled logo file.
+  const logoSrc = activeLogo || logoUrl
+  const handleLogoError = (e) => { e.target.style.display = 'none' }
 
   // Load business settings logo
   useEffect(() => {
@@ -909,12 +906,16 @@ export default function AdminSidebar({ isOpen = false, onClose, onCollapseChange
             {!isCollapsed && (
               <div className="flex items-center gap-3.5 animate-[slideIn_0.3s_ease-out]">
                 <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--sb-border)] bg-[var(--sb-hover)] p-1 transition-all">
-                  <img
-                    src={logoSrc}
-                    alt={displayTitle}
-                    className="h-9 w-9 object-contain"
-                    onError={handleLogoError}
-                  />
+                  {logoSrc ? (
+                    <img
+                      src={logoSrc}
+                      alt={displayTitle}
+                      className="h-9 w-9 object-contain"
+                      onError={handleLogoError}
+                    />
+                  ) : (
+                    <span className="text-lg font-black text-[var(--sb-ink)]">J</span>
+                  )}
                 </div>
                 <div className="flex flex-col">
                   <h3 className="text-[15px] font-extrabold leading-tight text-[var(--sb-ink)] tracking-tight">
@@ -936,13 +937,17 @@ export default function AdminSidebar({ isOpen = false, onClose, onCollapseChange
             {isCollapsed && (
               <div className="w-full flex items-center justify-center">
                 <div className="w-10 h-10 rounded-lg bg-[var(--sb-hover)] flex items-center justify-center shadow-lg shadow-[rgba(26,26,26,0.12)] ring-1 ring-[var(--sb-border)]">
-                  <img
-                    src={logoSrc}
-                    alt={displayTitle}
-                    className="w-10 h-10 object-contain"
-                    loading="lazy"
-                    onError={handleLogoError}
-                  />
+                  {logoSrc ? (
+                    <img
+                      src={logoSrc}
+                      alt={displayTitle}
+                      className="w-10 h-10 object-contain"
+                      loading="lazy"
+                      onError={handleLogoError}
+                    />
+                  ) : (
+                    <span className="text-lg font-black text-[var(--sb-ink)]">J</span>
+                  )}
                 </div>
               </div>
             )}

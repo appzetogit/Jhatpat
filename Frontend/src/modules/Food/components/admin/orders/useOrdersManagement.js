@@ -1,6 +1,5 @@
 import { useState, useMemo } from "react"
 import { exportToCSV, exportToExcel, exportToPDF, exportToJSON } from "./ordersExportUtils"
-import quickSpicyLogo from "@food/assets/k9-logo.jpg"
 import { getCachedSettings, loadBusinessSettings } from "@food/utils/businessSettings"
 const debugError = () => {}
 
@@ -300,8 +299,8 @@ export function useOrdersManagement(orders, statusKey, title) {
 
       const settings = getCachedSettings() || await loadBusinessSettings()
       const companyName = settings?.companyName || "Jhatpat Food"
-      const logoUrl = settings?.logo?.url || quickSpicyLogo
-      const logoDataUrl = await imageUrlToDataUrl(logoUrl)
+      const logoUrl = settings?.logo?.url || ""
+      const logoDataUrl = logoUrl ? await imageUrlToDataUrl(logoUrl) : null
 
       const items = Array.isArray(order.items) ? order.items : []
       const itemsSubtotal = items.reduce((sum, item) => {

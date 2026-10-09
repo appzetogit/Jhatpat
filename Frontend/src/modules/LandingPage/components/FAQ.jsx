@@ -124,7 +124,7 @@ export default function FAQ({ settings }) {
           <p className="text-slate-500 text-sm mb-4">Still have questions? Our support team is available 24/7.</p>
           <a
             href="/support"
-            className="inline-flex items-center gap-2 px-8 py-3 rounded-full font-bold text-sm text-white k9-btn-glow-pulse"
+            className="inline-flex items-center gap-2 px-8 py-3 rounded-full font-bold text-sm text-white brand-btn-glow-pulse"
           >
             Contact Support →
           </a>

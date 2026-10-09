@@ -1,5 +1,5 @@
 /**
- * Rapido/Zomato-Style Route-Based Marker Animation
+ * Route-Based Marker Animation
  * 
  * Core Principle: Marker moves on polyline, not GPS
  */

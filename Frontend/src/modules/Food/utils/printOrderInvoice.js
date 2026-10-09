@@ -1,4 +1,4 @@
-export const printZomatoInvoice = (order, companyName, termsHtml = "") => {
+export const printOrderInvoice = (order, companyName, termsHtml = "") => {
   const printWindow = window.open("", "_blank")
   if (!printWindow) {
     alert("Please allow popups for this site")

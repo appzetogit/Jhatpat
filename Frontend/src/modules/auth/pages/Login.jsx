@@ -7,10 +7,6 @@ import apiClient, { authAPI } from "@food/api"
 import { setUnifiedAuthData, isUnifiedAuthenticated } from "@food/utils/auth"
 import { useSettings } from "../../Taxi/shared/context/SettingsContext"
 
-// Fallback only -- the logo an admin uploads in business settings wins. The
-// file path is unchanged because the asset itself still lives there; note that
-// renaming the file would not change the artwork inside it.
-const FALLBACK_LOGO = "/k9-logo.png"
 const COMPANY_NAME = "Jhatpat"
 
 export default function UnifiedOTPFastLogin({ viewType = "auth" }) {
@@ -399,7 +395,11 @@ export default function UnifiedOTPFastLogin({ viewType = "auth" }) {
             className="flex items-center gap-4 mb-16"
           >
             <div className="w-12 h-12 flex items-center justify-center bg-white rounded-xl shadow-lg overflow-hidden">
-              <img src={activeLogo || FALLBACK_LOGO} alt={COMPANY_NAME} className="w-full h-full object-cover" />
+              {activeLogo ? (
+                <img src={activeLogo} alt={COMPANY_NAME} className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-lg font-black text-slate-900">J</span>
+              )}
             </div>
             <h1 className="text-3xl font-black tracking-tight">{COMPANY_NAME}</h1>
           </motion.div>
@@ -468,11 +468,17 @@ export default function UnifiedOTPFastLogin({ viewType = "auth" }) {
               className="w-full flex flex-col items-center"
             >
               {/* Brand logo */}
-              <img 
-                src={activeLogo || FALLBACK_LOGO} 
-                alt={COMPANY_NAME} 
-                className="w-[84px] h-[84px] rounded-full object-cover shadow-lg mb-6" 
-              />
+              {activeLogo ? (
+                <img
+                  src={activeLogo}
+                  alt={COMPANY_NAME}
+                  className="w-[84px] h-[84px] rounded-full object-cover shadow-lg mb-6"
+                />
+              ) : (
+                <div className="w-[84px] h-[84px] rounded-full bg-white shadow-lg mb-6 flex items-center justify-center">
+                  <span className="text-3xl font-black text-slate-900">J</span>
+                </div>
+              )}
 
               <div className="text-center mb-8">
                 <h2 className="text-[32px] leading-tight font-black text-[#1A1A1A] tracking-tight mb-2">

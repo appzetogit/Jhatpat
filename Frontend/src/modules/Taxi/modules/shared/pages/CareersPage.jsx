@@ -21,7 +21,7 @@ const CareersPage = () => {
     </ul>
     <br/>
     <h2>How to Apply</h2>
-    <p>Please send your resume along with a brief cover letter outlining your experience and motivation to <a href="mailto:k9bharatrides@gmail.com" class="text-[#C5902A] font-bold underline">k9bharatrides@gmail.com</a>.</p>
+    <p>Please send your resume along with a brief cover letter outlining your experience and motivation to <a href="mailto:jhatpattaxiofficial@gmail.com" class="text-[#C5902A] font-bold underline">jhatpattaxiofficial@gmail.com</a>.</p>
   `;
 
   useEffect(() => {

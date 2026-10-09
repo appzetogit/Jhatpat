@@ -16,7 +16,7 @@ import {
 import { DateRangeCalendar } from "@food/components/ui/date-range-calendar"
 import api, { restaurantAPI } from "@food/api"
 import { useRestaurantNotifications } from "@food/hooks/useRestaurantNotifications"
-import { printZomatoInvoice } from "@food/utils/printZomatoInvoice"
+import { printOrderInvoice } from "@food/utils/printOrderInvoice"
 import { Download } from "lucide-react"
 const debugLog = (...args) => { }
 const debugWarn = (...args) => { }
@@ -408,7 +408,7 @@ export default function AllOrdersPage() {
         debugWarn("Failed to fetch terms", err)
       }
 
-      printZomatoInvoice(order.rawOrder || order, restaurantData?.name || "Restaurant", termsHtml)
+      printOrderInvoice(order.rawOrder || order, restaurantData?.name || "Restaurant", termsHtml)
     } catch (err) {
       debugError("Failed to generate invoice", err)
       alert("Failed to generate invoice")

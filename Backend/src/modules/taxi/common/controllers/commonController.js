@@ -148,7 +148,7 @@ export const getLandingPageSettings = asyncHandler(async (_req, res) => {
                 linkedin: 'https://linkedin.com/company/jhatpat',
                 youtube: 'https://youtube.com/jhatpat'
             },
-            contact_email: 'k9bharatrides@gmail.com',
+            contact_email: 'jhatpattaxiofficial@gmail.com',
             contact_phone: '+91 7358789910',
             contact_address: 'Jhatpat, Siliguri, West Bengal, India',
             contact_location: { lat: 26.7271, lng: 88.3953 },

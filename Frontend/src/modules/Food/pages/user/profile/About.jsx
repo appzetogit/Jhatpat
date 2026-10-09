@@ -5,7 +5,6 @@ import { motion } from "framer-motion"
 import AnimatedPage from "@food/components/user/AnimatedPage"
 import { Button } from "@food/components/ui/button"
 import { Card, CardContent } from "@food/components/ui/card"
-import quickSpicyLogo from "@food/assets/k9-logo.jpg"
 import api from "@food/api"
 import { API_ENDPOINTS } from "@food/api/config"
 import { useCompanyName } from "@food/hooks/useCompanyName"
@@ -122,17 +121,17 @@ export default function About() {
               >
                 <div className="relative">
                   <div className="absolute inset-0 bg-[#EB590E] rounded-full blur-2xl opacity-30 animate-pulse" />
-                  <div className="relative bg-white dark:bg-gray-800 rounded-full p-4 md:p-6 shadow-xl">
-                    <img
-                      src={logoUrl || quickSpicyLogo}
-                      alt={`${aboutData.appName} Logo`}
-                      className="h-16 w-16 md:h-20 md:w-20 object-contain rounded-full"
-                      onError={(e) => {
-                        if (e.target.src !== quickSpicyLogo) {
-                          e.target.src = quickSpicyLogo
-                        }
-                      }}
-                    />
+                  <div className="relative bg-white dark:bg-gray-800 rounded-full p-4 md:p-6 shadow-xl h-16 w-16 md:h-20 md:w-20 flex items-center justify-center">
+                    {logoUrl ? (
+                      <img
+                        src={logoUrl}
+                        alt={`${aboutData.appName} Logo`}
+                        className="h-full w-full object-contain rounded-full"
+                        onError={(e) => { e.target.style.display = 'none' }}
+                      />
+                    ) : (
+                      <span className="text-2xl font-black text-[#EB590E]">{aboutData.appName}</span>
+                    )}
                   </div>
                 </div>
               </motion.div>

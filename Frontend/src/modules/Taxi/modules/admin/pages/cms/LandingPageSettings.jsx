@@ -607,7 +607,7 @@ const LandingPageSettings = ({ defaultTab = 'general', defaultPage = 'about_us' 
                 <div className="md:col-span-2">
                   <InputField label="Office Physical Address" name="contact_address" value={settings.contact_address} onChange={handleChange} placeholder="123 Corporate St, Sector 5..." />
                 </div>
-                <InputField label="Support Contact Email" name="contact_email" value={settings.contact_email} onChange={handleChange} placeholder="k9bharatrides@gmail.com" />
+                <InputField label="Support Contact Email" name="contact_email" value={settings.contact_email} onChange={handleChange} placeholder="jhatpattaxiofficial@gmail.com" />
                 <InputField label="Support Hotline Number" name="contact_phone" value={settings.contact_phone} onChange={handleChange} placeholder="+91 7358789910" />
 
                 <div>

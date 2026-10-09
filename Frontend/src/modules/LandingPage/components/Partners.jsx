@@ -185,7 +185,7 @@ export default function Partners() {
                   <div className="relative w-fit">
                     <a
                       href={activePartner.ctaHref}
-                      className="relative inline-flex items-center gap-2.5 font-bold px-7 py-4 rounded-full text-white text-sm k9-btn-glow-pulse"
+                      className="relative inline-flex items-center gap-2.5 font-bold px-7 py-4 rounded-full text-white text-sm brand-btn-glow-pulse"
                     >
                       <Zap className="w-4 h-4" />
                       {activePartner.ctaText}

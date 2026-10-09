@@ -1033,7 +1033,7 @@ function RestaurantDetailsContent() {
     fetchRestaurant()
   }, [slug, zoneId, restaurant])
 
-  // Fetch real reviews from database (Zomato style)
+  // Fetch real reviews from database
   useEffect(() => {
     const fetchReviews = async () => {
       const targetId = restaurant?.mongoId || restaurant?.id || slug;
@@ -2001,7 +2001,7 @@ function RestaurantDetailsContent() {
     return () => clearInterval(interval)
   }, [highlightOffers.length])
 
-  // Smooth scroll to food list directly on load (Zomato effect)
+  // Smooth scroll to food list directly on load
   useEffect(() => {
     if (!loadingRestaurant && restaurant) {
       const scrollTimer = setTimeout(() => {

@@ -119,9 +119,9 @@ export default function Showcase() {
 
             {/* Contact links */}
             <div className="pt-6 border-t border-slate-800/60 flex flex-col sm:flex-row gap-4 text-xs text-slate-500">
-              <a href="mailto:k9bharatrides@gmail.com" className="flex items-center gap-1.5 hover:text-[#10b981] transition-colors">
+              <a href="mailto:jhatpattaxiofficial@gmail.com" className="flex items-center gap-1.5 hover:text-[#10b981] transition-colors">
                 <Mail className="w-4 h-4 text-[#10b981]" />
-                k9bharatrides@gmail.com
+                jhatpattaxiofficial@gmail.com
               </a>
               <a href="https://jhatpatsindia.com" target="_blank" rel="noreferrer" className="flex items-center gap-1.5 hover:text-[#10b981] transition-colors">
                 <Globe className="w-4 h-4 text-[#10b981]" />

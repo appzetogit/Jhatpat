@@ -172,7 +172,7 @@ export default function Hero({ settings }) {
           {/* CTA Buttons - App Download Badges */}
           <motion.div variants={itemVariants} className="flex flex-wrap gap-4 justify-center pt-6">
             <a
-              href="https://play.google.com/store/apps/details?id=com.k9bharat.user"
+              href={settings?.play_store_url || 'https://play.google.com/store/apps/details?id=com.Jhatpat.user'}
               target="_blank"
               rel="noopener noreferrer"
               className="transition-transform duration-200 hover:scale-[1.04]"

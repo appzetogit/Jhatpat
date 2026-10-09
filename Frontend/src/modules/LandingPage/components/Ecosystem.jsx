@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { UtensilsCrossed, Car, ArrowRight, CheckCircle2, Zap, Clock, Star } from 'lucide-react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import k9Logo from '../assets/k9-logo.png'
+import { useSettings } from '../../Taxi/shared/context/SettingsContext'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -36,6 +36,7 @@ const selectionOptions = [
 ]
 
 export default function Ecosystem() {
+  const { activeLogo } = useSettings() || {}
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState('food')
   const sectionRef = useRef(null)
@@ -96,7 +97,11 @@ export default function Ecosystem() {
               {/* Brand */}
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 flex items-center justify-center bg-white rounded-xl shadow-lg overflow-hidden">
-                  <img src={k9Logo} alt="Jhatpat" className="w-full h-full object-cover" loading="lazy" />
+                  {activeLogo ? (
+                    <img src={activeLogo} alt="Jhatpat" className="w-full h-full object-cover" loading="lazy" />
+                  ) : (
+                    <span className="text-base font-black text-slate-900">J</span>
+                  )}
                 </div>
                 <span className="text-xl font-black tracking-tight text-white">Jhatpat</span>
               </div>
@@ -210,7 +215,7 @@ export default function Ecosystem() {
               {/* CTA - App Download Badges */}
               <div className="pt-8 border-t border-slate-200 mt-8 flex gap-4 justify-center">
                 <a
-                  href="https://play.google.com/store/apps/details?id=com.k9bharat.user"
+                  href="https://play.google.com/store/apps/details?id=com.Jhatpat.user"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="transition-transform duration-200 hover:scale-[1.04]"

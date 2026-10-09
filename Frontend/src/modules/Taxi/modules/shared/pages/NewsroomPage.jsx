@@ -20,7 +20,7 @@ const NewsroomPage = () => {
     </ul>
     <br/>
     <h2>Media Contact</h2>
-    <p>For press inquiries, assets, and interview requests, please contact our media team at <a href="mailto:k9bharatrides@gmail.com" class="text-[#C5902A] font-bold underline">k9bharatrides@gmail.com</a>.</p>
+    <p>For press inquiries, assets, and interview requests, please contact our media team at <a href="mailto:jhatpattaxiofficial@gmail.com" class="text-[#C5902A] font-bold underline">jhatpattaxiofficial@gmail.com</a>.</p>
   `;
 
   useEffect(() => {

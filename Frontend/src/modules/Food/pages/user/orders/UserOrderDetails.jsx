@@ -20,7 +20,7 @@ import { toast } from "sonner"
 import { jsPDF } from "jspdf"
 import autoTable from "jspdf-autotable"
 import { getCompanyNameAsync } from "@food/utils/businessSettings"
-import { printZomatoInvoice } from "@food/utils/printZomatoInvoice"
+import { printOrderInvoice } from "@food/utils/printOrderInvoice"
 const debugLog = (...args) => { }
 const debugWarn = (...args) => { }
 const debugError = (...args) => { }
@@ -304,7 +304,7 @@ export default function UserOrderDetails() {
         surgeAmount: pricing.surgeAmount || 0
       }
 
-      printZomatoInvoice(unifiedOrder, companyName, termsHtml)
+      printOrderInvoice(unifiedOrder, companyName, termsHtml)
       toast.success("Invoice generated successfully!")
     } catch (error) {
       debugError("Error generating invoice:", error)

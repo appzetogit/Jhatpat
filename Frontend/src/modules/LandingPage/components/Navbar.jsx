@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
-import k9Logo from '../assets/k9-logo.png'
 import { useSettings } from '../../Taxi/shared/context/SettingsContext'
 
 export default function Navbar({ settings }) {
@@ -83,7 +82,7 @@ export default function Navbar({ settings }) {
       {/* Global CSS Style tag injection */}
       <style dangerouslySetInnerHTML={{
         __html: `
-        @keyframes k9-glow-pulse {
+        @keyframes brand-glow-pulse {
           0%, 100% {
             transform: scale(1);
             box-shadow: 0 4px 14px rgba(255, 81, 0, 0.2);
@@ -93,13 +92,13 @@ export default function Navbar({ settings }) {
             box-shadow: 0 6px 20px rgba(29, 78, 216, 0.4);
           }
         }
-        .k9-btn-glow-pulse {
+        .brand-btn-glow-pulse {
           background: linear-gradient(135deg, #ff5100, #e11d48, #1d4ed8);
           background-size: 200% 200%;
-          animation: k9-glow-pulse 3s infinite ease-in-out;
+          animation: brand-glow-pulse 3s infinite ease-in-out;
           transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .k9-btn-glow-pulse:hover {
+        .brand-btn-glow-pulse:hover {
           background-position: right center;
           transform: translateY(-2px) scale(1.05);
           box-shadow: 0 8px 25px rgba(225, 29, 72, 0.45);

@@ -11,8 +11,8 @@ import {
 import io from 'socket.io-client';
 import { API_BASE_URL } from '@food/api/config';
 import bikeLogo from '@food/assets/bikelogo.png';
-import k9Logo from '@food/assets/k9-logo.jpg';
 import { subscribeOrderTracking } from '@food/realtimeTracking';
+import { useSettings } from '../../../Taxi/shared/context/SettingsContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Navigation, Info, Circle } from 'lucide-react';
 import { env } from "@/config/runtimeEnv";
@@ -46,6 +46,10 @@ const DeliveryTrackingMap = ({
   order = null,
   onEtaUpdate = null
 }) => {
+  // Rider marker brand mark: whatever logo the admin has set, falling back to
+  // the generic bike icon rather than any particular brand's logo.
+  const { activeLogo } = useSettings() || {};
+  const riderMarkerLogo = activeLogo || bikeLogo;
   const [map, setMap] = useState(null);
   const [riderLocation, setRiderLocation] = useState(null);
   const [directions, setDirections] = useState(null);
@@ -546,7 +550,7 @@ const DeliveryTrackingMap = ({
             </div>
             */}
             
-            {/* Zomato-style brand themed rider marker with K9 logo and animated pulsing aura */}
+            {/* Brand-themed rider marker with animated pulsing aura */}
             <div className="relative -translate-x-1/2 -translate-y-1/2 group">
               {/* Pulsing glow aura around rider */}
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
@@ -557,10 +561,10 @@ const DeliveryTrackingMap = ({
                 />
               </div>
               
-              {/* Main Circular Ring containing K9 brand logo */}
+              {/* Main Circular Ring containing the app's brand logo */}
               <div className="relative w-11 h-11 rounded-full bg-white shadow-xl border-[3px] border-amber-500 flex items-center justify-center overflow-hidden">
-                <img 
-                  src={k9Logo}
+                <img
+                  src={riderMarkerLogo}
                   alt="Jhatpat"
                   className="w-full h-full object-cover"
                 />

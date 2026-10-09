@@ -7,7 +7,6 @@ import { useCart } from "@food/context/CartContext"
 import { useLocationSelector } from "./UserLayout"
 import { FaLocationDot } from "react-icons/fa6"
 import { getCachedSettings, loadBusinessSettings } from "@food/utils/businessSettings"
-import quickSpicyLogo from "@food/assets/k9-logo.jpg"
 import { useSettings } from "../../../Taxi/shared/context/SettingsContext"
 
 export default function PageNavbar({
@@ -1004,16 +1003,10 @@ export default function PageNavbar({
                   e.target.style.display = 'none'
                 }}
               />
-            ) : companyName ? (
-              <span className={`text-lg font-bold text-${textColor}`}>
-                {companyName}
-              </span>
             ) : (
-              <img
-                src={activeLogo || quickSpicyLogo}
-                alt="Logo"
-                className="h-10 w-auto sm:h-12 md:h-14 object-contain scale-[1.8] sm:scale-[2] origin-left"
-              />
+              <span className={`text-lg font-bold text-${textColor}`}>
+                {companyName || "Jhatpat"}
+              </span>
             )}
           </Link>
         )}

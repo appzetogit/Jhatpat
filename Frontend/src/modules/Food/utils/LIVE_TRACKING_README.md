@@ -1,7 +1,7 @@
-# Live Tracking Polyline System - Rapido/Zomato Style
+# Live Tracking Polyline System
 
 ## Overview
-This system implements real-time polyline tracking similar to Rapido/Zomato, where the route polyline dynamically updates as the rider moves, removing points behind the rider and keeping only the forward route visible.
+This system implements real-time polyline tracking where the route polyline dynamically updates as the rider moves, removing points behind the rider and keeping only the forward route visible.
 
 ## Architecture
 

@@ -40,7 +40,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@food/components/ui/popover";
-import quickSpicyLogo from "@food/assets/k9-logo.jpg";
 import { adminAPI } from "@food/api";
 import { clearModuleAuth } from "@food/utils/auth";
 import { getCachedSettings, loadBusinessSettings } from "@food/utils/businessSettings";
@@ -289,19 +288,12 @@ export default function AdminNavbar({ onMenuClick }) {
                     alt={businessSettings.companyName || "Company"}
                     className="w-24 h-10 object-contain"
                     loading="lazy"
-                    onError={(e) => {
-                      // Fallback to default logo if company logo fails to load
-                      e.target.src = quickSpicyLogo;
-                    }}
+                    onError={(e) => { e.target.style.display = 'none' }}
                   />
                 ) : (
-                  businessSettings?.companyName ? (
-                    <span className="text-sm font-semibold text-neutral-700 px-2 truncate">
-                      {businessSettings.companyName}
-                    </span>
-                  ) : (
-                    <img src={quickSpicyLogo} alt={businessSettings?.companyName || "Company"} className="w-24 h-10 object-contain" loading="lazy" />
-                  )
+                  <span className="text-sm font-semibold text-neutral-700 px-2 truncate">
+                    {businessSettings?.companyName || "Jhatpat"}
+                  </span>
                 )}
               </div>
             </div>
