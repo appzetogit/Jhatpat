@@ -3,8 +3,9 @@ import mongoose from 'mongoose';
 
 dotenv.config();
 
-const UPLOAD_BASE = (process.env.UPLOAD_BASE_URL || 'https://jhatpattaxi.com/uploads').replace(/\/+$/, '');
-const img = (relative) => `${UPLOAD_BASE}/${relative}`;
+// Static images live in Frontend/public and are served from the frontend origin,
+// so they are referenced by root-relative path (same style as '/food/taxi1.jpeg').
+const publicImg = (relative) => `/${relative}`;
 
 const load = async (path, name) => {
   const mod = await import(path);
@@ -92,7 +93,7 @@ const CATALOG = [
   ].map(([name, icon]) => ['Vehicle', { name }, { name, icon_type: icon, active: true }]),
 
   ['Banner', { title: 'Ride with Jhatpat' }, {
-    title: 'Ride with Jhatpat', image: img('taxi/banners/hero2.png'), link_type: 'external_link',
+    title: 'Ride with Jhatpat', image: publicImg('hero2.png'), link_type: 'external_link',
     external_link: 'https://jhatpattaxi.com/taxi', active: true,
   }],
 ];
