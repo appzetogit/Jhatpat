@@ -1811,15 +1811,44 @@ export const serializeRideRealtime = (ride) => ({
   })),
 });
 
+/**
+ * Whether `role`+`entityId` may access a ride whose participants are
+ * `ride.userId` / `ride.driverId`. Pure (no DB), so it is unit-checkable --
+ * see __checks__/ensureRideParticipantAccess.check.js.
+ *
+ * Case-insensitive, and fail-closed on anything that isn't recognised.
+ *
+ * The unified auth system issues uppercase roles ('USER', 'DELIVERY_PARTNER')
+ * for the food side, and this used to compare against the lowercase
+ * 'user'/'driver' the taxi side uses. Neither branch matched an uppercase
+ * role, so the check fell through and allowed access unconditionally -- any
+ * authenticated USER or DELIVERY_PARTNER token could read any ride's chat
+ * and live location, not just their own. A role this does not recognise is
+ * denied rather than let through, since this file has no way to know it is
+ * safe.
+ */
+export const isRideParticipant = ({ role, entityId, ride }) => {
+  const normalizedRole = String(role || '').trim().toLowerCase();
+
+  if (normalizedRole === 'user') {
+    return String(ride?.userId) === String(entityId);
+  }
+
+  if (normalizedRole === 'driver') {
+    return String(ride?.driverId) === String(entityId);
+  }
+
+  return false;
+};
+
 export const ensureRideParticipantAccess = async ({ rideId, role, entityId }) => {
   const ride = await Ride.findById(rideId);
   if (!ride) throw new ApiError(404, 'Ride not found');
-  if (role === 'user' && String(ride.userId) !== String(entityId)) {
+
+  if (!isRideParticipant({ role, entityId, ride })) {
     throw new ApiError(403, 'Forbidden');
   }
-  if (role === 'driver' && String(ride.driverId) !== String(entityId)) {
-    throw new ApiError(403, 'Forbidden');
-  }
+
   return ride;
 };
 
