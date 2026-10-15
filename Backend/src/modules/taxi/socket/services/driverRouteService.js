@@ -44,15 +44,23 @@ const maybeWriteRouteToFirebase = ({ driverId, points }) => {
     return;
   }
 
-  database
-    .ref(`rides/${driverId}/route`)
-    .set({
-      points,
-      updatedAt: firebaseServerTimestamp(),
-    })
-    .catch((error) => {
-      console.error(`Firebase route sync failed for driver ${driverId}:`, error.message);
-    });
+  // Best-effort, same as the comment above promises: a synchronous throw here
+  // (as firebaseServerTimestamp() used to be, called as a function when it was
+  // a plain value) must not escape this setImmediate callback as an uncaught
+  // exception and take the whole process down over a location ping.
+  try {
+    database
+      .ref(`rides/${driverId}/route`)
+      .set({
+        points,
+        updatedAt: firebaseServerTimestamp(),
+      })
+      .catch((error) => {
+        console.error(`Firebase route sync failed for driver ${driverId}:`, error.message);
+      });
+  } catch (error) {
+    console.error(`Firebase route sync failed for driver ${driverId}:`, error.message);
+  }
 };
 
 export const updateDriverRoute = ({ io, rideId, driverId, coordinates }) => {

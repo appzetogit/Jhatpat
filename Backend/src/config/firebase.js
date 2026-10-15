@@ -130,6 +130,10 @@ export const getFirebaseMessaging = () => {
 };
 
 export const getFirebaseDatabase = getFirebaseDB;
-export const firebaseServerTimestamp = admin.database.ServerValue.TIMESTAMP;
+// admin.database.ServerValue.TIMESTAMP is a sentinel VALUE, not a function --
+// exported bare it crashed the one caller (driverRouteService.js) the moment
+// it called firebaseServerTimestamp(). That path never ran until Firebase
+// actually connected with real credentials, so it went unnoticed until then.
+export const firebaseServerTimestamp = () => admin.database.ServerValue.TIMESTAMP;
 
 export default admin;
