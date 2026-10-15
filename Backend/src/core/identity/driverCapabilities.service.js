@@ -256,6 +256,7 @@ export async function ensureUnifiedDriverForPartner(partner, { approved } = {}) 
 
     const { Driver } = await import('../../modules/taxi/driver/models/Driver.js');
     const { FoodDeliveryPartner } = await import('../../modules/food/delivery/models/deliveryPartner.model.js');
+    const { Vehicle } = await import('../../modules/taxi/admin/models/Vehicle.js');
 
     const isApproved = approved ?? partner.status === 'approved';
 
@@ -266,12 +267,25 @@ export async function ensureUnifiedDriverForPartner(partner, { approved } = {}) 
 
     if (!driver) {
         const crypto = await import('crypto');
+        const vehicleTypeKey = String(partner.vehicleType || 'bike').trim().toLowerCase();
+        // So dispatch's vehicleTypeId-based matching (matchingService.js
+        // buildDriverMatchFilters) can find this driver too, not only its
+        // vehicleType-string clause. A miss here just leaves the field unset,
+        // same as before -- never worse than the existing behaviour.
+        let matchedVehicle = null;
+        try {
+            matchedVehicle = await Vehicle.findOne({ icon_types: vehicleTypeKey }).select('_id icon_types').lean();
+        } catch (err) {
+            logger.warn(`ensureUnifiedDriverForPartner: vehicle type lookup failed: ${err.message}`);
+        }
         driver = await Driver.create({
             name: partner.name || 'Delivery Partner',
             phone: partner.phone,
             // Placeholder: delivery login is OTP-based. select:false on the schema.
             password: crypto.randomBytes(16).toString('hex'),
             vehicleType: partner.vehicleType || 'bike',
+            vehicleTypeId: matchedVehicle?._id || undefined,
+            vehicleIconType: matchedVehicle?.icon_types || vehicleTypeKey,
             serviceCapabilities: ['delivery'],
             // Schema default; applyPartnerCapabilities coerces this to the widest mode
             // the admin's capabilities allow. A fixed 'delivery' here made a new driver
