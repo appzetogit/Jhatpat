@@ -1260,12 +1260,19 @@ const dispatchAttempt = async (rideId, attemptIndex = 0) => {
       : radius;
 
     const rejectedDriverIds = new Set(dispatchState.rejectedDriverIds);
-    const notifiedDriverIds = new Set(dispatchState.notifiedDriverIds);
 
-    const availableDrivers = drivers.filter((driver) => {
-      const driverId = String(driver._id);
-      return !rejectedDriverIds.has(driverId) && !notifiedDriverIds.has(driverId);
-    });
+    /*
+     * Only an explicit decline (rejectRide, or cancel-after-accept via
+     * markDriverRejectedFromDispatch) takes a driver out of the pool for
+     * good. Being offered before and not answering used to be treated the
+     * same way, via notifiedDriverIds -- so a driver who simply missed one
+     * offer window (phone locked, no signal, mid-delivery) could never be
+     * offered that ride again, even on the next, wider-radius attempt. By
+     * the time this runs for attempt > 0, closeDriverRequestWindow has
+     * already told their app the previous window expired, so re-offering
+     * them here is a fresh request, not a duplicate of a live one.
+     */
+    const availableDrivers = drivers.filter((driver) => !rejectedDriverIds.has(String(driver._id)));
 
     const targetDrivers = dispatchConfig.dispatchType === 'broadcast'
       ? availableDrivers
