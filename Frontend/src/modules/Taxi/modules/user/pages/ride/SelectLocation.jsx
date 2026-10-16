@@ -145,6 +145,8 @@ const SelectLocation = () => {
   const [isSearchingLocations, setIsSearchingLocations] = useState(false);
   const [customError, setCustomError] = useState('');
   const [isValidating, setIsValidating] = useState(false);
+  const [zonePopularPlaces, setZonePopularPlaces] = useState([]);
+  const [isLoadingPopularPlaces, setIsLoadingPopularPlaces] = useState(false);
   const mapInstanceRef = useRef(null);
   const lastCenterRef = useRef(INDIA_CENTER);
   const geocoderRef = useRef(null);
@@ -159,6 +161,48 @@ const SelectLocation = () => {
 
 
   const zoneBounds = useMemo(() => getBoundsFromPaths(zonePaths), [zonePaths]);
+
+  /*
+   * Admin-curated landmarks for the zone the rider is in (Zone.popular_places,
+   * set from Taxi Admin > Price Management > Zone). pickupCoords is [lng, lat]
+   * and is already known on most loads (saved location); falls back to a
+   * one-off geolocation read, used only for this query, never touching the
+   * pickup field itself.
+   */
+  useEffect(() => {
+    let active = true;
+
+    const fetchPopularPlaces = async (lat, lng) => {
+      setIsLoadingPopularPlaces(true);
+      try {
+        const response = await api.get('/taxi/users/popular-places', { params: { lat, lng } });
+        if (!active) return;
+        const places = response?.data?.data?.places;
+        setZonePopularPlaces(Array.isArray(places) ? places : []);
+      } catch (error) {
+        if (active) setZonePopularPlaces([]);
+      } finally {
+        if (active) setIsLoadingPopularPlaces(false);
+      }
+    };
+
+    if (Array.isArray(pickupCoords) && pickupCoords.length === 2) {
+      fetchPopularPlaces(pickupCoords[1], pickupCoords[0]);
+    } else if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          if (active) fetchPopularPlaces(position.coords.latitude, position.coords.longitude);
+        },
+        () => {},
+        { timeout: 5000 },
+      );
+    }
+
+    return () => {
+      active = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -474,17 +518,11 @@ const SelectLocation = () => {
     };
   }, [query, zoneBounds]);
 
-  const POPULAR_LOCATIONS = [
-    { title: 'Indore Junction', address: 'Railway Station, Chhoti Gwaltoli, Indore, Madhya Pradesh', coords: [75.8677, 22.7176] },
-    { title: 'Devi Ahilya Bai Holkar Airport', address: 'Devi Ahilyabai Holkar Airport, Indore, Madhya Pradesh', coords: [75.8011, 22.7214] },
-    { title: 'Vijay Nagar', address: 'Vijay Nagar Square, Indore, Madhya Pradesh', coords: [75.8970, 22.7533] },
-    { title: 'Rajwada Palace', address: 'Rajwada, Indore, Madhya Pradesh', coords: [75.8532, 22.7183] },
-    { title: 'Bhawarkua Square', address: 'Bhawarkua, Indore, Madhya Pradesh', coords: [75.8690, 22.6953] },
-  ];
-
   const searchResults = useMemo(() => {
     if (query.trim().length === 0 || isQueryUnchanged) {
-      return POPULAR_LOCATIONS;
+      // Empty query shows the zone's admin-curated popular-places grid
+      // (zonePopularPlaces below) instead, not a plain search list.
+      return [];
     }
 
     const merged = [...remoteResults];
@@ -1139,12 +1177,12 @@ const SelectLocation = () => {
             ))}
           </div>
         ) : query.trim().length === 0 ? (
-          <div className="bg-white/75 backdrop-blur-md rounded-2xl border border-white/80 overflow-hidden shadow-[0_14px_34px_rgba(15,23,42,0.06)]">
+          <div>
             {/* Quick Go to Current Location */}
             <motion.button
               whileTap={{ scale: 0.99 }}
               onClick={handleUseCurrentLocationResult}
-              className="w-full text-left flex items-center gap-3 px-4 py-3.5 border-b border-white/70 bg-blue-50/30 hover:bg-blue-50/50 transition-colors group"
+              className="w-full text-left flex items-center gap-3 px-4 py-3.5 mb-4 bg-white/75 backdrop-blur-md rounded-2xl border border-white/80 shadow-[0_14px_34px_rgba(15,23,42,0.06)] hover:bg-blue-50/50 transition-colors group"
             >
                <div className="w-10 h-10 rounded-2xl bg-white border border-blue-100 shadow-sm flex items-center justify-center shrink-0">
                   {isLocating ? (
@@ -1160,28 +1198,37 @@ const SelectLocation = () => {
                <ChevronRight size={16} className="text-slate-300" />
             </motion.button>
 
-            {[
-              { title: 'Airport Indore', address: 'Devi Ahilya Bai Holkar Airport, Indore' },
-              { title: 'Indore Junction', address: 'Indore Junction Railway Station, Indore' },
-              { title: 'Rajwada Palace', address: 'Rajwada Palace, Indore' },
-              { title: 'Bhawarkuan Square', address: 'Bhawarkuan, Indore' }
-            ].map((result, idx) => (
-              <motion.button
-                key={idx}
-                type="button"
-                whileTap={{ scale: 0.99 }}
-                onClick={() => handleSelectResult(result)}
-                className="w-full text-left flex items-start gap-3 px-4 py-3 border-b border-white/70 last:border-none hover:bg-white/60 transition-colors"
-              >
-                <div className="mt-0.5 w-10 h-10 rounded-2xl bg-white/70 border border-white/80 shadow-sm flex items-center justify-center shrink-0 text-slate-500">
-                  <MapPin size={18} strokeWidth={2.6} />
-                </div>
-                <div className="min-w-0">
-                  <h4 className="text-[15px] font-semibold text-[#111d3a] leading-tight">{result.title}</h4>
-                  <p className="text-[13px] text-slate-500 font-medium mt-1 line-clamp-1">{result.address}</p>
-                </div>
-              </motion.button>
-            ))}
+            {/* Admin-curated places for this zone (Taxi Admin > Price Management > Zone) */}
+            {isLoadingPopularPlaces ? (
+              <div className="flex items-center justify-center py-8 text-slate-400">
+                <LoaderCircle size={20} className="animate-spin" />
+              </div>
+            ) : zonePopularPlaces.length > 0 ? (
+              <div className="grid grid-cols-3 gap-3">
+                {zonePopularPlaces.map((place, idx) => (
+                  <motion.button
+                    key={`${place.name}-${idx}`}
+                    type="button"
+                    whileTap={{ scale: 0.96 }}
+                    onClick={() => handleSelectResult({
+                      title: place.name,
+                      address: place.address || place.name,
+                      coords: [place.location?.lng, place.location?.lat],
+                    })}
+                    className="flex flex-col items-center gap-2 text-center"
+                  >
+                    <div className="w-full aspect-square rounded-2xl bg-amber-50 border border-amber-100 shadow-sm overflow-hidden flex items-center justify-center">
+                      {place.image ? (
+                        <img src={place.image} alt={place.name} className="w-full h-full object-cover" loading="lazy" />
+                      ) : (
+                        <MapPin size={26} className="text-amber-500" strokeWidth={2.2} />
+                      )}
+                    </div>
+                    <span className="text-[12px] font-semibold text-[#111d3a] leading-tight line-clamp-2">{place.name}</span>
+                  </motion.button>
+                ))}
+              </div>
+            ) : null}
           </div>
         ) : (
           <div className="text-center py-12">
