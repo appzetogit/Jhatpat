@@ -69,7 +69,6 @@ const normalizePaymentTypes = (value) => {
 const normalizeTransportType = (value = '') => {
    const normalized = String(value || '').trim().toLowerCase();
    if (normalized === 'delivery') return 'delivery';
-   if (normalized === 'pooling') return 'pooling';
    if (normalized === 'both' || normalized === 'all') return 'both';
    return normalized === 'taxi' ? 'taxi' : '';
 };
@@ -102,8 +101,6 @@ const initialFormState = {
    admin_commision: '',
    admin_commission_type_from_driver: '1',
    admin_commission_from_driver: '',
-   admin_commission_type_for_owner: '1',
-   admin_commission_for_owner: '',
    service_tax: '',
    order_number: '',
    base_price: '',
@@ -117,11 +114,6 @@ const initialFormState = {
    enable_airport_ride: false,
    support_airport_fee: '',
    airport_surge: '',
-   enable_outstation_ride: false,
-   outstation_base_price: '',
-   outstation_base_distance: '',
-   outstation_price_per_distance: '',
-   outstation_time_price: '',
    enable_ride_sharing: false,
    enable_shared_ride: 0,
    price_per_seat: '',
@@ -190,7 +182,7 @@ const SetPrices = ({ mode }) => {
          normalized.set('both', { id: 'both', name: 'both', display_name: 'Both' });
       }
 
-      return Array.from(normalized.values()).filter(t => t.name !== 'pooling');
+      return Array.from(normalized.values()).filter(t => ['taxi', 'delivery', 'both'].includes(t.name));
    }, [transportTypes]);
 
    const [formData, setFormData] = useState(initialFormState);
@@ -216,8 +208,6 @@ const SetPrices = ({ mode }) => {
                admin_commision_type: String(pData.admin_commision_type ?? 1),
                admin_commission_from_driver: pData.admin_commission_from_driver ?? pData.driver_commission ?? '',
                admin_commission_type_from_driver: String(pData.admin_commission_type_from_driver ?? 1),
-               admin_commission_for_owner: pData.admin_commission_for_owner ?? 0,
-               admin_commission_type_for_owner: String(pData.admin_commission_type_for_owner ?? 1),
                order_number: pData.order_number ?? pData.eta_sequence ?? '',
                ride_surge_amount: pData.ride_surge_amount ?? '',
                payment_type: normalizePaymentTypes(pData.payment_type).length ? normalizePaymentTypes(pData.payment_type) : ['cash'],
@@ -631,21 +621,6 @@ const SetPrices = ({ mode }) => {
                               <input type="number" min="0" required className={inputClass} placeholder="Enter Admin Commission From Driver" value={formData.admin_commission_from_driver} onChange={e => setFormData(p => ({ ...p, admin_commission_from_driver: e.target.value }))} />
                            </div>
                            <div>
-                              <label className={labelClass}>Admin Commission Type From Owner <span className="text-rose-500">*</span></label>
-                              <div className="relative">
-                                 <select required className={inputClass + " appearance-none cursor-pointer"} value={formData.admin_commission_type_for_owner} onChange={e => setFormData(p => ({ ...p, admin_commission_type_for_owner: e.target.value }))}>
-                                    <option value="">Select Type</option>
-                                    <option value="1">Percentage</option>
-                                    <option value="2">Fixed</option>
-                                 </select>
-                                 <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                              </div>
-                           </div>
-                           <div>
-                              <label className={labelClass}>Admin Commission From Owner <span className="text-rose-500">*</span></label>
-                              <input type="number" min="0" required className={inputClass} placeholder="Enter Admin Commission From Owner" value={formData.admin_commission_for_owner} onChange={e => setFormData(p => ({ ...p, admin_commission_for_owner: e.target.value }))} />
-                           </div>
-                           <div>
                               <label className={labelClass}>Service Tax (%) <span className="text-rose-500">*</span></label>
                               <input type="number" min="0" required className={inputClass} placeholder="Enter Service Tax (%)" value={formData.service_tax} onChange={e => setFormData(p => ({ ...p, service_tax: e.target.value }))} />
                            </div>
@@ -712,36 +687,6 @@ const SetPrices = ({ mode }) => {
                               </div>
                            )}
 
-                           <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-x-12">
-                              <div className="flex items-center gap-2 pt-2 ml-1">
-                                 <input type="checkbox" className="w-4 h-4 rounded border-gray-300 pointer-events-auto" checked={formData.enable_outstation_ride} onChange={e => setFormData(p => ({ ...p, enable_outstation_ride: e.target.checked }))} />
-                                 <span className="text-[13px] font-semibold text-gray-700">Enable Outstation Ride</span>
-                              </div>
-                           </div>
-
-                           {formData.enable_outstation_ride && (
-                              <div className="md:col-span-2 space-y-6 pt-6 border-t border-gray-100 mt-4">
-                                 <h2 className="text-base font-bold text-[#1E293B] uppercase tracking-wider">Outstation</h2>
-                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
-                                    <div>
-                                       <label className={labelClass}>Base Price <span className="text-rose-500">*</span></label>
-                                       <input type="number" min="0" required={formData.enable_outstation_ride} className={inputClass} placeholder="Enter Base Price" value={formData.outstation_base_price} onChange={e => setFormData(p => ({ ...p, outstation_base_price: e.target.value }))} />
-                                    </div>
-                                    <div>
-                                       <label className={labelClass}>Base Distance <span className="text-rose-500">*(Kilometers)</span></label>
-                                       <input type="number" min="0" required={formData.enable_outstation_ride} className={inputClass} placeholder="Enter Base Distance" value={formData.outstation_base_distance} onChange={e => setFormData(p => ({ ...p, outstation_base_distance: e.target.value }))} />
-                                    </div>
-                                    <div>
-                                       <label className={labelClass}>Price Per Distance <span className="text-rose-500">*(Kilometers)</span></label>
-                                       <input type="number" min="0" required={formData.enable_outstation_ride} className={inputClass} placeholder="Enter Price Per Distance" value={formData.outstation_price_per_distance} onChange={e => setFormData(p => ({ ...p, outstation_price_per_distance: e.target.value }))} />
-                                    </div>
-                                    <div>
-                                       <label className={labelClass}>Time Price in Mintue <span className="text-rose-500">*</span></label>
-                                       <input type="number" min="0" required={formData.enable_outstation_ride} className={inputClass} placeholder="Enter Time Price" value={formData.outstation_time_price} onChange={e => setFormData(p => ({ ...p, outstation_time_price: e.target.value }))} />
-                                    </div>
-                                 </div>
-                              </div>
-                           )}
                         </div>
 
                         {/* Section: Cancellation Fee */}

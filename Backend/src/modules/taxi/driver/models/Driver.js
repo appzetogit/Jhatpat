@@ -77,11 +77,6 @@ const driverSchema = new mongoose.Schema(
       default: '',
       trim: true,
     },
-    salary: {
-      type: Number,
-      default: 0,
-      min: 0,
-    },
     fcmTokenWeb: {
       type: String,
       default: '',
@@ -91,12 +86,6 @@ const driverSchema = new mongoose.Schema(
       type: String,
       default: '',
       trim: true,
-    },
-    owner_id: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'TaxiOwner',
-      default: null,
-      index: true,
     },
     service_location_id: {
       type: mongoose.Schema.Types.ObjectId,
@@ -244,30 +233,6 @@ const driverSchema = new mongoose.Schema(
       type: String,
       default: 'taxi',
       trim: true,
-    },
-    isPoolEnabled: {
-      type: Boolean,
-      default: true,
-    },
-    activePoolGroupId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'TaxiInstantPoolGroup',
-      default: null,
-    },
-    poolOccupiedSeats: {
-      type: Number,
-      default: 0,
-      min: 0,
-    },
-    maxPoolSeats: {
-      type: Number,
-      default: 4,
-      min: 1,
-    },
-    activePoolRideCount: {
-      type: Number,
-      default: 0,
-      min: 0,
     },
     serviceCategories: {
       type: [String],
@@ -537,8 +502,8 @@ driverSchema.index({ approve: 1, deletedAt: 1, createdAt: -1 });
 driverSchema.index({ status: 1, deletedAt: 1 });
 driverSchema.index({ phone: 1, deletedAt: 1 });
 
-driverSchema.index({ isOnline: 1, isOnRide: 1, isPoolEnabled: 1 });
 // Unified dispatch: find online, free, capable drivers for a given service + work mode.
+driverSchema.index({ isOnline: 1, isOnRide: 1 });
 driverSchema.index({ isOnline: 1, serviceCapabilities: 1, workMode: 1, 'activeAssignment.type': 1 });
 // The claim filter's own path. Kept alongside the mirror index rather than
 // replacing it: the three dispatchers still query the mirror, and dropping an

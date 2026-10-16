@@ -205,9 +205,9 @@ export default function Hero({ settings }) {
           transition={{ delay: 0.8, duration: 0.7 }}
           className="mt-20 flex flex-wrap justify-center gap-3"
         >
-          {['🚕 Ride Hailing', '🍔 Food Delivery', '📦 Courier', '✈️ Airport Transfer', '🏍️ Hourly Rentals', '🚛 Cargo'].map((s) => {
-            const isFood = s.includes('Food') || s.includes('Courier') || s.includes('Rentals');
-            const isRide = s.includes('Ride') || s.includes('Airport') || s.includes('Cargo');
+          {['🚕 Ride Hailing', '🍔 Food Delivery', '📦 Courier', '🚛 Cargo'].map((s) => {
+            const isFood = s.includes('Food') || s.includes('Courier');
+            const isRide = s.includes('Ride') || s.includes('Cargo');
             let borderColor = 'rgba(15,23,42,0.1)';
             let textColor = 'rgba(15,23,42,0.7)';
             let bg = 'rgba(15,23,42,0.02)';

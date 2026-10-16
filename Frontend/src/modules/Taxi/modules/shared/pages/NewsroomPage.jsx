@@ -14,7 +14,6 @@ const NewsroomPage = () => {
     <br/>
     <h2>Recent Announcements</h2>
     <ul>
-      <li><strong>June 2026</strong> - Jhatpat launches hourly rentals service in major commercial centers.</li>
       <li><strong>April 2026</strong> - Jhatpat crosses 10,000 active partner rides across operating hubs.</li>
       <li><strong>January 2026</strong> - Super-app platform launch and rollout in Siliguri, West Bengal.</li>
     </ul>

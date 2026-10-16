@@ -90,27 +90,10 @@ const fileToDataUrl = (file) =>
     reader.readAsDataURL(file);
   });
 
-const normalizeSignupRole = (role) =>
-  String(role || 'driver').toLowerCase() === 'owner' ? 'owner' : 'driver';
+const matchesDocumentRole = (accountType) => {
+  const normalizedAccountType = String(accountType || '').trim().toLowerCase() || 'individual';
 
-const matchesDocumentRole = (accountType, role) => {
-  const rawAccountType = String(accountType || '').trim().toLowerCase();
-  const normalizedAccountType = rawAccountType || 'individual';
-  const normalizedRole = normalizeSignupRole(role);
-
-  if (normalizedAccountType === 'both') {
-    return true;
-  }
-
-  if (normalizedRole === 'owner') {
-    if (!rawAccountType) {
-      return true;
-    }
-
-    return ['fleet_drivers', 'owner', 'owners', 'fleet_owner', 'fleet_owners'].includes(normalizedAccountType);
-  }
-
-  return normalizedAccountType === 'individual';
+  return normalizedAccountType === 'both' || normalizedAccountType === 'individual';
 };
 
 const isImageLikeFile = (file) => {
@@ -144,7 +127,7 @@ const StepDocuments = () => {
     ...getStoredDriverRegistrationSession(),
     ...(location.state || {}),
   };
-  const normalizedRole = normalizeSignupRole(session.role);
+  const normalizedRole = 'driver';
 
   const [templates, setTemplates] = useState([]);
   const [templatesLoading, setTemplatesLoading] = useState(true);
@@ -179,7 +162,7 @@ const StepDocuments = () => {
   const documentTemplates = useMemo(
     () =>
       normalizeDriverDocumentTemplates(templates).filter((template) =>
-        matchesDocumentRole(template.account_type, normalizedRole),
+        matchesDocumentRole(template.account_type),
       ),
     [normalizedRole, templates],
   );
@@ -400,9 +383,7 @@ const StepDocuments = () => {
 
       const token = payload?.token;
       if (token) {
-        const normalizedRole =
-          String(session.role || 'driver').toLowerCase() === 'owner' ? 'owner' : 'driver';
-        persistDriverAuthSession({ token, role: normalizedRole });
+        persistDriverAuthSession({ token, role: 'driver' });
       }
 
       saveDriverRegistrationSession({

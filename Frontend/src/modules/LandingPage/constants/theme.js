@@ -1,5 +1,5 @@
 export const LANDING_THEME = {
-  // Orange and Red Shade combination for Food Delivery, Courier, Hourly Rentals
+  // Orange and Red Shade combination for Food Delivery, Courier
   orange: {
     primary: '#ff5100', // Vibrant orange
     accent: '#e11d48',  // Rose red
@@ -10,7 +10,7 @@ export const LANDING_THEME = {
     bgGradient: 'from-[#ff5100] to-[#e11d48]',
   },
   
-  // Dark Blue and Green combination for Ride Hailing, Airport Transfers, Cargo & Logistics
+  // Dark Blue and Green combination for Ride Hailing, Cargo & Logistics
   blue: {
     primary: '#1d4ed8', // Dark blue
     accent: '#10b981',  // Emerald green

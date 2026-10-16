@@ -20,7 +20,6 @@ import { RideBid } from '../user/models/RideBid.js';
 import { Ride } from '../user/models/Ride.js';
 import { User } from '../user/models/User.js';
 import { UserWallet } from '../user/models/UserWallet.js';
-import { consumeUserSubscriptionRide, resolveApplicableUserSubscription } from '../user/services/subscriptionService.js';
 import { applyPromoToRideInTransaction } from './promoService.js';
 import { getTipSettings } from './appSettingsService.js';
 import { getBidRideSettings } from './transportSettingsService.js';
@@ -131,7 +130,7 @@ const normalizeRidePaymentMethod = (paymentMethod) => (
 
 const normalizeServiceType = (serviceType) => {
   const normalized = String(serviceType || 'ride').trim().toLowerCase();
-  return ['parcel', 'intercity'].includes(normalized) ? normalized : 'ride';
+  return normalized === 'parcel' ? normalized : 'ride';
 };
 
 const ensureUserWallet = async (userId) => {
@@ -273,7 +272,7 @@ const processCompletedRideReferralReward = async (ride) => {
   const completedRideCount = await Ride.countDocuments({
     userId: ride.userId,
     status: RIDE_STATUS.COMPLETED,
-    serviceType: { $in: ['ride', 'intercity'] },
+    serviceType: 'ride',
   });
 
   const requiredRideCount = Math.max(1, settings.rideCount || 1);
@@ -429,25 +428,11 @@ const normalizeParcelPayload = (parcel = {}) => ({
   // supply the proof that the parcel was collected in good condition.
   pickupPhotos: [],
   deliveryPhotos: [],
-  deliveryScope: String(parcel.deliveryScope || (parcel.isOutstation ? 'outstation' : 'city')).trim().toLowerCase() === 'outstation'
-    ? 'outstation'
-    : 'city',
-  isOutstation: Boolean(parcel.isOutstation || String(parcel.deliveryScope || '').trim().toLowerCase() === 'outstation'),
+  deliveryScope: 'city',
   senderName: String(parcel.senderName || '').trim(),
   senderMobile: String(parcel.senderMobile || '').trim(),
   receiverName: String(parcel.receiverName || '').trim(),
   receiverMobile: String(parcel.receiverMobile || '').trim(),
-});
-
-const normalizeIntercityPayload = (intercity = {}) => ({
-  bookingId: String(intercity.bookingId || '').trim(),
-  fromCity: String(intercity.fromCity || '').trim(),
-  toCity: String(intercity.toCity || '').trim(),
-  tripType: String(intercity.tripType || '').trim(),
-  travelDate: String(intercity.travelDate || intercity.date || '').trim(),
-  passengers: Math.max(Number(intercity.passengers || 1), 1),
-  distance: Math.max(Number(intercity.distance || 0), 0),
-  vehicleName: String(intercity.vehicleName || '').trim(),
 });
 
 const normalizeScheduledAt = (value) => {
@@ -786,9 +771,7 @@ export const resolveSetPriceForRide = async ({ serviceLocationId = null, zoneId 
 
   const normalizedTransportType = String(transportType || 'taxi').trim().toLowerCase() || 'taxi';
   
-  const transportFilters = normalizedTransportType === 'intercity'
-    ? [ { transport_type: 'intercity' }, { transport_type: 'both' }, { enable_outstation_ride: true } ]
-    : [ { transport_type: normalizedTransportType }, { transport_type: 'both' } ];
+  const transportFilters = [ { transport_type: normalizedTransportType }, { transport_type: 'both' } ];
 
   const filters = [];
 
@@ -1127,7 +1110,6 @@ export const createRideRecord = async ({
   paymentMethod,
   serviceType,
   parcel,
-  intercity,
   promo_code,
   service_location_id,
   transport_type,
@@ -1246,7 +1228,6 @@ export const createRideRecord = async ({
     bidRideSettings.user_fare_increase_wait_minutes,
     2,
   );
-  const isOutstationBiddingFlow = normalizedServiceType === 'intercity';
   // What this vehicle lets a waiting rider add. Zero on the ceiling means
   // step x count, which is exactly what the buttons already add up to.
   const boostStepAmount = normalizeBidStepAmount(primaryVehicle?.bid_step_amount);
@@ -1270,9 +1251,7 @@ export const createRideRecord = async ({
     ? boostStepAmount
     : pricingNegotiationMode !== 'none'
       ? normalizeBidStepAmount(
-        isOutstationBiddingFlow
-          ? bidRideSettings.bidding_amount_increase_or_decrease
-          : bidRideSettings.user_bidding_amount_increase_or_decrease,
+        bidRideSettings.user_bidding_amount_increase_or_decrease,
       )
       : normalizeBidStepAmount(bidStepAmount);
   const effectiveBidStepAmount = configuredBidStepAmount || normalizeBidStepAmount(bidStepAmount);
@@ -1290,8 +1269,7 @@ export const createRideRecord = async ({
       bidStepAmount: effectiveBidStepAmount,
     })
     // The rider agreed to the quote and may choose to add to it, so the
-    // boost flow opens AT the quote rather than at the percentage floor the
-    // outstation auction would have used.
+    // boost flow opens AT the quote rather than at the percentage floor.
     : safeFare;
   const effectiveBidFloorFare = pricingNegotiationMode === 'driver_bid'
     ? bidRideRange.driverBidFloorFare
@@ -1348,9 +1326,7 @@ export const createRideRecord = async ({
     waiting_charge: Math.max(0, Number(pricingRule?.waiting_charge ?? 0)),
     free_waiting_before: Math.max(0, Number(pricingRule?.free_waiting_before ?? 0)),
     free_waiting_after: Math.max(0, Number(pricingRule?.free_waiting_after ?? 0)),
-    time_price: normalizedTransportType === 'intercity' && pricingRule?.outstation_time_price !== undefined && pricingRule?.outstation_time_price !== null
-      ? Math.max(0, Number(pricingRule.outstation_time_price ?? 0))
-      : Math.max(0, Number(pricingRule?.time_price ?? 0)),
+    time_price: Math.max(0, Number(pricingRule?.time_price ?? 0)),
     ride_surge_enabled: rideSurgeAmount > 0,
     ride_surge_amount: rideSurgeAmount,
     surge_percent: rideSurge.percent,
@@ -1389,58 +1365,8 @@ export const createRideRecord = async ({
 
   const promoCode = typeof promo_code === 'string' ? promo_code.trim() : '';
   const normalizedScheduledAt = normalizeScheduledAt(scheduledAt);
-  const applicableSubscription = primaryVehicleTypeId
-    ? await resolveApplicableUserSubscription({
-      userId,
-      vehicleTypeId: primaryVehicleTypeId,
-    })
-    : null;
-  const isSubscriptionCovered = Boolean(applicableSubscription?._id);
-  const subscriptionBenefitType = String(applicableSubscription?.benefit_type || '').trim().toLowerCase() === 'unlimited'
-    ? 'unlimited'
-    : 'limited';
-  const subscriptionRideLimit = Math.max(0, Number(applicableSubscription?.ride_limit || 0));
-  const subscriptionRidesUsed = Math.max(0, Number(applicableSubscription?.rides_used || 0));
-  const subscriptionRidesRemaining = subscriptionBenefitType === 'unlimited'
-    ? null
-    : Math.max(0, subscriptionRideLimit - subscriptionRidesUsed);
-  const effectiveDriverPaymentCollection = isSubscriptionCovered
-    ? {
-      provider: 'subscription',
-      providerId: String(applicableSubscription._id),
-      providerOrderId: '',
-      providerPaymentId: '',
-      providerMode: 'subscription_wallet',
-      source: 'user_subscription',
-      status: 'paid',
-      amount: effectiveStartingFare,
-      currency: 'INR',
-      linkUrl: '',
-      paidAt: new Date(),
-      updatedAt: new Date(),
-    }
-    : undefined;
-  const effectivePaymentMethod = isSubscriptionCovered ? 'online' : resolvedRequestedPaymentMethod;
-  const effectiveSubscriptionUsage = isSubscriptionCovered
-    ? {
-      covered: true,
-      subscriptionId: applicableSubscription._id,
-      planId: applicableSubscription.planId || null,
-      planName: applicableSubscription.name || '',
-      vehicleTypeId: applicableSubscription.vehicle_type_id || primaryVehicleTypeId,
-      benefitType: subscriptionBenefitType,
-      fareCovered: effectiveStartingFare,
-      ridesUsedBefore: subscriptionRidesUsed,
-      ridesRemainingBefore: subscriptionRidesRemaining,
-    }
-    : undefined;
-
   if (scheduledAt && !normalizedScheduledAt) {
     throw new ApiError(400, 'scheduledAt is invalid');
-  }
-
-  if (isSubscriptionCovered && promoCode) {
-    throw new ApiError(400, 'Promo codes cannot be combined with subscription rides');
   }
 
   if (!promoCode) {
@@ -1468,15 +1394,12 @@ export const createRideRecord = async ({
       nextFareIncreaseAt,
       estimatedDistanceMeters: safeEstimatedDistanceMeters,
       estimatedDurationMinutes: safeEstimatedDurationMinutes,
-      paymentMethod: effectivePaymentMethod,
-      driverPaymentCollection: effectiveDriverPaymentCollection,
-      subscriptionUsage: effectiveSubscriptionUsage,
+      paymentMethod: resolvedRequestedPaymentMethod,
       otp: generateRideOtp(),
       service_location_id: resolvedServiceLocationId,
       transport_type: normalizedTransportType,
       pricingSnapshot,
       parcel: normalizeParcelPayload(parcel),
-      intercity: normalizeIntercityPayload(intercity),
       scheduledAt: normalizedScheduledAt,
       status: RIDE_STATUS.SEARCHING,
       liveStatus: RIDE_LIVE_STATUS.SEARCHING,
@@ -1524,15 +1447,12 @@ export const createRideRecord = async ({
             nextFareIncreaseAt,
             estimatedDistanceMeters: safeEstimatedDistanceMeters,
             estimatedDurationMinutes: safeEstimatedDurationMinutes,
-            paymentMethod: effectivePaymentMethod,
-            driverPaymentCollection: effectiveDriverPaymentCollection,
-            subscriptionUsage: effectiveSubscriptionUsage,
+            paymentMethod: resolvedRequestedPaymentMethod,
             otp: generateRideOtp(),
             service_location_id: resolvedServiceLocationId,
             transport_type: normalizedTransportType,
             pricingSnapshot,
             parcel: normalizeParcelPayload(parcel),
-            intercity: normalizeIntercityPayload(intercity),
             scheduledAt: normalizedScheduledAt,
             status: RIDE_STATUS.SEARCHING,
             liveStatus: RIDE_LIVE_STATUS.SEARCHING,
@@ -1691,27 +1611,6 @@ export const serializeRideRealtime = (ride) => ({
   estimatedDistanceMeters: ride.estimatedDistanceMeters || 0,
   estimatedDurationMinutes: ride.estimatedDurationMinutes || 0,
   paymentMethod: ride.paymentMethod,
-  subscriptionUsage: ride.subscriptionUsage?.covered
-    ? {
-      covered: true,
-      subscriptionId: ride.subscriptionUsage.subscriptionId ? String(ride.subscriptionUsage.subscriptionId) : '',
-      planId: ride.subscriptionUsage.planId ? String(ride.subscriptionUsage.planId) : '',
-      planName: ride.subscriptionUsage.planName || '',
-      vehicleTypeId: ride.subscriptionUsage.vehicleTypeId ? String(ride.subscriptionUsage.vehicleTypeId) : '',
-      benefitType: ride.subscriptionUsage.benefitType || '',
-      fareCovered: Number(ride.subscriptionUsage.fareCovered || 0),
-      ridesUsedBefore: Number(ride.subscriptionUsage.ridesUsedBefore || 0),
-      ridesRemainingBefore: ride.subscriptionUsage.ridesRemainingBefore === null
-        ? null
-        : Number(ride.subscriptionUsage.ridesRemainingBefore || 0),
-      ridesUsedAfter: ride.subscriptionUsage.ridesUsedAfter === null
-        ? null
-        : Number(ride.subscriptionUsage.ridesUsedAfter || 0),
-      ridesRemainingAfter: ride.subscriptionUsage.ridesRemainingAfter === null
-        ? null
-        : Number(ride.subscriptionUsage.ridesRemainingAfter || 0),
-    }
-    : null,
   driverPaymentCollection: ride.driverPaymentCollection
     ? {
       provider: ride.driverPaymentCollection.provider || '',
@@ -1730,7 +1629,6 @@ export const serializeRideRealtime = (ride) => ({
     : null,
   otp: ride.otp || '',
   parcel: ride.deliveryId?.parcel || ride.parcel || null,
-  intercity: ride.intercity || null,
   commissionAmount: ride.commissionAmount,
   driverEarnings: ride.driverEarnings,
   promo: ride.promo?.code ? ride.promo : null,
@@ -1894,20 +1792,6 @@ export const listRideHistoryForIdentity = async ({ role, entityId, limit = 50, p
   } else if (normalizedCategory === 'parcels') {
     query.serviceType = 'parcel';
     query.scheduledAt = null;
-    query['parcel.isOutstation'] = { $ne: true };
-    query['parcel.deliveryScope'] = { $ne: 'outstation' };
-  } else if (normalizedCategory === 'outstation') {
-    query.scheduledAt = null;
-    query.$or = [
-      { serviceType: 'intercity' },
-      {
-        serviceType: 'parcel',
-        $or: [
-          { 'parcel.isOutstation': true },
-          { 'parcel.deliveryScope': 'outstation' },
-        ],
-      },
-    ];
   } else if (normalizedCategory === 'scheduled') {
     query.scheduledAt = { $ne: null };
   }
@@ -1937,7 +1821,6 @@ export const listRideHistoryForIdentity = async ({ role, entityId, limit = 50, p
       'paymentMethod',
       'otp',
       'parcel',
-      'intercity',
       'pricingSnapshot',
       'commissionAmount',
       'driverEarnings',
@@ -2012,7 +1895,6 @@ export const listRideHistoryForIdentity = async ({ role, entityId, limit = 50, p
       paymentMethod: ride.paymentMethod,
       otp: ride.otp || '',
       parcel: ride.deliveryId?.parcel || ride.parcel || null,
-      intercity: ride.intercity || null,
       pricingSnapshot: ride.pricingSnapshot || null,
       commissionAmount: ride.commissionAmount,
       driverEarnings: ride.driverEarnings,
@@ -2086,7 +1968,6 @@ export const acceptRideAssignment = async ({ rideId, driverId }) => {
       }
 
       const driverVehicleFilter = await buildDriverVehicleAcceptFilter(ride);
-      const isPooling = ride.isPoolRide || ride.transport_type === 'pooling';
 
       const driverFilter = {
         _id: driverId,
@@ -2098,14 +1979,7 @@ export const acceptRideAssignment = async ({ rideId, driverId }) => {
         ...driverVehicleFilter,
       };
 
-      if (isPooling) {
-        driverFilter.$or = [
-          { isOnRide: false },
-          { isOnRide: true, activePoolGroupId: { $ne: null } },
-        ];
-      } else {
-        driverFilter.isOnRide = false;
-      }
+      driverFilter.isOnRide = false;
 
       const driver = await Driver.findOne(driverFilter).session(session);
 
@@ -2134,15 +2008,12 @@ export const acceptRideAssignment = async ({ rideId, driverId }) => {
       ride.status = RIDE_STATUS.ACCEPTED;
       ride.liveStatus = RIDE_LIVE_STATUS.ACCEPTED;
       ride.acceptedAt = new Date();
-      if (isPooling) {
-        ride.isPoolRide = true;
-      }
       driver.isOnRide = !isRideScheduledForFuture(ride);
 
       // Driver unification: claim the cross-service busy-lock so this driver cannot also be
-      // assigned a food delivery. Pool rides are exempt (one driver holds a whole pool group).
+      // assigned a food delivery.
       // Flag-gated: no-op until UNIFIED_DISPATCH_ENABLED is on.
-      if (env.unifiedDispatchEnabled && !isPooling && !isRideScheduledForFuture(ride)) {
+      if (env.unifiedDispatchEnabled && !isRideScheduledForFuture(ride)) {
         const { acquireDriverAssignment } = await import('../driver/services/driverAssignmentService.js');
         const locked = await acquireDriverAssignment(driver._id, 'ride', ride._id, session);
         if (!locked) {
@@ -2154,29 +2025,6 @@ export const acceptRideAssignment = async ({ rideId, driverId }) => {
       await driver.save({ session });
       await session.commitTransaction();
       await syncDeliveryWithRide(ride);
-
-      if (isPooling) {
-        const { createPoolGroup, addRideToPoolGroup } = await import('./instantPoolingService.js');
-        if (driver.activePoolGroupId) {
-          const success = await addRideToPoolGroup(driver.activePoolGroupId, ride);
-          if (!success) {
-            // ponytail: a driver runs exactly ONE pool group. If the ride can't join the existing
-            // group (full / detour violated), don't spin up a second group (that orphaned the first
-            // group + its passengers). The acceptance is already committed, so compensate: release
-            // the ride back to searching and free the driver, then surface the failure.
-            await Ride.findByIdAndUpdate(ride._id, {
-              $set: { status: RIDE_STATUS.SEARCHING, liveStatus: RIDE_LIVE_STATUS.SEARCHING, isPoolRide: true },
-              $unset: { driverId: '', acceptedAt: '' },
-            });
-            await Driver.findByIdAndUpdate(driver._id, { isOnRide: false });
-            const revertedRide = await Ride.findById(ride._id);
-            if (revertedRide) await syncDeliveryWithRide(revertedRide);
-            throw new ApiError(409, 'Ride cannot be added to the driver\'s active pool group');
-          }
-        } else {
-          await createPoolGroup(driver._id, driver.vehicleTypeId, ride);
-        }
-      }
 
       return ride;
     } catch (error) {
@@ -2304,60 +2152,13 @@ export const updateRideLifecycle = async ({ rideId, driverId, nextStatus, paymen
 
   // Task 7: Verify OTP on ride start.
   // ponytail: enforce for every ride that has an OTP (all rides get one at creation),
-  // not just pooled rides — otherwise a driver can start without the rider present.
+  // not just some of them — otherwise a driver can start without the rider present.
   if (nextStatus === RIDE_LIVE_STATUS.STARTED && ride.otp) {
     if (!otp) {
       throw new ApiError(400, 'OTP is required to start the ride');
     }
     if (String(ride.otp) !== String(otp)) {
       throw new ApiError(400, 'Invalid OTP code');
-    }
-  }
-
-  // Task 2: Intercept complete status for pooling
-  if (nextStatus === RIDE_LIVE_STATUS.COMPLETED && ride.isPoolRide) {
-    const { completePassengerRide } = await import('./instantPoolingService.js');
-    await completePassengerRide(ride._id);
-    return populateRideRealtime(ride._id);
-  }
-
-  // Task 2: Update sequence on ride start
-  if (nextStatus === RIDE_LIVE_STATUS.STARTED && ride.isPoolRide && ride.poolGroupId) {
-    const { InstantPoolGroup } = await import('../admin/models/InstantPoolGroup.js');
-    const group = await InstantPoolGroup.findById(ride.poolGroupId);
-    if (group) {
-      group.routeSequence = group.routeSequence.map(stop => {
-        if (String(stop.rideId) === String(ride._id) && stop.type === 'pickup') {
-          return { ...stop, status: 'completed' };
-        }
-        return stop;
-      });
-      group.routeVersion += 1;
-      await group.save();
-
-      // Re-optimize route sequence based on current coordinates of driver
-      const { findOptimalRouteSequence } = await import('./routeOptimizer.js');
-      const { getInstantPoolingSettings } = await import('./transportSettingsService.js');
-      const { Driver } = await import('../driver/models/Driver.js');
-      const driver = await Driver.findById(driverId);
-      const settings = await getInstantPoolingSettings();
-      const remainingRides = await Ride.find({ _id: { $in: group.activeRides } }).populate('userId', 'name');
-
-      // Guard: a driver with no GPS fix would throw on .location.coordinates and block the start.
-      if (driver?.location?.coordinates) {
-        group.routeSequence = findOptimalRouteSequence(
-          driver.location.coordinates,
-          remainingRides,
-          {
-            maxDetourMeters: Number(settings.max_detour_meters || 5000),
-            maxEtaIncreaseMinutes: Number(settings.max_eta_increase_minutes || 15),
-          }
-        );
-        await group.save();
-      }
-
-      const { broadcastPoolUpdate } = await import('./instantPoolingService.js');
-      broadcastPoolUpdate(group);
     }
   }
 
@@ -2506,7 +2307,6 @@ export const updateRideLifecycle = async ({ rideId, driverId, nextStatus, paymen
     }
 
     walletUpdate = await settleCompletedRideWallet({ rideId: ride._id });
-    await consumeUserSubscriptionRide({ ride });
     const settledRide = await Ride.findById(ride._id).select('completedAt driverEarnings estimatedDistanceMeters');
 
     await incrementDriverTodaySummaryForCompletedRide({

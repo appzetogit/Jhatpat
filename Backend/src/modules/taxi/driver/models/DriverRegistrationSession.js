@@ -17,7 +17,7 @@ const driverRegistrationSessionSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ['driver', 'owner'],
+      enum: ['driver'],
       default: 'driver',
     },
     status: {
@@ -60,11 +60,7 @@ const driverRegistrationSessionSchema = new mongoose.Schema(
       year: { type: String, default: '' },
       number: { type: String, default: '' },
       color: { type: String, default: '' },
-      companyName: { type: String, default: '' },
-      companyAddress: { type: String, default: '' },
       city: { type: String, default: '' },
-      postalCode: { type: String, default: '' },
-      taxNumber: { type: String, default: '' },
       customFields: {
         type: mongoose.Schema.Types.Mixed,
         default: {},

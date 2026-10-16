@@ -31,14 +31,12 @@ export function computeRideFare({
 } = {}) {
     if (!pricingRule) return null;
 
-    const isIntercity = String(transportType || '').trim().toLowerCase() === 'intercity';
-    const rate = (outstation, local) =>
-        Math.max(0, Number(pricingRule[isIntercity ? outstation : local] || 0));
+    const rate = (key) => Math.max(0, Number(pricingRule[key] || 0));
 
-    const basePrice = rate('outstation_base_price', 'base_price');
-    const baseDistanceKm = rate('outstation_base_distance', 'base_distance');
-    const perKm = rate('outstation_price_per_distance', 'price_per_distance');
-    const perMinute = rate('outstation_time_price', 'time_price');
+    const basePrice = rate('base_price');
+    const baseDistanceKm = rate('base_distance');
+    const perKm = rate('price_per_distance');
+    const perMinute = rate('time_price');
     const serviceTaxPercent = Math.max(0, Number(pricingRule.service_tax || 0));
 
     const distanceKm = Math.max(0, Number(distanceMeters) || 0) / 1000;

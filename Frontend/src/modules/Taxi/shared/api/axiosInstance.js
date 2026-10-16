@@ -75,7 +75,7 @@ const getSessionItem = (key) => {
 const getStoredTokenByRole = (role) => {
   const normalizedRole = normalizeAuthRole(role);
   const entries = (
-    normalizedRole === 'driver' || normalizedRole === 'owner'
+    normalizedRole === 'driver'
       ? [
           getSessionItem('driverToken'),
           getSessionItem('token'),
@@ -101,11 +101,6 @@ const getRoleFromPathname = () => {
 
   if (pathname.includes('/admin')) {
     return 'admin';
-  }
-
-  // Owners currently authenticate with driver tokens (fleet-owner flow).
-  if (pathname.includes('/taxi/owner')) {
-    return 'driver';
   }
 
   if (pathname.includes('/taxi/driver') || pathname.includes('/driver')) {
@@ -143,7 +138,7 @@ const clearStaleAuthState = (role = '', staleToken = '') => {
     localStorage.removeItem('userInfo');
   }
 
-  if (!normalizedRole || normalizedRole === 'driver' || normalizedRole === 'owner') {
+  if (!normalizedRole || normalizedRole === 'driver') {
     if (!staleToken || localStorage.getItem('driverToken') === staleToken) {
       localStorage.removeItem('driverToken');
     }
@@ -201,7 +196,6 @@ api.interceptors.request.use(
     const normalizedChatRole = String(chatRole || '').toLowerCase();
     const userToken = getStoredTokenByRole('user');
     const driverToken = getStoredTokenByRole('driver');
-    const ownerToken = getStoredTokenByRole('owner');
     const adminToken = getStoredTokenByRole('admin') || localStorage.getItem('adminToken');
 
     const isPublicUserRoute =
@@ -225,9 +219,7 @@ api.interceptors.request.use(
       if (normalizedChatRole === 'admin') {
         token = adminToken;
       } else if (normalizedChatRole === 'driver') {
-        token = driverToken || ownerToken;
-      } else if (normalizedChatRole === 'owner') {
-        token = ownerToken || driverToken;
+        token = driverToken;
       } else if (normalizedChatRole === 'user') {
         token = userToken;
       }
@@ -237,16 +229,16 @@ api.interceptors.request.use(
       if (pathRole === 'admin') {
         token = adminToken;
       } else if (pathRole === 'driver') {
-        token = driverToken || ownerToken;
+        token = driverToken;
       } else {
         token = userToken;
       }
     } else if (isUserRoute) {
       token = userToken;
     } else if (isDriverRoute) {
-      token = driverToken || ownerToken;
+      token = driverToken;
     } else {
-      token = userToken || driverToken || ownerToken || adminToken;
+      token = userToken || driverToken || adminToken;
     }
 
     if (token) {

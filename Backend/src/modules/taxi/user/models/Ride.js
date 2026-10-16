@@ -73,52 +73,10 @@ const rideSchema = new mongoose.Schema(
     },
     serviceType: {
       type: String,
-      enum: ['ride', 'parcel', 'intercity'],
+      enum: ['ride', 'parcel'],
       default: 'ride',
       lowercase: true,
       trim: true,
-    },
-    intercity: {
-      bookingId: {
-        type: String,
-        default: '',
-        trim: true,
-      },
-      fromCity: {
-        type: String,
-        default: '',
-        trim: true,
-      },
-      toCity: {
-        type: String,
-        default: '',
-        trim: true,
-      },
-      tripType: {
-        type: String,
-        default: '',
-        trim: true,
-      },
-      travelDate: {
-        type: String,
-        default: '',
-        trim: true,
-      },
-      passengers: {
-        type: Number,
-        default: 1,
-        min: 1,
-      },
-      distance: {
-        type: Number,
-        default: 0,
-        min: 0,
-      },
-      vehicleName: {
-        type: String,
-        default: '',
-        trim: true,
-      },
     },
     parcel: {
       category: {
@@ -166,14 +124,10 @@ const rideSchema = new mongoose.Schema(
       },
       deliveryScope: {
         type: String,
-        enum: ['city', 'outstation'],
+        enum: ['city'],
         default: 'city',
         lowercase: true,
         trim: true,
-      },
-      isOutstation: {
-        type: Boolean,
-        default: false,
       },
       senderName: {
         type: String,
@@ -427,90 +381,14 @@ const rideSchema = new mongoose.Schema(
         default: null,
       },
     },
-    subscriptionUsage: {
-      covered: {
-        type: Boolean,
-        default: false,
-      },
-      subscriptionId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'TaxiUserSubscription',
-        default: null,
-      },
-      planId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'TaxiSubscriptionPlan',
-        default: null,
-      },
-      planName: {
-        type: String,
-        default: '',
-        trim: true,
-      },
-      vehicleTypeId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'TaxiVehicle',
-        default: null,
-      },
-      benefitType: {
-        type: String,
-        enum: ['limited', 'unlimited', ''],
-        default: '',
-      },
-      fareCovered: {
-        type: Number,
-        default: 0,
-        min: 0,
-      },
-      ridesUsedBefore: {
-        type: Number,
-        default: 0,
-        min: 0,
-      },
-      ridesRemainingBefore: {
-        type: Number,
-        default: null,
-        min: 0,
-      },
-      ridesUsedAfter: {
-        type: Number,
-        default: null,
-        min: 0,
-      },
-      ridesRemainingAfter: {
-        type: Number,
-        default: null,
-        min: 0,
-      },
-    },
     service_location_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'TaxiServiceLocation',
       default: null,
     },
-    poolGroupId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'TaxiInstantPoolGroup',
-      default: null,
-      index: true,
-    },
-    isPoolRide: {
-      type: Boolean,
-      default: false,
-      index: true,
-    },
-    poolSeats: {
-      type: Number,
-      default: 1,
-      min: 1,
-    },
-    routeVersion: {
-      type: Number,
-      default: 0,
-    },
     transport_type: {
       type: String,
-      enum: ['taxi', 'delivery', 'intercity', 'all'],
+      enum: ['taxi', 'delivery', 'all'],
       default: 'taxi',
       trim: true,
     },
@@ -825,7 +703,7 @@ const rideSchema = new mongoose.Schema(
       },
       transport_type: {
         type: String,
-        enum: ['taxi', 'delivery', 'intercity', 'all'],
+        enum: ['taxi', 'delivery', 'all'],
         default: 'taxi',
         trim: true,
       },
@@ -924,6 +802,5 @@ const rideSchema = new mongoose.Schema(
 
 rideSchema.index({ userId: 1, createdAt: -1 });
 rideSchema.index({ driverId: 1, createdAt: -1 });
-rideSchema.index({ poolGroupId: 1 });
 
 export const Ride = mongoose.models.TaxiRide || mongoose.model('TaxiRide', rideSchema);

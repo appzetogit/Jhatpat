@@ -52,16 +52,9 @@ for (const [rule, m, min, s] of [[bike, 4889.1, 11.73, 0], [plp, 2233.6, 5.36, 1
     assert.equal(Math.round(rows * 100) / 100, q.total, `rows ${rows} vs total ${q.total}`);
 }
 
-// --- outstation rides use the outstation rates -----------------------------
-const auto = { base_price: 30, base_distance: 2, price_per_distance: 12, time_price: 1, service_tax: 5,
-    outstation_base_price: 75, outstation_base_distance: 10, outstation_price_per_distance: 10.2, outstation_time_price: 1 };
-assert.equal(computeRideFare({ pricingRule: auto, transportType: 'intercity', distanceMeters: 8000, durationMinutes: 20 }).baseFare, 75);
-
 // --- nothing to charge from: the caller must refuse, not guess ------------
 assert.equal(computeRideFare({ pricingRule: null, distanceMeters: 5000, durationMinutes: 10 }), null);
 assert.equal(computeRideFare({ pricingRule: {}, distanceMeters: 5000, durationMinutes: 10 }), null);
-// A row with no outstation prices cannot price an outstation ride.
-assert.equal(computeRideFare({ pricingRule: bike, transportType: 'intercity', distanceMeters: 5000, durationMinutes: 10 }), null);
 
 // --- junk never produces NaN or a negative fare ----------------------------
 f = fare(bike, 'abc', -5);

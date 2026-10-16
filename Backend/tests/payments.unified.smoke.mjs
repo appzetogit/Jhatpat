@@ -145,7 +145,6 @@ console.log('\n[8] taxi — all five gateway flows mirrored');
     // the risk is missing one. Assert each file is wired.
     const wiring = {
         'rideController (completion + tip)': ['../src/modules/taxi/user/controllers/rideController.js', 2],
-        'poolingController': ['../src/modules/taxi/user/controllers/poolingController.js', 1],
         'userController (wallet top-up)': ['../src/modules/taxi/user/controllers/userController.js', 1],
         'driverController (driver top-up)': ['../src/modules/taxi/driver/controllers/driverController.js', 1],
     };

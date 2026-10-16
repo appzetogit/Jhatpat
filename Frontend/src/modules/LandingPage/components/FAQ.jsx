@@ -5,7 +5,7 @@ import { Plus, Minus } from 'lucide-react'
 const defaultFaqs = [
   {
     question: 'What services are supported by Jhatpat?',
-    answer: 'Jhatpat is an all-in-one super-app supporting Ride Hailing (Taxi & Cab Sharing), Food & Dining Delivery, secure Parcel Courier Services, pre-scheduled Airport Transfers, Hourly Vehicle Rentals, and commercial Cargo/Logistics.'
+    answer: 'Jhatpat is an all-in-one super-app supporting Ride Hailing, Food & Dining Delivery, secure Parcel Courier Services, and commercial Cargo/Logistics.'
   },
   {
     question: 'How do I register as a driver partner?',
@@ -18,10 +18,6 @@ const defaultFaqs = [
   {
     question: 'Is in-app payment secure?',
     answer: 'Yes. Jhatpat utilizes secure SSL encryption and integrated payment gateways to secure credit cards, digital wallets, UPI, and bank transfers.'
-  },
-  {
-    question: 'Can I schedule airport transfers in advance?',
-    answer: 'Absolutely. The Airport Transfer module allows you to pre-schedule rides hours or days in advance. Simply select the transfer option, specify your flight details, and a driver will be dispatched to match your schedule.'
   }
 ]
 

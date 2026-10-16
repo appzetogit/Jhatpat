@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Phone, ChevronRight, ShieldCheck, Briefcase, UserRound, Sparkles, Building2, CheckCircle2 } from 'lucide-react';
+import { Phone, ChevronRight, ShieldCheck, UserRound, Sparkles, CheckCircle2 } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -27,67 +27,26 @@ const PhoneRegistration = () => {
         '',
     ).trim().toUpperCase();
     const [phone, setPhone] = useState(() => String(location.state?.phone || storedSession.phone || '').replace(/\D/g, '').slice(-10));
-    const [role, setRole] = useState(() => {
-        const normalizePortalRole = (value) => {
-            const normalized = String(value || '').toLowerCase();
-            if (normalized === 'owner') return 'owner';
-            if (normalized === 'bus_driver' || normalized === 'bus-driver' || normalized === 'busdriver') return 'bus_driver';
-            if (normalized === 'service_center' || normalized === 'service-center' || normalized === 'servicecenter') return 'service_center';
-            if (normalized === 'service_center_staff' || normalized === 'service-center-staff' || normalized === 'servicecenterstaff') return 'service_center_staff';
-            return 'driver';
-        };
-
-        const stateRole = String(location.state?.role || '').toLowerCase();
-        if (stateRole) return normalizePortalRole(stateRole);
-
-        if (sharedReferralCode && location.pathname.startsWith('/taxi/driver')) {
-            return 'driver';
-        }
-
-        const savedRole = String(storedSession.role || '').toLowerCase();
-        return normalizePortalRole(savedRole);
-    });
+    const role = 'driver';
     const [agreed, setAgreed] = useState(true);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const phoneCardRef = useRef(null);
     const phoneInputRef = useRef(null);
-    const routePrefix = location.pathname.startsWith('/taxi/owner') ? '/taxi/owner' : '/taxi/driver';
+    const routePrefix = '/taxi/driver';
     const isLoginPage = location.pathname === `${routePrefix}/login` || location.pathname === `${routePrefix}/login/`;
     const appName = settings.general?.app_name || 'App';
 
-    const roleOptions = isLoginPage
-        ? [
-            { id: 'driver', label: 'Driver', Icon: UserRound },
-            { id: 'owner', label: 'Owner', Icon: Briefcase },
-            { id: 'bus_driver', label: 'Bus', Icon: ShieldCheck },
-            { id: 'service_center', label: 'Center', Icon: Building2 },
-            { id: 'service_center_staff', label: 'Staff', Icon: UserRound },
-        ]
-        : [
-            { id: 'driver', label: 'Driver', Icon: UserRound },
-            { id: 'owner', label: 'Owner', Icon: Briefcase },
-        ];
-
-    const modeConfig = useMemo(() => {
-        const isOwner = role === 'owner';
-        const isBusDriver = role === 'bus_driver';
-        const isServiceCenter = role === 'service_center';
-        const isServiceCenterStaff = role === 'service_center_staff';
-
-        return {
-            badge: isOwner ? 'Enterprise' : isBusDriver ? 'Transit' : isServiceCenter ? 'Operations' : isServiceCenterStaff ? 'Team' : 'Captain',
-            title: isLoginPage
-                ? `${isOwner ? 'Owner' : isBusDriver ? 'Bus Driver' : isServiceCenter ? 'Service Center' : isServiceCenterStaff ? 'Service Staff' : 'Driver'} Login`
-                : `Join ${appName}`,
-            subtitle: isLoginPage
-                ? `Enter your number to access account.`
-                : `Start your journey as a ${isOwner ? 'owner' : isBusDriver ? 'captain' : isServiceCenter ? 'operator' : isServiceCenterStaff ? 'staff' : 'driver'}.`,
-            highlight: isOwner ? 'Manage fleet, payouts & drivers.' : isBusDriver ? 'Manage your coach, schedules and seat desk.' : isServiceCenter ? 'Manage your center profile, staff and rental vehicle catalog.' : isServiceCenterStaff ? 'Handle assigned bookings and work queues for your center.' : 'Go online, get trips & earn daily.',
-            accentColor: isOwner ? '#1C2833' : isBusDriver ? '#0f3d3e' : isServiceCenter ? '#14342b' : isServiceCenterStaff ? '#1e3a5f' : '#4F46E5',
-            Icon: isOwner ? Briefcase : isBusDriver ? ShieldCheck : isServiceCenter ? Building2 : isServiceCenterStaff ? ShieldCheck : UserRound,
-        };
-    }, [appName, isLoginPage, role]);
+    const modeConfig = useMemo(() => ({
+        badge: 'Captain',
+        title: isLoginPage ? 'Driver Login' : `Join ${appName}`,
+        subtitle: isLoginPage
+            ? 'Enter your number to access account.'
+            : 'Start your journey as a driver.',
+        highlight: 'Go online, get trips & earn daily.',
+        accentColor: '#4F46E5',
+        Icon: UserRound,
+    }), [appName, isLoginPage]);
 
     useEffect(() => {
         saveDriverRegistrationSession({
@@ -247,30 +206,6 @@ const PhoneRegistration = () => {
                     animate="visible"
                     className="space-y-5 relative z-20"
                 >
-                    <motion.div
-                        variants={itemVariants}
-                        className="flex items-center gap-1.5 mb-6 bg-[#F38F24]/5 p-1.5 rounded-[1rem] overflow-x-auto scroll-smooth w-full border border-[#F38F24]/10 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']"
-                    >
-                        {roleOptions.map((option) => {
-                            const active = role === option.id;
-                            return (
-                                <motion.button
-                                    key={option.id}
-                                    layout
-                                    whileTap={{ scale: 0.97 }}
-                                    onClick={() => setRole(option.id)}
-                                    className={`flex-1 min-w-max flex items-center justify-center gap-2 py-2 px-3 rounded-xl transition-all whitespace-nowrap ${active
-                                        ? 'bg-white text-[#F38F24] shadow-sm border border-[#F38F24]/20'
-                                        : 'text-slate-500 hover:text-slate-700'
-                                        }`}
-                                >
-                                    <option.Icon size={14} strokeWidth={active ? 2.5 : 2} className={active ? 'text-[#F38F24]' : ''} />
-                                    <span className="text-[11px] font-bold uppercase tracking-wide">{option.label}</span>
-                                </motion.button>
-                            );
-                        })}
-                    </motion.div>
-
                     <motion.section
                         variants={itemVariants}
                         ref={phoneCardRef}

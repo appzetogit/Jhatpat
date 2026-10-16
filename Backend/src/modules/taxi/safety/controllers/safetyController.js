@@ -116,12 +116,12 @@ const readRideContext = async ({ rideId, deliveryId }) => {
 
 const deriveServiceType = ({ requestedServiceType, ride, delivery }) => {
   const direct = cleanString(requestedServiceType).toLowerCase();
-  if (['ride', 'parcel', 'intercity', 'general'].includes(direct)) {
+  if (['ride', 'parcel', 'general'].includes(direct)) {
     return direct;
   }
 
   const rideType = cleanString(ride?.serviceType || ride?.type).toLowerCase();
-  if (['ride', 'parcel', 'intercity'].includes(rideType)) {
+  if (['ride', 'parcel'].includes(rideType)) {
     return rideType;
   }
 

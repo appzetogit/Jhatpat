@@ -14,20 +14,7 @@ import {
 } from '../../services/registrationService';
 
 const unwrap = (response) => response?.data?.data || response?.data || response;
-const normalizeDriverRole = (role) => {
-    const normalized = String(role || 'driver').toLowerCase();
-    if (normalized === 'owner') return 'owner';
-    if (normalized === 'service_center' || normalized === 'service-center' || normalized === 'servicecenter') {
-        return 'service_center';
-    }
-    if (normalized === 'service_center_staff' || normalized === 'service-center-staff' || normalized === 'servicecenterstaff') {
-        return 'service_center_staff';
-    }
-    if (normalized === 'bus_driver' || normalized === 'bus-driver' || normalized === 'busdriver') {
-        return 'bus_driver';
-    }
-    return 'driver';
-};
+const normalizeDriverRole = () => 'driver';
 
 const isDriverApproved = (driver) => {
     if (!driver) {
@@ -45,27 +32,11 @@ const isDriverApproved = (driver) => {
     );
 };
 
-const getPostLoginRoute = (role, driver, routePrefix) => {
-    const normalizedRole = normalizeDriverRole(role);
-
-    if (normalizedRole === 'service_center' || normalizedRole === 'service_center_staff') {
-        return '/taxi/driver/service-center';
-    }
-
-    if (normalizedRole === 'bus_driver') {
-        return '/taxi/driver/bus-home';
-    }
-
-    if (normalizedRole === 'owner' || normalizedRole === 'driver') {
-        return isDriverApproved(driver)
-            ? normalizedRole === 'owner'
-                ? '/taxi/owner/home'
-                : '/taxi/driver/home'
-            : `${routePrefix}/registration-status`;
-    }
-
-    return '/taxi/driver/home';
-};
+const getPostLoginRoute = (role, driver, routePrefix) => (
+    isDriverApproved(driver)
+        ? `${routePrefix}/home`
+        : `${routePrefix}/registration-status`
+);
 
 const syncPushTokens = () => {
     window.__flushNativeFcmToken?.().catch?.(() => {});
@@ -86,7 +57,7 @@ const OTPVerification = () => {
         ...getStoredDriverRegistrationSession(),
         ...(location.state || {}),
     };
-    const routePrefix = location.pathname.startsWith('/taxi/owner') ? '/taxi/owner' : '/taxi/driver';
+    const routePrefix = '/taxi/driver';
 
     const phone = String(session.phone || '').replace(/\D/g, '').slice(-10);
     const role = session.role || 'driver';

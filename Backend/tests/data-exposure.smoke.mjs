@@ -1,5 +1,5 @@
 /**
- * Other people's data stays theirs: four read-side leaks found in one sweep.
+ * Other people's data stays theirs: read-side leaks found in one sweep.
  *
  * Run: node tests/data-exposure.smoke.mjs
  *
@@ -11,8 +11,6 @@
  *     bank account, UPI, KYC image URLs, owner email/phone and FCM tokens.
  *  3. Food order route returned any order's rider position and delivery point to
  *     any logged-in customer or rider.
- *  4. Taxi pool group returned every passenger's name, address, coordinates and
- *     ride OTP to anyone with the id.
  */
 import assert from 'node:assert/strict';
 import http from 'node:http';
@@ -186,55 +184,6 @@ const main = async () => {
         for (const f of ['name', 'phone', 'vehicleNumber', 'vehicleColor', 'vehicleMake', 'vehicleModel']) {
             assert.equal(d[f], undefined, `${f} leaked`);
         }
-    });
-
-    // --- 4. taxi pool group -----------------------------------------------------
-    console.log('\ntaxi pool group');
-    const { getPoolGroupById } = await import('../src/modules/taxi/user/controllers/rideController.js');
-    const { InstantPoolGroup } = await import('../src/modules/taxi/admin/models/InstantPoolGroup.js');
-    const { Ride } = await import('../src/modules/taxi/user/models/Ride.js');
-    const driverId = oid();
-    const passengerA = oid();
-    const passengerB = oid();
-    const rideA = oid();
-    const rideB = oid();
-    await Ride.collection.insertMany([{ _id: rideA, userId: passengerA }, { _id: rideB, userId: passengerB }]);
-    const groupId = oid();
-    await InstantPoolGroup.collection.insertOne({
-        _id: groupId, driverId, vehicleTypeId: oid(), activeRides: [rideA, rideB], status: 'active',
-        routeSequence: [
-            { _id: oid(), type: 'pickup', rideId: rideA, address: 'A street', coordinates: [73.8, 18.5], passengerName: 'Asha', otp: '1111', status: 'pending' },
-            { _id: oid(), type: 'pickup', rideId: rideB, address: 'B street', coordinates: [73.9, 18.6], passengerName: 'Bala', otp: '2222', status: 'pending' },
-        ],
-    });
-    const group = async (auth) => {
-        let out = null; let error = null;
-        await getPoolGroupById({ params: { poolGroupId: String(groupId) }, auth }, { json: (b) => { out = b; } }, (e) => { error = e; });
-        return { out, error };
-    };
-    await check('a stranger (customer or driver) gets 404', async () => {
-        assert.equal((await group({ sub: String(oid()), role: 'user' })).error?.statusCode, 404);
-        assert.equal((await group({ sub: String(oid()), role: 'driver' })).error?.statusCode, 404);
-    });
-    await check('no one receives a ride OTP', async () => {
-        for (const auth of [{ sub: String(driverId), role: 'driver' }, { sub: String(passengerA), role: 'user' }]) {
-            const { out } = await group(auth);
-            assert.ok(out, `no data for ${auth.role}`);
-            assert.ok(out.data.routeSequence.every((s) => s.otp === undefined), 'otp leaked');
-        }
-    });
-    await check('the driver keeps every stop\'s coordinates for navigation', async () => {
-        const { out } = await group({ sub: String(driverId), role: 'driver' });
-        assert.ok(out.data.routeSequence.every((s) => Array.isArray(s.coordinates)));
-    });
-    await check('a passenger sees co-riders\' names and addresses but coordinates only for their own stop', async () => {
-        const { out } = await group({ sub: String(passengerA), role: 'user' });
-        const mine = out.data.routeSequence.find((s) => String(s.rideId) === String(rideA));
-        const theirs = out.data.routeSequence.find((s) => String(s.rideId) === String(rideB));
-        assert.ok(Array.isArray(mine.coordinates));
-        assert.equal(theirs.coordinates, undefined);
-        assert.equal(theirs.passengerName, 'Bala');
-        assert.equal(theirs.address, 'B street');
     });
 
     await mongoose.disconnect();

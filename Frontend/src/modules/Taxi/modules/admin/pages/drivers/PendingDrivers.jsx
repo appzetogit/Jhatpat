@@ -167,7 +167,6 @@ const PendingDrivers = () => {
       const driversList = responseData.data?.results || [];
       
       const pending = driversList
-        .filter((d) => String(d?.onboarding_role || '').toLowerCase() !== 'owner')
         .map((d) => ({
           id: d._id,
           name: d.name || 'Unknown',

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Car, Plane, MapPin, Package, Bike, HeadphonesIcon, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Car, Package, Bike, HeadphonesIcon, ChevronRight } from 'lucide-react';
 
 const ServicesPage = () => {
   const navigate = useNavigate();
@@ -11,8 +11,6 @@ const ServicesPage = () => {
 
   const services = [
     { title: "City Rides", desc: "Comfortable and safe city rides to any destination.", icon: <Car className="text-[#1a1a1a]" size={28} /> },
-    { title: "Airport Transfers", desc: "Punctual drops and pickups from the airport.", icon: <Plane className="text-[#1a1a1a]" size={28} /> },
-    { title: "Outstation Trips", desc: "Long-distance rides for your weekend getaways.", icon: <MapPin className="text-[#1a1a1a]" size={28} /> },
     { title: "Parcel Delivery", desc: "Fast and reliable parcel delivery services.", icon: <Package className="text-[#1a1a1a]" size={28} /> },
     { title: "Bike Taxis", desc: "Beat the traffic with our quick bike taxi service.", icon: <Bike className="text-[#1a1a1a]" size={28} /> },
     { title: "24/7 Support", desc: "We are always here to help you, anytime.", icon: <HeadphonesIcon className="text-[#1a1a1a]" size={28} /> }

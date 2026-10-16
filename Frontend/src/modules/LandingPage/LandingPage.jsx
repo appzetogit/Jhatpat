@@ -28,7 +28,7 @@ export default function LandingPage() {
       metaDesc.name = 'description'
       document.head.appendChild(metaDesc)
     }
-    metaDesc.setAttribute('content', 'Jhatpat is the ultimate multi-service super-app for Ride Hailing (Taxi & Shares), Food & Dining Delivery, secure Courier Parcels, Airport Transfers, Hourly rentals, and Logistics cargo.')
+    metaDesc.setAttribute('content', 'Jhatpat is the ultimate multi-service super-app for Ride Hailing, Food & Dining Delivery, secure Courier Parcels, and Logistics cargo.')
 
     // Fetch dynamic landing settings
     const fetchLandingSettings = async () => {

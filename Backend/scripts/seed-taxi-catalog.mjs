@@ -21,7 +21,6 @@ const MODELS = {
   TaxiAppModule: await load('../src/modules/taxi/admin/models/TaxiAppModule.js', 'TaxiAppModule'),
   GoodsType: await load('../src/modules/taxi/admin/models/GoodsType.js', 'GoodsType'),
   DriverNeededDocument: await load('../src/modules/taxi/admin/models/DriverNeededDocument.js', 'DriverNeededDocument'),
-  RentalPackageType: await load('../src/modules/taxi/admin/models/RentalPackageType.js', 'RentalPackageType'),
   ServiceLocation: await load('../src/modules/taxi/admin/models/ServiceLocation.js', 'ServiceLocation'),
   Vehicle: await load('../src/modules/taxi/admin/models/Vehicle.js', 'Vehicle'),
   Banner: await load('../src/modules/taxi/admin/promotions/models/Banner.js', 'Banner'),
@@ -39,14 +38,8 @@ const CATALOG = [
   ['TaxiAppModule', { name: 'Ride', transport_type: 'taxi', service_type: 'normal' },
     { name: 'Ride', transport_type: 'taxi', service_type: 'normal', order_by: 1, active: 1,
       short_description: 'Book a ride now', description: 'Quick rides across your city.' }],
-  ['TaxiAppModule', { name: 'Rental', transport_type: 'taxi', service_type: 'rental' },
-    { name: 'Rental', transport_type: 'taxi', service_type: 'rental', order_by: 2, active: 1,
-      short_description: 'Hourly car rental', description: 'Hire a vehicle by the hour or by package.' }],
-  ['TaxiAppModule', { name: 'Outstation', transport_type: 'taxi', service_type: 'outstation' },
-    { name: 'Outstation', transport_type: 'taxi', service_type: 'outstation', order_by: 3, active: 1,
-      short_description: 'Trips between cities', description: 'Travel to another city in comfort.' }],
   ['TaxiAppModule', { name: 'Parcel', transport_type: 'delivery', service_type: 'normal' },
-    { name: 'Parcel', transport_type: 'delivery', service_type: 'normal', order_by: 4, active: 1,
+    { name: 'Parcel', transport_type: 'delivery', service_type: 'normal', order_by: 2, active: 1,
       short_description: 'Send a parcel', description: 'Deliver parcels and goods across the city.' }],
 
   ...['Documents', 'Electronics', 'Groceries', 'Clothing', 'Furniture', 'Medicines', 'Food packets', 'Fragile items']
@@ -65,19 +58,6 @@ const CATALOG = [
     template_type: 'document', slug, name, account_type: 'individual', image_type: imageType,
     has_expiry_date: hasExpiry, has_identify_number: hasIdNumber,
   }]),
-
-  ['RentalPackageType', { name: 'Hourly Rental', transport_type: 'taxi' }, {
-    name: 'Hourly Rental', transport_type: 'taxi', short_description: 'Pay per hour',
-    description: 'Hire a vehicle for a set number of hours within the city.', status: 'active', active: true,
-  }],
-  ['RentalPackageType', { name: 'Airport Transfer', transport_type: 'taxi' }, {
-    name: 'Airport Transfer', transport_type: 'taxi', short_description: 'Pick-up and drop at the airport',
-    description: 'Fixed-route transfer to or from the airport.', status: 'active', active: true,
-  }],
-  ['RentalPackageType', { name: 'Full Day Outstation', transport_type: 'taxi' }, {
-    name: 'Full Day Outstation', transport_type: 'taxi', short_description: 'A full day out of town',
-    description: 'Dedicated vehicle for a full day trip beyond city limits.', status: 'active', active: true,
-  }],
 
   ['ServiceLocation', { service_location_name: 'Indore' }, {
     name: 'Indore', service_location_name: 'Indore', address: 'Indore, Madhya Pradesh, India',

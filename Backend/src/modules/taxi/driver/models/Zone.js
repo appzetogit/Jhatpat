@@ -45,10 +45,6 @@ const zoneSchema = new mongoose.Schema(
       type: Number,
       default: null,
     },
-    maximum_distance_for_outstation_rides: {
-      type: Number,
-      default: null,
-    },
     active: {
       type: Boolean,
       default: true,

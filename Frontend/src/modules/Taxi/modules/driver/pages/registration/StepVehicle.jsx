@@ -21,20 +21,12 @@ import {
 const VEHICLE_NUMBER_REGEX = /^[A-Z]{2}\d{1,2}[A-Z]{1,3}\d{4}$/;
 const getCurrentVehicleYear = () => new Date().getFullYear();
 const normalizeVehicleNumber = (value = '') => String(value).replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 11);
-const normalizePostalCode = (value = '') => String(value).replace(/\D/g, '').slice(0, 6);
-const matchesVehicleFieldAccountType = (accountType, isOwner) => {
+const matchesVehicleFieldAccountType = (accountType) => {
     const normalizedAccountType = String(accountType || 'individual').trim().toLowerCase();
 
-    if (normalizedAccountType === 'both') {
-        return true;
-    }
-
-    if (isOwner) {
-        return normalizedAccountType === 'fleet_drivers' || normalizedAccountType === 'fleet drivers';
-    }
-
-    return normalizedAccountType === 'individual';
+    return normalizedAccountType === 'both' || normalizedAccountType === 'individual';
 };
+const SERVICE_CATEGORIES = ['taxi', 'delivery'];
 const normalizeServiceCategories = (value, registerFor = 'taxi') => {
     const rawValues = Array.isArray(value)
         ? value
@@ -45,8 +37,7 @@ const normalizeServiceCategories = (value, registerFor = 'taxi') => {
     const normalized = [...new Set(
         rawValues
             .map((item) => String(item || '').trim().toLowerCase())
-            .flatMap((item) => item === 'both' ? ['taxi', 'outstation'] : item ? [item] : [])
-            .filter((item) => ['taxi', 'outstation', 'delivery', 'pooling'].includes(item)),
+            .filter((item) => SERVICE_CATEGORIES.includes(item)),
     )];
 
     if (normalized.length > 0) {
@@ -54,23 +45,14 @@ const normalizeServiceCategories = (value, registerFor = 'taxi') => {
     }
 
     const fallback = String(registerFor || 'taxi').trim().toLowerCase();
-    if (fallback === 'both') {
-        return ['taxi', 'outstation'];
-    }
 
-    return ['taxi', 'outstation', 'delivery', 'pooling'].includes(fallback) ? [fallback] : ['taxi'];
+    return SERVICE_CATEGORIES.includes(fallback) ? [fallback] : ['taxi'];
 };
 
 const getPrimaryRegisterFor = (serviceCategories = [], fallback = 'taxi') => {
     const normalized = normalizeServiceCategories(serviceCategories, fallback);
 
-    if (normalized.includes('taxi') && normalized.includes('outstation')) return 'both';
-    if (normalized.includes('taxi')) return 'taxi';
-    if (normalized.includes('outstation')) return 'outstation';
-    if (normalized.includes('delivery')) return 'delivery';
-    if (normalized.includes('pooling')) return 'pooling';
-
-    return String(fallback || 'taxi').trim().toLowerCase() || 'taxi';
+    return normalized.includes('taxi') ? 'taxi' : 'delivery';
 };
 
 const defaultVehicleFieldConfigs = [
@@ -82,11 +64,6 @@ const defaultVehicleFieldConfigs = [
     { field_key: 'year', name: 'Year', account_type: 'individual', is_required: true, active: true, sort_order: 60, placeholder: String(getCurrentVehicleYear()), help_text: '' },
     { field_key: 'number', name: 'Plate Number', account_type: 'individual', is_required: true, active: true, sort_order: 70, placeholder: 'DL1RT1234', help_text: '' },
     { field_key: 'color', name: 'Exterior Color', account_type: 'individual', is_required: true, active: true, sort_order: 80, placeholder: 'e.g. White, Black', help_text: '' },
-    { field_key: 'companyName', name: 'Company Name', account_type: 'fleet_drivers', is_required: true, active: true, sort_order: 30, placeholder: 'Legal Company Name', help_text: '' },
-    { field_key: 'companyAddress', name: 'Company Address', account_type: 'fleet_drivers', is_required: true, active: true, sort_order: 40, placeholder: 'Business Address', help_text: '' },
-    { field_key: 'city', name: 'City', account_type: 'fleet_drivers', is_required: true, active: true, sort_order: 50, placeholder: 'City', help_text: '' },
-    { field_key: 'postalCode', name: 'Postal Code', account_type: 'fleet_drivers', is_required: true, active: true, sort_order: 60, placeholder: 'Pincode', help_text: '' },
-    { field_key: 'taxNumber', name: 'Tax Number (GST/VAT)', account_type: 'fleet_drivers', is_required: true, active: true, sort_order: 70, placeholder: 'Tax Identification', help_text: '' },
 ];
 
 
@@ -97,9 +74,6 @@ const StepVehicle = () => {
         ...getStoredDriverRegistrationSession(),
         ...(location.state || {}),
     };
-    const role = session.role || 'driver';
-    const isOwner = role === 'owner';
-
     const [locations, setLocations] = useState([]);
     const [locationsLoading, setLocationsLoading] = useState(true);
     const [locationsError, setLocationsError] = useState('');
@@ -118,12 +92,6 @@ const StepVehicle = () => {
         year: session.year || '',
         number: session.number || '',
         color: session.color || '',
-        // Company info for owners
-        companyName: session.companyName || '',
-        companyAddress: session.companyAddress || '',
-        city: session.city || '',
-        postalCode: session.postalCode || '',
-        taxNumber: session.taxNumber || '',
         customFields: session.customFields || session.vehicleSession?.vehicle?.customFields || {},
     });
     const [loading, setLoading] = useState(false);
@@ -182,7 +150,7 @@ const StepVehicle = () => {
 
         const loadVehicleFieldConfigs = async () => {
             try {
-                const response = await getDriverVehicleFieldTemplates(isOwner ? 'owner' : 'driver');
+                const response = await getDriverVehicleFieldTemplates('driver');
                 const results = response?.data?.results || response?.data?.data?.results || [];
                 if (active && Array.isArray(results) && results.length > 0) {
                     setVehicleFieldConfigs(results);
@@ -214,11 +182,6 @@ const StepVehicle = () => {
         'year',
         'number',
         'color',
-        'companyName',
-        'companyAddress',
-        'city',
-        'postalCode',
-        'taxNumber',
     ]);
 
     const fieldConfigMap = activeVehicleFields.reduce((acc, item) => {
@@ -256,13 +219,11 @@ const StepVehicle = () => {
     };
     const customVehicleFields = activeVehicleFields.filter((item) => !builtInVehicleFieldKeys.has(String(item?.field_key || '').trim()));
     const visibleCustomVehicleFields = customVehicleFields.filter((item) =>
-        matchesVehicleFieldAccountType(item?.account_type, isOwner),
+        matchesVehicleFieldAccountType(item?.account_type),
     );
 
     const handleContinue = async () => {
-        const required = isOwner
-            ? ['locationId', 'companyName', 'companyAddress', 'city', 'postalCode', 'taxNumber'].filter((key) => isFieldRequired(key, true))
-            : ['locationId', 'vehicleTypeId', 'make', 'model', 'year', 'number', 'color'].filter((key) => isFieldRequired(key, true));
+        const required = ['locationId', 'vehicleTypeId', 'make', 'model', 'year', 'number', 'color'].filter((key) => isFieldRequired(key, true));
 
         const missingCustomField = visibleCustomVehicleFields.find(
             (field) => field?.is_required !== false && !isFilled(formData.customFields?.[field.field_key]),
@@ -273,30 +234,23 @@ const StepVehicle = () => {
         }
 
         if (required.every((key) => isFilled(formData[key]))) {
-            if (isOwner) {
-                if (isFilled(formData.postalCode) && !/^\d{6}$/.test(formData.postalCode)) {
-                    setError('Postal code must be a 6 digit number');
-                    return;
-                }
-            } else {
-                const vehicleYear = Number(formData.year);
-                const currentYear = getCurrentVehicleYear();
-                const normalizedNumber = normalizeVehicleNumber(formData.number);
+            const vehicleYear = Number(formData.year);
+            const currentYear = getCurrentVehicleYear();
+            const normalizedVehicleNumber = normalizeVehicleNumber(formData.number);
 
-                if (isFilled(formData.year) && (!/^\d{4}$/.test(formData.year) || vehicleYear < 1980 || vehicleYear > currentYear)) {
-                    setError(`Vehicle year must be between 1980 and ${currentYear}`);
-                    return;
-                }
+            if (isFilled(formData.year) && (!/^\d{4}$/.test(formData.year) || vehicleYear < 1980 || vehicleYear > currentYear)) {
+                setError(`Vehicle year must be between 1980 and ${currentYear}`);
+                return;
+            }
 
-                if (isFilled(normalizedNumber) && !VEHICLE_NUMBER_REGEX.test(normalizedNumber)) {
-                    setError('Vehicle number must be in a valid Indian format, for example DL1RT1234 or MH12AB1234');
-                    return;
-                }
+            if (isFilled(normalizedVehicleNumber) && !VEHICLE_NUMBER_REGEX.test(normalizedVehicleNumber)) {
+                setError('Vehicle number must be in a valid Indian format, for example DL1RT1234 or MH12AB1234');
+                return;
+            }
 
-                if (isFilled(trimmedModel) && /^\d+$/.test(trimmedModel)) {
-                    setError('Vehicle model cannot contain only numbers');
-                    return;
-                }
+            if (isFilled(trimmedModel) && /^\d+$/.test(trimmedModel)) {
+                setError('Vehicle model cannot contain only numbers');
+                return;
             }
 
             setLoading(true);
@@ -322,11 +276,7 @@ const StepVehicle = () => {
                     year: formData.year,
                     number: normalizedNumber,
                     color: formData.color,
-                    companyName: formData.companyName,
-                    companyAddress: formData.companyAddress,
-                    city: isOwner ? formData.city : selectedServiceLocation?.name || selectedServiceLocation?.service_location_name || formData.city,
-                    postalCode: formData.postalCode,
-                    taxNumber: formData.taxNumber,
+                    city: selectedServiceLocation?.name || selectedServiceLocation?.service_location_name || '',
                     customFields: formData.customFields,
                 });
 
@@ -344,42 +294,27 @@ const StepVehicle = () => {
                 setLoading(false);
             }
         } else {
-            setError(isOwner ? 'Please fill all required company information fields' : 'Please fill all required vehicle information fields');
+            setError('Please fill all required vehicle information fields');
         }
     };
 
     const locationField = getFieldConfig('locationId', { name: 'Operating City' });
     const vehicleTypeField = getFieldConfig('vehicleTypeId', { name: 'Vehicle Type', help_text: 'Select the type of vehicle you drive.' });
-    const companyNameField = getFieldConfig('companyName', { name: 'Company Name', placeholder: 'Legal Company Name' });
-    const companyAddressField = getFieldConfig('companyAddress', { name: 'Company Address', placeholder: 'Business Address' });
-    const cityField = getFieldConfig('city', { name: 'City', placeholder: 'City' });
-    const postalCodeField = getFieldConfig('postalCode', { name: 'Postal Code', placeholder: 'Pincode' });
-    const taxNumberField = getFieldConfig('taxNumber', { name: 'Tax Number (GST/VAT)', placeholder: 'Tax Identification' });
     const makeField = getFieldConfig('make', { name: 'Brand / Make', placeholder: 'e.g. Maruti Suzuki' });
     const modelField = getFieldConfig('model', { name: 'Model', placeholder: 'Swift, Bolt' });
     const yearField = getFieldConfig('year', { name: 'Year', placeholder: String(getCurrentVehicleYear()) });
     const numberField = getFieldConfig('number', { name: 'Plate Number', placeholder: 'DL1RT1234' });
     const colorField = getFieldConfig('color', { name: 'Exterior Color', placeholder: 'e.g. White, Black' });
-    const ownerHasVisibleFields = ['companyName', 'companyAddress', 'city', 'postalCode', 'taxNumber'].some((key) => shouldShowField(key, true));
     const driverHasTechnicalFields = ['make', 'model', 'year', 'number', 'color'].some((key) => shouldShowField(key, true));
-    const canContinue = isOwner
-        ? [
-            !isFieldRequired('locationId', true) || isFilled(formData.locationId),
-            !isFieldRequired('companyName', true) || isFilled(formData.companyName),
-            !isFieldRequired('companyAddress', true) || isFilled(formData.companyAddress),
-            !isFieldRequired('city', true) || isFilled(formData.city),
-            !isFieldRequired('postalCode', true) || isFilled(formData.postalCode),
-            !isFieldRequired('taxNumber', true) || isFilled(formData.taxNumber),
-        ].every(Boolean)
-        : [
-            !isFieldRequired('locationId', true) || isFilled(formData.locationId),
-            !isFieldRequired('vehicleTypeId', true) || isFilled(formData.vehicleTypeId),
-            !isFieldRequired('make', true) || isFilled(formData.make),
-            !isFieldRequired('model', true) || isFilled(formData.model),
-            !isFieldRequired('year', true) || isFilled(formData.year),
-            !isFieldRequired('number', true) || isFilled(formData.number),
-            !isFieldRequired('color', true) || isFilled(formData.color),
-        ].every(Boolean);
+    const canContinue = [
+        !isFieldRequired('locationId', true) || isFilled(formData.locationId),
+        !isFieldRequired('vehicleTypeId', true) || isFilled(formData.vehicleTypeId),
+        !isFieldRequired('make', true) || isFilled(formData.make),
+        !isFieldRequired('model', true) || isFilled(formData.model),
+        !isFieldRequired('year', true) || isFilled(formData.year),
+        !isFieldRequired('number', true) || isFilled(formData.number),
+        !isFieldRequired('color', true) || isFilled(formData.color),
+    ].every(Boolean);
     const hasRequiredCustomFields = visibleCustomVehicleFields.every(
         (field) => field?.is_required === false || isFilled(formData.customFields?.[field.field_key]),
     );
@@ -414,10 +349,10 @@ const StepVehicle = () => {
                             </span>
                         </div>
                         <h1 className="font-['Outfit'] text-[48px] font-black leading-[1] tracking-[-0.04em] text-slate-900">
-                            {isOwner ? 'Fleet' : 'Vehicle'} <span className="text-slate-400">Setup</span>
+                            Vehicle <span className="text-slate-400">Setup</span>
                         </h1>
                         <p className="text-[15px] leading-relaxed text-slate-500 font-bold opacity-80 max-w-[28ch]">
-                            {isOwner ? 'Setup your business profile to start managing your fleet.' : 'Tell us about the vehicle you\'ll be using for your services.'}
+                            Tell us about the vehicle you'll be using for your services.
                         </p>
                     </section>
                 </header>
@@ -436,26 +371,11 @@ const StepVehicle = () => {
                                             value={formData.locationId}
                                             onChange={(e) => {
                                                 const nextLocationId = e.target.value;
-                                                const selectedServiceLocation = locations.find(
-                                                    (item) => String(item._id || item.id) === String(nextLocationId),
-                                                );
 
                                                 setFormData((p) => ({
                                                     ...p,
                                                     locationId: nextLocationId,
                                                     vehicleTypeId: '',
-                                                    ...(isOwner
-                                                        ? {
-                                                            companyAddress: p.companyAddress || String(selectedServiceLocation?.address || '').trim(),
-                                                            city:
-                                                                p.city ||
-                                                                String(
-                                                                    selectedServiceLocation?.service_location_name ||
-                                                                    selectedServiceLocation?.name ||
-                                                                    '',
-                                                                ).trim(),
-                                                        }
-                                                        : {}),
                                                 }));
                                             }}
                                             disabled={locationsLoading || locations.length === 0}
@@ -473,72 +393,7 @@ const StepVehicle = () => {
                             </div>
                         ) : null}
 
-                        {isOwner ? (
-                            <div className="space-y-3.5 animate-in fade-in slide-in-from-top-2 duration-300">
-                                {ownerHasVisibleFields && shouldShowField('companyName', true) ? (
-                                    <div className="group rounded-[1.8rem] border-2 transition-all p-4 border-slate-50 bg-slate-50 focus-within:border-slate-900/10 focus-within:bg-white focus-within:shadow-xl focus-within:shadow-slate-900/5">
-                                        <label className="block text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 opacity-70 px-1 mb-1">{companyNameField.name}</label>
-                                        <input
-                                            value={formData.companyName}
-                                            onChange={(e) => setFormData(p => ({ ...p, companyName: e.target.value }))}
-                                            placeholder={companyNameField.placeholder || 'Legal Company Name'}
-                                            className="w-full bg-transparent border-none p-0 text-lg font-black text-slate-900 focus:outline-none focus:ring-0 placeholder:text-slate-200"
-                                        />
-                                    </div>
-                                ) : null}
-
-                                {shouldShowField('companyAddress', true) ? (
-                                    <div className="group rounded-[1.8rem] border-2 transition-all p-4 border-slate-50 bg-slate-50 focus-within:border-slate-900/10 focus-within:bg-white focus-within:shadow-xl focus-within:shadow-slate-900/5">
-                                        <label className="block text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 opacity-70 px-1 mb-1">{companyAddressField.name}</label>
-                                        <input
-                                            value={formData.companyAddress}
-                                            onChange={(e) => setFormData(p => ({ ...p, companyAddress: e.target.value }))}
-                                            placeholder={companyAddressField.placeholder || 'Business Address'}
-                                            className="w-full bg-transparent border-none p-0 text-lg font-black text-slate-900 focus:outline-none focus:ring-0 placeholder:text-slate-200"
-                                        />
-                                    </div>
-                                ) : null}
-
-                                <div className="grid grid-cols-2 gap-3">
-                                    {shouldShowField('city', true) ? (
-                                        <div className="group rounded-[1.8rem] border-2 transition-all p-4 border-slate-50 bg-slate-50 focus-within:border-slate-900/10 focus-within:bg-white focus-within:shadow-xl focus-within:shadow-slate-900/5">
-                                            <label className="block text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 opacity-70 px-1 mb-1">{cityField.name}</label>
-                                            <input
-                                                value={formData.city}
-                                                onChange={(e) => setFormData(p => ({ ...p, city: e.target.value }))}
-                                                placeholder={cityField.placeholder || 'City'}
-                                                className="w-full bg-transparent border-none p-0 text-lg font-black text-slate-900 focus:outline-none focus:ring-0 placeholder:text-slate-200"
-                                            />
-                                        </div>
-                                    ) : null}
-                                    {shouldShowField('postalCode', true) ? (
-                                        <div className="group rounded-[1.8rem] border-2 transition-all p-4 border-slate-50 bg-slate-50 focus-within:border-slate-900/10 focus-within:bg-white focus-within:shadow-xl focus-within:shadow-slate-900/5">
-                                            <label className="block text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 opacity-70 px-1 mb-1">{postalCodeField.name}</label>
-                                            <input
-                                                value={formData.postalCode}
-                                                onChange={(e) => setFormData(p => ({ ...p, postalCode: normalizePostalCode(e.target.value) }))}
-                                                placeholder={postalCodeField.placeholder || 'Pincode'}
-                                                inputMode="numeric"
-                                                maxLength={6}
-                                                className="w-full bg-transparent border-none p-0 text-lg font-black text-slate-900 focus:outline-none focus:ring-0 placeholder:text-slate-200"
-                                            />
-                                        </div>
-                                    ) : null}
-                                </div>
-
-                                {shouldShowField('taxNumber', true) ? (
-                                    <div className="group rounded-[1.8rem] border-2 transition-all p-4 border-slate-50 bg-slate-50 focus-within:border-slate-900/10 focus-within:bg-white focus-within:shadow-xl focus-within:shadow-slate-900/5">
-                                        <label className="block text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 opacity-70 px-1 mb-1">{taxNumberField.name}</label>
-                                        <input
-                                            value={formData.taxNumber}
-                                            onChange={(e) => setFormData(p => ({ ...p, taxNumber: e.target.value.toUpperCase() }))}
-                                            placeholder={taxNumberField.placeholder || 'Tax Identification'}
-                                            className="w-full bg-transparent border-none p-0 text-lg font-black text-slate-900 focus:outline-none focus:ring-0 placeholder:text-slate-200 uppercase"
-                                        />
-                                    </div>
-                                ) : null}
-                            </div>
-                        ) : (
+                        {(
                             <div className="space-y-5 animate-in fade-in slide-in-from-top-4 duration-500">
                                 {shouldShowField('vehicleTypeId', true) && (
                                     <div className="space-y-4 pt-1">

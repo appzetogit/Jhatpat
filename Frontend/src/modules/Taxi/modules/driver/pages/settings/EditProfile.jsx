@@ -16,7 +16,7 @@ const unwrapDriver = (response) => response?.data?.data || response?.data || res
 const EditProfile = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const routePrefix = location.pathname.startsWith('/taxi/owner') ? '/taxi/owner' : '/taxi/driver';
+    const routePrefix = '/taxi/driver';
     const [showSuccess, setShowSuccess] = useState(false);
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);

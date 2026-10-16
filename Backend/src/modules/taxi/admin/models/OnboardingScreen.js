@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 const onboardingScreenSchema = new mongoose.Schema({
-  audience: { type: String, enum: ['user', 'driver', 'owner'] },
+  audience: { type: String, enum: ['user', 'driver'] },
   screen: { type: String },
   order: { type: Number, default: 0 },
   title: String,

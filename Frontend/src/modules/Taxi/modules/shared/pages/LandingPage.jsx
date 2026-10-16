@@ -296,8 +296,6 @@ function LandingPage() {
             <h3>Our Services</h3>
             <ul>
               <li><Link to="/services">City Rides</Link></li>
-              <li><Link to="/services">Airport transfers</Link></li>
-              <li><Link to="/services">Outstation Trips</Link></li>
               <li><Link to="/services">Parcel Delivery</Link></li>
               <li><Link to="/services">Bike Taxis</Link></li>
               <li><Link to="/contact">24/7 Customer Support</Link></li>

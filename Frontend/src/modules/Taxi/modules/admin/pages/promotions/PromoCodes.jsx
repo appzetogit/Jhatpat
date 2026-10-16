@@ -34,11 +34,8 @@ const CREATE_PATH = '/taxi/admin/promotions/promo-codes/create';
 const Motion = motion;
 const PROMO_TRANSPORT_OPTIONS = [
   { value: 'all', label: 'All Modules' },
-  { value: 'self_drive', label: 'Self Drive' },
-  { value: 'bus', label: 'Bus' },
   { value: 'taxi', label: 'Taxi' },
   { value: 'delivery', label: 'Delivery' },
-  { value: 'pooling', label: 'Pooling' },
 ];
 const PROMO_AUDIENCE_OPTIONS = [
   { value: 'all', label: 'All Users' },

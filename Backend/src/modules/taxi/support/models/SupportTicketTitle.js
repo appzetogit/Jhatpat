@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const SUPPORT_USER_TYPES = ['user', 'driver', 'owner'];
+const SUPPORT_USER_TYPES = ['user', 'driver'];
 const SUPPORT_TYPES = ['general', 'request'];
 
 const supportTicketTitleSchema = new mongoose.Schema(

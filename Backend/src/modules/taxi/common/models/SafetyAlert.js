@@ -48,7 +48,7 @@ const safetyAlertSchema = new mongoose.Schema(
     },
     serviceType: {
       type: String,
-      enum: ['ride', 'parcel', 'intercity', 'general'],
+      enum: ['ride', 'parcel', 'general'],
       default: 'general',
       lowercase: true,
       trim: true,

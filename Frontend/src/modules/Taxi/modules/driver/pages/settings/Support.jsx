@@ -6,14 +6,14 @@ import { useLocation, useNavigate } from 'react-router-dom';
 const DriverSupport = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const routePrefix = location.pathname.startsWith('/taxi/owner') ? '/taxi/owner' : '/taxi/driver';
+    const routePrefix = '/taxi/driver';
     const [searchQuery, setSearchQuery] = useState('');
     const [activeFaq, setActiveFaq] = useState(null);
 
     const faqs = [
         { q: 'How is payout calculated?', a: 'Based on distance + base fare + time.' },
         { q: 'What to do in an accident?', a: 'Press SOS immediately and call support.' },
-        { q: 'How to change active vehicle?', a: 'Go to Vehicle Fleet and select primary.' }
+        { q: 'How to change active vehicle?', a: 'Go to My Vehicle in your profile to update vehicle details.' }
     ];
 
     const openHelp = (type) => {

@@ -34,7 +34,7 @@ const DriverReferral = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { settings } = useSettings();
-  const routePrefix = location.pathname.startsWith('/taxi/owner') ? '/taxi/owner' : '/taxi/driver';
+  const routePrefix = '/taxi/driver';
   const [activeTab, setActiveTab] = useState('refer');
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(true);

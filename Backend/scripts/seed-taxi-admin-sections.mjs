@@ -7,10 +7,10 @@ dotenv.config();
 // Every upsert uses $setOnInsert keyed by a natural key, so re-running never
 // duplicates rows and never overwrites values the admin edited later.
 //
-// Price-related rows (fares, surge, insurance, subscriptions) are seeded as
-// INACTIVE. They charge real customers, so the admin switches them on with
-// real numbers. Operational records (owners, drivers, vehicles, stores, routes,
-// polygons, trips, users) are never seeded.
+// Price-related rows (fares, surge, insurance) are seeded as INACTIVE. They
+// charge real customers, so the admin switches them on with real numbers.
+// Operational records (drivers, vehicles, polygons, trips, users) are never
+// seeded.
 
 const load = async (path, name) => {
   const mod = await import(path);
@@ -29,7 +29,6 @@ const MODELS = {
   SetPrice: await load(`${dir}/models/SetPrice.js`, 'SetPrice'),
   SurgeSlot: await load(`${dir}/models/SurgeSlot.js`, 'SurgeSlot'),
   RideInsurancePlan: await load(`${dir}/models/RideInsurancePlan.js`, 'RideInsurancePlan'),
-  SubscriptionPlan: await load(`${dir}/models/SubscriptionPlan.js`, 'SubscriptionPlan'),
   PaymentGateway: await load(`${dir}/models/PaymentGateway.js`, 'PaymentGateway'),
   PaymentMethod: await load(`${dir}/models/PaymentMethod.js`, 'PaymentMethod'),
   OnboardingScreen: await load(`${dir}/models/OnboardingScreen.js`, 'OnboardingScreen'),
@@ -37,7 +36,6 @@ const MODELS = {
   RideModule: await load(`${dir}/models/RideModule.js`, 'RideModule'),
   UserPreference: await load(`${dir}/models/UserPreference.js`, 'UserPreference'),
   NotificationChannel: await load(`${dir}/models/NotificationChannel.js`, 'NotificationChannel'),
-  OwnerNeededDocument: await load(`${dir}/models/OwnerNeededDocument.js`, 'OwnerNeededDocument'),
   LandingPageSetting: await load(`${dir}/models/LandingPageSetting.js`, 'LandingPageSetting'),
   AdminBusinessSetting: await load(`${dir}/models/AdminBusinessSetting.js`, 'AdminBusinessSetting'),
   AdminAppSetting: await load(`${dir}/models/AdminAppSetting.js`, 'AdminAppSetting'),
@@ -53,20 +51,6 @@ const SINGLETONS = [
 ];
 
 const STATIC_ROWS = [
-  // Subscriptions: inactive until the admin sets real prices.
-  ['SubscriptionPlan', { name: 'Daily Pass', audience: 'driver' }, {
-    audience: 'driver', name: 'Daily Pass', description: '1 day access', amount: 49, duration: 1,
-    transport_type: 'taxi', benefit_type: 'unlimited', ride_limit: 0, active: false,
-  }],
-  ['SubscriptionPlan', { name: 'Monthly Pass', audience: 'driver' }, {
-    audience: 'driver', name: 'Monthly Pass', description: '30 days access', amount: 499, duration: 30,
-    transport_type: 'taxi', benefit_type: 'unlimited', ride_limit: 0, active: false,
-  }],
-  ['SubscriptionPlan', { name: 'Jhatpat Plus', audience: 'user' }, {
-    audience: 'user', name: 'Jhatpat Plus', description: 'Discounted rides for 30 days', amount: 99, duration: 30,
-    transport_type: 'taxi', benefit_type: 'limited', ride_limit: 10, active: false,
-  }],
-
   ['RideInsurancePlan', { name: 'Standard Ride Cover' }, {
     name: 'Standard Ride Cover', description: 'Covers medical costs during a ride', provider: '',
     cover_amount: 100000, premium_type: 'flat', premium_value: 10, sort_order: 1, active: false,
@@ -100,9 +84,6 @@ const STATIC_ROWS = [
   ['OnboardingScreen', { audience: 'driver', screen: 'welcome' }, {
     audience: 'driver', screen: 'welcome', order: 1, title: 'Drive with Jhatpat', description: 'Earn on your own schedule.',
   }],
-  ['OnboardingScreen', { audience: 'owner', screen: 'welcome' }, {
-    audience: 'owner', screen: 'welcome', order: 1, title: 'Manage your fleet', description: 'Track vehicles and earnings.',
-  }],
 
   ['ReferralTranslation', { language_code: 'en' }, {
     language_code: 'en', language_name: 'English',
@@ -132,18 +113,9 @@ const STATIC_ROWS = [
     name: 'Driver Alerts', topic_name: 'driver_alerts', description: 'New requests and earnings', for_user: false,
   }],
 
-  ...[
-    ['Owner Aadhaar Card', 'front_back', false, true],
-    ['Owner PAN Card', 'front', false, true],
-    ['Business Registration', 'front', true, false],
-  ].map(([name, imageType, hasExpiry, hasIdNumber]) => ['OwnerNeededDocument', { name }, {
-    name, image_type: imageType, has_expiry_date: hasExpiry, has_identify_number: hasIdNumber,
-    is_editable: false, is_required: true, active: true,
-  }]),
-
   ['LandingPageSetting', { scope: 'default' }, {
     scope: 'default', hero_title: 'Ride with Jhatpat',
-    hero_description: 'Taxi, rentals and deliveries in your city.',
+    hero_description: 'Taxi rides and parcel deliveries in your city.',
     hero_image_url: '/hero2.png', why_us_image_url: '/food/taxi1.jpeg',
   }],
 ];

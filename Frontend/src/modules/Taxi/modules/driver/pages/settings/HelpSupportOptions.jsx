@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 const HelpSupportOptions = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const routePrefix = location.pathname.startsWith('/taxi/owner') ? '/taxi/owner' : '/taxi/driver';
+  const routePrefix = '/taxi/driver';
 
   return (
     <div className="min-h-screen bg-[#f8f9fb] p-6 pt-10 font-sans">

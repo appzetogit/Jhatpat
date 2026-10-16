@@ -19,7 +19,6 @@ const RIDER_TYPES = [
   { value: '', label: 'All rider types' },
   { value: 'ride', label: 'Ride' },
   { value: 'parcel', label: 'Parcel' },
-  { value: 'intercity', label: 'Intercity' },
 ];
 
 const PAYMENT_TYPES = [

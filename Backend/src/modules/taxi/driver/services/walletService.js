@@ -395,7 +395,7 @@ const PAID_COLLECTION_STATUSES = new Set(['paid', 'captured', 'completed']);
 
 /*
  * Whether an online ride's fare is already in the platform's hands by a route
- * only the server writes: a subscription that covered it at booking, or a
+ * only the server writes: a
  * driver-raised Razorpay QR / payment link that refreshDriverPaymentCollection
  * confirmed with Razorpay and that covers the fare. The driver's app can no
  * longer write an online ride's collection (rideService.updateRideLifecycle).
@@ -408,9 +408,6 @@ export const isOnlineCollectionConfirmed = (ride) => {
   }
 
   const provider = String(collection.provider || '').trim().toLowerCase();
-  if (provider === 'subscription') {
-    return Boolean(ride?.subscriptionUsage?.covered);
-  }
 
   return provider === 'razorpay'
     && Boolean(String(collection.providerId || '').trim())

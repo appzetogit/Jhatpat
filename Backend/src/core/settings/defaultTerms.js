@@ -61,7 +61,6 @@ export function defaultTermsHtml({ brand = 'Jhatpat', operator = '', email = '',
 <li>Fares shown before booking are estimates based on distance, time and demand. The final fare may change with the route taken, waiting time, stops, tolls, parking or changes you make during the trip.</li>
 <li>Rides are provided by independent drivers. Wear a seatbelt or helmet where required, follow the driver's reasonable safety instructions, and do not ask a driver to break traffic laws.</li>
 <li>Do not send prohibited, illegal, hazardous or dangerous goods, cash, jewellery or valuables through parcel delivery. Pack items properly and describe them accurately. The driver may refuse a package that appears unsafe or unlawful.</li>
-<li>Rentals and outstation trips are subject to the package, duration and distance limits shown at booking.</li>
 </ul>
 
 <h3>6. Home services</h3>

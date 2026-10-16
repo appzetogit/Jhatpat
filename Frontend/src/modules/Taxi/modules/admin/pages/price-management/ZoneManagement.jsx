@@ -92,7 +92,6 @@ const ZoneManagement = ({ mode: initialMode = "list" }) => {
     peak_zone_surge_percentage: '',
     ride_surge_enabled: false,
     maximum_distance_for_regular_rides: '',
-    maximum_distance_for_outstation_rides: '',
     popular_places: [],
     status: 'active'
   });
@@ -668,7 +667,6 @@ const ZoneManagement = ({ mode: initialMode = "list" }) => {
       peak_zone_surge_percentage: '',
       ride_surge_enabled: false,
       maximum_distance_for_regular_rides: '',
-      maximum_distance_for_outstation_rides: '',
       popular_places: [],
       status: 'active'
     });
@@ -758,7 +756,6 @@ const ZoneManagement = ({ mode: initialMode = "list" }) => {
       peak_zone_surge_percentage: zone.peak_zone_surge_percentage || '',
       ride_surge_enabled: zone.ride_surge_enabled === true,
       maximum_distance_for_regular_rides: zone.maximum_distance_for_regular_rides || '',
-      maximum_distance_for_outstation_rides: zone.maximum_distance_for_outstation_rides || '',
       popular_places: Array.isArray(zone.popular_places) ? zone.popular_places : [],
       status: zone.active ? 'active' : 'inactive'
     });

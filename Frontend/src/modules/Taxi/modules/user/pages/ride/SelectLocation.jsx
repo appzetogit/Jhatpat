@@ -639,9 +639,8 @@ const SelectLocation = () => {
         dropCoords: resolvedDropCoords,
         service_location_id: serviceLocationId,
         rideType,
-        transport_type: rideType === 'outstation' ? 'intercity' : rideType === 'pooling' ? 'pooling' : 'taxi',
-        transportType: rideType === 'outstation' ? 'intercity' : rideType === 'pooling' ? 'pooling' : 'taxi',
-        intercity: rideType === 'outstation',
+        transport_type: 'taxi',
+        transportType: 'taxi',
       },
     });
   };

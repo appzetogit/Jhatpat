@@ -59,18 +59,6 @@ export const buildDriverMatchFilters = ({ zoneId, vehicleTypeId, vehicleTypeIds,
       transportFilter = { registerFor: { $in: ['taxi', 'both', 'all'] } };
     } else if (transportType === 'delivery') {
       transportFilter = { registerFor: { $in: ['delivery', 'both', 'all'] } };
-    } else if (transportType === 'intercity' || transportType === 'outstation') {
-      transportFilter = {
-        $or: [
-          { registerFor: { $in: ['intercity', 'outstation', 'all'] } },
-          {
-            registerFor: { $in: ['taxi', 'both', 'all'] },
-            serviceCategories: { $in: ['outstation', 'Outstation', 'intercity', 'Intercity'] }
-          }
-        ]
-      };
-    } else if (transportType === 'pooling') {
-      transportFilter = { registerFor: { $in: ['taxi', 'both', 'pooling', 'all'] } };
     } else {
       transportFilter = { registerFor: { $in: [transportType, 'both', 'all'] } };
     }
@@ -86,15 +74,7 @@ export const buildDriverMatchFilters = ({ zoneId, vehicleTypeId, vehicleTypeIds,
     ...(zoneId ? { zoneId } : {}),
   };
 
-  if (transportType === 'pooling') {
-    baseFilters.isPoolEnabled = true;
-    baseFilters.$or = [
-      { isOnRide: false },
-      { isOnRide: true, activePoolGroupId: { $ne: null } },
-    ];
-  } else {
-    baseFilters.isOnRide = false;
-  }
+  baseFilters.isOnRide = false;
 
   // Driver unification: honor the work-mode toggle and the cross-service busy-lock, so a driver
   // set to "deliveries only" — or already out on a food order — is never offered a ride.
@@ -106,10 +86,7 @@ export const buildDriverMatchFilters = ({ zoneId, vehicleTypeId, vehicleTypeIds,
     // parcel-only driver got nothing, and a passenger driver got boxes.
     baseFilters.serviceCapabilities =
       String(serviceType || '').trim().toLowerCase() === 'parcel' ? 'parcel' : 'taxi';
-    if (transportType !== 'pooling') {
-      // Pool drivers legitimately hold a group; the lock isn't used for pooled rides.
-      baseFilters.activeAssignment = null;
-    }
+    baseFilters.activeAssignment = null;
   }
 
   const andClauses = [];
@@ -299,7 +276,7 @@ const findDriversForZone = async ({
     serviceType,
   });
   const selectedFields =
-    'name phone socketId vehicleTypeId vehicleType vehicleIconType vehicleNumber vehicleColor vehicleMake vehicleModel rating location zoneId isOnline isOnRide routeBooking isPoolEnabled activePoolGroupId poolOccupiedSeats maxPoolSeats activePoolRideCount';
+    'name phone socketId vehicleTypeId vehicleType vehicleIconType vehicleNumber vehicleColor vehicleMake vehicleModel rating location zoneId isOnline isOnRide routeBooking';
 
   const [liveLocationDrivers, routeBookingDrivers] = await Promise.all([
     Driver.find({
@@ -362,25 +339,6 @@ export const matchDrivers = async (pickupCoords, options = {}) => {
     serviceType,
   });
 
-  const requestedSeats = Number(options.seats || 1);
-  const filterPoolingEligible = (driver) => {
-    if (transportType === 'pooling') {
-      if (driver.isPoolEnabled === false) {
-        return false;
-      }
-      if (driver.isOnRide) {
-        const occupied = Number(driver.poolOccupiedSeats || 0);
-        const maxSeats = Number(driver.maxPoolSeats || 4);
-        if (occupied + requestedSeats > maxSeats) {
-          return false;
-        }
-      }
-    }
-    return true;
-  };
-
-  drivers = drivers.filter(filterPoolingEligible);
-
   const blockedDriverIds = await getDriverIdsBlockedByUpcomingScheduledRides(
     drivers.map((driver) => String(driver?._id || '')),
   );
@@ -411,8 +369,6 @@ export const matchDrivers = async (pickupCoords, options = {}) => {
       transportType,
       serviceType,
     });
-
-    drivers = drivers.filter(filterPoolingEligible);
 
     const fallbackBlockedDriverIds = await getDriverIdsBlockedByUpcomingScheduledRides(
       drivers.map((driver) => String(driver?._id || '')),

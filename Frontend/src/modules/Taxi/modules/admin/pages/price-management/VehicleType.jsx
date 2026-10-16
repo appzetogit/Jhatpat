@@ -80,7 +80,6 @@ const OBJECT_ID_PATTERN = /^[a-fA-F0-9]{24}$/;
 const normalizeTransportType = (value = '') => {
   const normalized = String(value || '').trim().toLowerCase();
   if (normalized === 'delivery') return 'delivery';
-  if (normalized === 'pooling') return 'pooling';
   if (normalized === 'both' || normalized === 'all') return 'both';
   return 'taxi';
 };
@@ -88,7 +87,6 @@ const normalizeTransportType = (value = '') => {
 const normalizeTaxiMode = (value = '') => {
   const normalized = String(value || '').trim().toLowerCase();
   if (normalized === 'delivery') return 'delivery';
-  if (normalized === 'pooling') return 'pooling';
   if (normalized === 'both' || normalized === 'all') return 'both';
   return 'taxi';
 };
@@ -119,7 +117,6 @@ const defaultFormData = {
   capacity: 0,
   size: '',
   is_taxi: 'taxi',
-  is_accept_share_ride: 0,
   delivery_category: '',
   delivery_distance_pricing: {
     enabled: false,
@@ -340,7 +337,6 @@ const VehicleType = ({ mode: propMode }) => {
               capacity: Number(selectedVehicle.capacity || 0),
               size: String(selectedVehicle.size || ''),
               is_taxi: selectedVehicle.is_taxi || 'taxi',
-              is_accept_share_ride: Number(selectedVehicle.is_accept_share_ride || 0),
               delivery_category: String(selectedVehicle.delivery_category || ''),
               delivery_distance_pricing: normalizeDeliveryDistancePricing(selectedVehicle.delivery_distance_pricing),
               status: Number(selectedVehicle.status ?? (selectedVehicle.active !== false ? 1 : 0)),
@@ -471,7 +467,6 @@ const VehicleType = ({ mode: propMode }) => {
         capacity: Number(formData.capacity || 0),
         size: formData.size,
         is_taxi: normalizeTaxiMode(formData.is_taxi || formData.transport_type),
-        is_accept_share_ride: Number(formData.is_accept_share_ride || 0),
         delivery_category: showsDeliveryCategorySelector ? formData.delivery_category : '',
         delivery_distance_pricing: showsDeliveryCategorySelector
           ? {
@@ -1123,15 +1118,6 @@ const VehicleType = ({ mode: propMode }) => {
                 This form is fully dynamic from your DB. Transport type, icon type, and supported vehicles all save to the real vehicle catalog.
               </p>
             </div>
-            <label className="flex items-center gap-3 text-sm font-medium text-slate-700">
-              <input
-                type="checkbox"
-                checked={formData.is_accept_share_ride === 1}
-                onChange={(e) => updateForm('is_accept_share_ride', e.target.checked ? 1 : 0)}
-                className="h-4 w-4 rounded border-slate-300"
-              />
-              Accept share ride
-            </label>
             <label className="flex items-center gap-3 text-sm font-medium text-slate-700">
               <input
                 type="checkbox"

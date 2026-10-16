@@ -6,7 +6,6 @@ import { normalizePoint, toPoint } from '../../../../utils/geo.js';
 import { uploadDataUrlToCloudinary } from '../../../../utils/cloudinaryUpload.js';
 import { Driver } from '../models/Driver.js';
 import { DriverRegistrationSession } from '../models/DriverRegistrationSession.js';
-import { Owner } from '../../admin/models/Owner.js';
 import { ServiceLocation } from '../../admin/models/ServiceLocation.js';
 import { Vehicle } from '../../admin/models/Vehicle.js';
 import { AdminBusinessSetting } from '../../admin/models/AdminBusinessSetting.js';
@@ -14,8 +13,6 @@ import {
   listDriverDocumentUploadFields,
   listDriverNeededDocuments,
   listDriverVehicleFieldTemplates,
-  listOwnerDocumentUploadFields,
-  listOwnerNeededDocuments,
 } from '../../admin/services/adminService.js';
 import { hashPassword, signAccessToken } from './authService.js';
 import { findZoneByPickup } from './locationService.js';
@@ -31,7 +28,7 @@ const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 const DRIVER_NAME_REGEX = /^[A-Za-z]+(?:[ .'-][A-Za-z]+)*$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const VEHICLE_NUMBER_REGEX = /^[A-Z]{2}\d{2}[A-Z]{1,2}\d{4}$/;
-const ALLOWED_SERVICE_CATEGORIES = ['taxi', 'outstation', 'delivery', 'pooling'];
+const ALLOWED_SERVICE_CATEGORIES = ['taxi', 'delivery'];
 
 const VEHICLE_TYPE_MAP = {
   v1: 'bike',
@@ -49,7 +46,7 @@ const normalizePhone = (phone) => {
   return digits.length === 12 && digits.startsWith('91') ? digits.slice(2) : digits;
 };
 
-const normalizeRole = (role) => (String(role || 'driver').toLowerCase() === 'owner' ? 'owner' : 'driver');
+const normalizeRole = () => 'driver';
 const normalizeServiceCategories = (value, fallback = 'taxi') => {
   const rawValues = Array.isArray(value)
     ? value
@@ -61,7 +58,7 @@ const normalizeServiceCategories = (value, fallback = 'taxi') => {
     rawValues
       .map((item) => String(item || '').trim().toLowerCase())
       .flatMap((item) => {
-        if (item === 'both') return ['taxi', 'outstation'];
+        if (item === 'both') return ['taxi', 'delivery'];
         return item ? [item] : [];
       })
       .filter((item) => ALLOWED_SERVICE_CATEGORIES.includes(item)),
@@ -73,7 +70,7 @@ const normalizeServiceCategories = (value, fallback = 'taxi') => {
 
   const fallbackValue = String(fallback || 'taxi').trim().toLowerCase();
   if (fallbackValue === 'both') {
-    return ['taxi', 'outstation'];
+    return ['taxi', 'delivery'];
   }
 
   return ALLOWED_SERVICE_CATEGORIES.includes(fallbackValue) ? [fallbackValue] : ['taxi'];
@@ -82,14 +79,12 @@ const normalizeServiceCategories = (value, fallback = 'taxi') => {
 const getPrimaryRegisterFor = (serviceCategories = [], fallback = 'taxi') => {
   const normalized = normalizeServiceCategories(serviceCategories, fallback);
 
-  if (normalized.includes('taxi') && normalized.includes('outstation')) {
+  if (normalized.includes('taxi') && normalized.includes('delivery')) {
     return 'both';
   }
 
   if (normalized.includes('taxi')) return 'taxi';
-  if (normalized.includes('outstation')) return 'outstation';
   if (normalized.includes('delivery')) return 'delivery';
-  if (normalized.includes('pooling')) return 'pooling';
 
   return String(fallback || 'taxi').trim().toLowerCase() || 'taxi';
 };
@@ -199,31 +194,21 @@ const processDriverSignupReferralRewards = async ({ driver, referrer }) => {
   }
 };
 
-const matchesDocumentRole = (accountType, role) => {
+const matchesDocumentRole = (accountType) => {
   const normalizedAccountType = String(accountType || 'individual').trim().toLowerCase();
-  const normalizedRole = normalizeRole(role);
 
   if (normalizedAccountType === 'both') {
     return true;
-  }
-
-  if (normalizedRole === 'owner') {
-    return normalizedAccountType === 'fleet_drivers';
   }
 
   return normalizedAccountType === 'individual';
 };
 
-const matchesVehicleFieldRole = (accountType, role) => {
+const matchesVehicleFieldRole = (accountType) => {
   const normalizedAccountType = String(accountType || 'individual').trim().toLowerCase();
-  const normalizedRole = normalizeRole(role);
 
   if (normalizedAccountType === 'both') {
     return true;
-  }
-
-  if (normalizedRole === 'owner') {
-    return normalizedAccountType === 'fleet_drivers';
   }
 
   return normalizedAccountType === 'individual';
@@ -524,23 +509,9 @@ export const startDriverOnboarding = async ({ phone, role = 'driver' }) => {
 
   const normalizedRole = normalizeRole(role);
   const existingDriver = await Driver.findOne({ phone: normalizedPhone });
-  const existingOwner =
-    normalizedRole === 'owner'
-      ? await Owner.findOne({
-        $or: [
-          { mobile: normalizedPhone },
-          { phone: normalizedPhone },
-        ],
-      })
-      : null;
 
-  if (existingDriver || existingOwner) {
-    throw new ApiError(
-      409,
-      normalizedRole === 'owner'
-        ? 'Phone number is already registered as an owner'
-        : 'Phone number is already registered',
-    );
+  if (existingDriver) {
+    throw new ApiError(409, 'Phone number is already registered');
   }
 
   const { otp, isStatic } = resolveDriverOnboardingOtpForPhone(normalizedPhone);
@@ -613,8 +584,6 @@ export const verifyDriverOtp = async ({ registrationId, phone, otp }) => {
 
 export const saveDriverPersonalDetails = async ({ registrationId, phone, fullName, email, gender, password }) => {
   const session = await getSession(registrationId, phone);
-  const isOwner = String(session.role || '').toLowerCase() === 'owner';
-
   if (!session.otpVerifiedAt) {
     throw new ApiError(400, 'Verify OTP before continuing');
   }
@@ -627,7 +596,7 @@ export const saveDriverPersonalDetails = async ({ registrationId, phone, fullNam
   const normalizedEmail = String(email).trim().toLowerCase();
 
   if (!DRIVER_NAME_REGEX.test(normalizedName)) {
-    throw new ApiError(400, `${isOwner ? 'Owner' : 'Driver'} name should contain alphabets only`);
+    throw new ApiError(400, 'Driver name should contain alphabets only');
   }
 
   if (!EMAIL_REGEX.test(normalizedEmail)) {
@@ -639,7 +608,7 @@ export const saveDriverPersonalDetails = async ({ registrationId, phone, fullNam
     email: normalizedEmail,
     gender: String(gender).trim(),
     passwordHash: await hashPassword(
-      !isOwner && String(password || '').trim()
+      String(password || '').trim()
         ? String(password)
         : crypto.randomBytes(24).toString('hex'),
     ),
@@ -695,11 +664,7 @@ export const saveDriverVehicle = async ({
   year,
   number,
   color,
-  companyName,
-  companyAddress,
   city,
-  postalCode,
-  taxNumber,
   customFields = {},
 }) => {
   const session = await getSession(registrationId, phone);
@@ -717,11 +682,9 @@ export const saveDriverVehicle = async ({
     throw new ApiError(400, 'A valid service location is required');
   }
 
-  const isOwner = String(session.role || '').toLowerCase() === 'owner';
   const requiredFieldMap = await getRequiredVehicleFieldMap(session.role);
   const normalizedYear = String(year || '').trim();
   const normalizedNumber = String(number || '').replace(/[^A-Za-z0-9]/g, '').toUpperCase();
-  const normalizedPostalCode = String(postalCode || '').replace(/\D/g, '');
   const normalizedCustomFields = Object.entries(customFields || {}).reduce((acc, [key, value]) => {
     const normalizedKey = String(key || '').trim();
     if (!normalizedKey) {
@@ -747,17 +710,7 @@ export const saveDriverVehicle = async ({
 
   requireField('locationId', locationId, 'Operating city');
 
-  if (isOwner) {
-    requireField('companyName', companyName, 'Company name');
-    requireField('companyAddress', companyAddress, 'Company address');
-    requireField('city', city, 'City');
-    requireField('postalCode', normalizedPostalCode, 'Postal code');
-    requireField('taxNumber', taxNumber, 'Tax number');
-
-    if (normalizedPostalCode && !/^\d{6}$/.test(normalizedPostalCode)) {
-      throw new ApiError(400, 'Postal code must be a 6 digit number');
-    }
-  } else {
+  {
     const vehicleYear = Number(normalizedYear);
     const currentYear = new Date().getFullYear();
 
@@ -790,11 +743,6 @@ export const saveDriverVehicle = async ({
         'year',
         'number',
         'color',
-        'companyName',
-        'companyAddress',
-        'city',
-        'postalCode',
-        'taxNumber',
       ].includes(key);
     })
     .forEach((config) => {
@@ -833,11 +781,7 @@ export const saveDriverVehicle = async ({
     year: normalizedYear,
     number: normalizedNumber,
     color: String(color || '').trim(),
-    companyName: String(companyName || '').trim(),
-    companyAddress: String(companyAddress || '').trim(),
     city: String(city || selectedLocation).trim(),
-    postalCode: normalizedPostalCode,
-    taxNumber: String(taxNumber || '').trim().toUpperCase(),
     customFields: normalizedCustomFields,
   };
   session.status = 'vehicle_saved';
@@ -914,14 +858,8 @@ export const completeDriverOnboarding = async ({ registrationId, phone, document
     normalizedDocuments[documentKey] = normalizeStoredDocument(value);
   }
 
-  const configuredUploadFields =
-    String(session.role || '').toLowerCase() === 'owner'
-      ? await listOwnerDocumentUploadFields({ activeOnly: true })
-      : await listDriverDocumentUploadFields({ activeOnly: true });
-  const configuredTemplates =
-    String(session.role || '').toLowerCase() === 'owner'
-      ? (await listOwnerNeededDocuments()).filter((item) => item.active !== false)
-      : await listDriverNeededDocuments({ activeOnly: true, includeFields: true });
+  const configuredUploadFields = await listDriverDocumentUploadFields({ activeOnly: true });
+  const configuredTemplates = await listDriverNeededDocuments({ activeOnly: true, includeFields: true });
   const requiredDocuments = configuredUploadFields
     .filter((field) => Boolean(field.required) && matchesDocumentRole(field.account_type, session.role))
     .map((field) => field.key);
@@ -970,9 +908,8 @@ export const completeDriverOnboarding = async ({ registrationId, phone, document
   }
 
   const serviceLocationCoordinates = getValidatedServiceLocationCoordinates(resolvedServiceLocation || {});
-  const isOwnerRegistration = String(session.role || '').toLowerCase() === 'owner';
 
-  if (!serviceLocationCoordinates && !isOwnerRegistration) {
+  if (!serviceLocationCoordinates) {
     throw new ApiError(400, `Unsupported service location: ${session.vehicle.locationName}`);
   }
 
@@ -985,80 +922,6 @@ export const completeDriverOnboarding = async ({ registrationId, phone, document
     ? getGenericVehicleTypeFromCatalog(selectedVehicle)
     : getVehicleType(session.vehicle.vehicleTypeId, session.vehicle.registerFor);
   const submittedAt = new Date();
-
-  if (isOwnerRegistration) {
-    const normalizedEmail = String(session.personal.email || '').trim().toLowerCase();
-    const normalizedMobile = String(session.phone || '').trim();
-    const serviceLocationId =
-      session.vehicle.locationId && /^[a-f\d]{24}$/i.test(String(session.vehicle.locationId))
-        ? session.vehicle.locationId
-        : null;
-
-    const duplicateOwner = await Owner.findOne({
-      $or: [
-        { email: normalizedEmail },
-        { mobile: normalizedMobile },
-      ],
-    }).lean();
-
-    if (duplicateOwner) {
-      throw new ApiError(409, 'Owner already exists with this phone or email');
-    }
-
-    const owner = await Owner.create({
-      company_name: String(session.vehicle.companyName || session.personal.fullName || '').trim(),
-      owner_name: String(session.personal.fullName || '').trim() || null,
-      name: String(session.personal.fullName || '').trim(),
-      mobile: normalizedMobile,
-      email: normalizedEmail,
-      password: session.personal.passwordHash,
-      service_location_id: serviceLocationId || null,
-      legacy_service_location_id: serviceLocationId ? '' : String(session.vehicle.locationId || '').trim(),
-      transport_type: String(session.vehicle.registerFor || 'taxi').trim().toLowerCase(),
-      phone: normalizedMobile,
-      address: String(session.vehicle.companyAddress || '').trim() || null,
-      postal_code: String(session.vehicle.postalCode || '').trim() || null,
-      city: String(session.vehicle.city || session.vehicle.locationName || '').trim() || null,
-      tax_number: String(session.vehicle.taxNumber || '').trim() || null,
-      active: true,
-      approve: false,
-      status: 'pending',
-      user_snapshot: {
-        source: 'owner_onboarding',
-        registrationId: session.registrationId,
-        verifiedAt: session.otpVerifiedAt,
-        submittedAt,
-        location: serviceLocationCoordinates ? toPoint(serviceLocationCoordinates, 'location') : null,
-        zoneId: zone?._id || null,
-        documents: normalizedDocuments,
-        onboardingVehicle: {
-          ...session.vehicle,
-        },
-      },
-      area_snapshot: resolvedServiceLocation || null,
-    });
-
-    session.status = 'completed';
-    session.completedAt = submittedAt;
-    await session.save();
-    await DriverRegistrationSession.deleteOne({ _id: session._id });
-
-    return {
-      message: 'Owner registration completed successfully',
-      owner: {
-        id: owner._id,
-        name: owner.owner_name || owner.name || owner.company_name || '',
-        company_name: owner.company_name || '',
-        phone: owner.mobile || owner.phone || '',
-        email: owner.email || '',
-        approve: owner.approve,
-        status: owner.status,
-      },
-      documents: normalizedDocuments,
-      token: signAccessToken({ sub: String(owner._id), role: 'owner' }),
-      session: publicSessionPayload(session),
-    };
-  }
 
   const normalizedReferralCode = normalizeReferralCode(session.referralCode);
   const referrer = normalizedReferralCode

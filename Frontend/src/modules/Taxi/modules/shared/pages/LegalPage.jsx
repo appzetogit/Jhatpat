@@ -42,7 +42,6 @@ const legalContent = {
         bullets: [
           'Users should provide accurate name, phone number, and account details.',
           'You must use the platform only for lawful purposes.',
-          'For rentals or regulated vehicle services, additional identity or eligibility checks may be required.',
         ],
       },
       {
@@ -174,7 +173,7 @@ const legalContent = {
         bullets: [
           'Incorrect pickup or drop details entered by the user that caused service failure.',
           'Customer no-show after the partner reaches or waits at the pickup point.',
-          'Cancellations made after the trip, rental, dispatch, or service has already started.',
+          'Cancellations made after the trip, dispatch, or service has already started.',
           'Fraudulent transactions, chargeback misuse, or policy abuse under investigation.',
           'Complaints raised without enough booking or payment proof where service records show successful completion.',
         ],
@@ -260,7 +259,7 @@ const LegalPage = () => {
       try {
         if (docType === 'terms' || docType === 'privacy') {
           const role = String(location.state?.role || '').toLowerCase();
-          const isDriver = ['driver', 'owner'].includes(role) || location.pathname.includes('/driver');
+          const isDriver = role === 'driver' || location.pathname.includes('/driver');
           const own = await fetchAppLegal(isDriver ? 'taxi_driver' : 'taxi_user', docType);
           if (own) {
             setDynamicContent(own);

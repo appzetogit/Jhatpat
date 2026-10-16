@@ -70,7 +70,7 @@ const AboutPage = () => {
                       Our mission is to transform the way people move by connecting them with professional drivers and efficient services. We believe that transportation should be seamless, secure, and accessible to all.
                   </p>
                   <p className="text-lg text-gray-600 leading-relaxed">
-                      Whether you need a quick city ride, a comfortable outstation trip, or fast parcel delivery, our technology-driven approach ensures every journey is a great experience.
+                      Whether you need a quick city ride or fast parcel delivery, our technology-driven approach ensures every journey is a great experience.
                   </p>
               </div>
               <div className="grid grid-cols-2 gap-6">

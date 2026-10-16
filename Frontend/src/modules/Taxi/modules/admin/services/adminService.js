@@ -67,11 +67,11 @@ export const adminService = {
   approveDriverDeleteRequest: (id) => api.patch(`/admin/drivers/delete-requests/${id}/approve`),
   rejectDriverDeleteRequest: (id, adminNote = '') => api.patch(`/admin/drivers/delete-requests/${id}/reject`, { adminNote }),
   getDriverNeededDocuments: (templateType = 'document') =>
-    api.get(`/admin/owner-management/driver-needed-document?template_type=${encodeURIComponent(templateType)}`),
-  getDriverNeededDocument: (id) => api.get(`/admin/owner-management/driver-needed-document/${id}`),
-  createDriverNeededDocument: (data) => api.post('/admin/owner-management/driver-needed-document', data),
-  updateDriverNeededDocument: (id, data) => api.patch(`/admin/owner-management/driver-needed-document/${id}`, data),
-  deleteDriverNeededDocument: (id) => api.delete(`/admin/owner-management/driver-needed-document/${id}`),
+    api.get(`/admin/driver-management/driver-needed-document?template_type=${encodeURIComponent(templateType)}`),
+  getDriverNeededDocument: (id) => api.get(`/admin/driver-management/driver-needed-document/${id}`),
+  createDriverNeededDocument: (data) => api.post('/admin/driver-management/driver-needed-document', data),
+  updateDriverNeededDocument: (id, data) => api.patch(`/admin/driver-management/driver-needed-document/${id}`, data),
+  deleteDriverNeededDocument: (id) => api.delete(`/admin/driver-management/driver-needed-document/${id}`),
   getReferralTranslations: () => api.get('/admin/referrals/translation'),
   updateReferralTranslation: (languageCode, data) =>
     api.patch(`/admin/referrals/translation/${languageCode}`, data),
@@ -80,7 +80,6 @@ export const adminService = {
   // Wallet Payment APIs
   searchUsers: (query) => api.get(`/admin/users?search=${query}`),
   searchDrivers: (query) => api.get(`/admin/drivers?search=${query}`),
-  searchOwners: (query) => api.get(`/admin/owners?search=${query}`),
 
   adjustUserWallet: (id, data) => api.post(`/admin/wallet/users/${id}/adjust`, data),
   getUserWalletHistory: (id) => api.get(`/admin/wallet/users/${id}/history`),
@@ -94,21 +93,7 @@ export const adminService = {
   approveDriverWithdrawalRequest: (requestId) => api.patch(`/admin/wallet/drivers/withdrawals/${requestId}/approve`),
   rejectDriverWithdrawalRequest: (requestId) => api.patch(`/admin/wallet/drivers/withdrawals/${requestId}/reject`),
 
-  adjustOwnerWallet: (id, data) => api.post(`/admin/wallet/owners/${id}/adjust`, data),
-  getOwnerWalletHistory: (id) => api.get(`/admin/wallet/owners/${id}/history`),
-
   getReferralDashboard: () => api.get('/admin/referral/dashboard'),
-
-  /**
-   * Subscription Management
-   */
-  getSubscriptionPlans: () => api.get('/admin/driver-subscriptions/plans/list'),
-  createSubscriptionPlan: (planData) => api.post('/admin/driver-subscriptions/plans/create', planData),
-  getSubscriptionSettings: () => api.get('/admin/driver-subscriptions/settings'),
-  updateSubscriptionSettings: (data) => api.post('/admin/driver-subscriptions/settings', data),
-  getUserSubscriptionPlans: () => api.get('/admin/user-subscriptions/plans/list'),
-  createUserSubscriptionPlan: (planData) => api.post('/admin/user-subscriptions/plans/create', planData),
-  getUserSubscriptionsByUserId: (id) => api.get(`/admin/users/${id}/subscriptions`),
 
   /**
    * Common / Configuration Data
@@ -117,31 +102,10 @@ export const adminService = {
   createServiceLocation: (data) => api.post('/admin/service-locations', data),
   updateServiceLocation: (id, data) => api.patch(`/admin/service-locations/${id}`, data),
   deleteServiceLocation: (id) => api.delete(`/admin/service-locations/${id}`),
-  getServiceStores: () => api.get('/admin/service-stores'),
-  createServiceStore: (data) => api.post('/admin/service-stores', data),
-  updateServiceStore: (id, data) => api.patch(`/admin/service-stores/${id}`, data),
-  deleteServiceStore: (id) => api.delete(`/admin/service-stores/${id}`),
   getCountries: () => api.get('/countries'),
   getVehicleTypes: (transportType) => api.get(`/admin/types/vehicle-types/list${transportType ? `?transport_type=${transportType}` : ''}`),
   getRideModules: () => api.get('/common/ride_modules'),
   getLocationVehicleTypes: (locationId, transportType) => api.get(`/types/${locationId}?transport_type=${transportType}`),
-
-  /**
-   * Owner Management
-   */
-  getOwners: () => api.get('/admin/owner-management/manage-owners'),
-  getOwner: (id) => api.get(`/admin/owner-management/manage-owners/${id}`),
-  createOwner: (ownerData) => api.post('/admin/owner-management/manage-owners', ownerData),
-  updateOwner: (id, ownerData) => api.patch(`/admin/owner-management/manage-owners/${id}`, ownerData),
-  deleteOwner: (id) => api.delete(`/admin/owner-management/manage-owners/${id}`),
-  approveOwner: (id, data) => api.patch(`/admin/owner-management/manage-owners/${id}/approve`, data),
-  approveOwnerSignupFromDriver: (driverId) =>
-    api.patch(`/admin/owner-management/pending-owners/${driverId}/approve`),
-  getOwnerBookings: () => api.get('/admin/owner-management/bookings'),
-  createOwnerBooking: (data) => api.post('/admin/owner-management/bookings', data),
-  updateOwnerBooking: (id, data) => api.patch(`/admin/owner-management/bookings/${id}`, data),
-  deleteOwnerBooking: (id) => api.delete(`/admin/owner-management/bookings/${id}`),
-  getOwnerDashboard: () => api.get('/admin/owner-management/dashboard'),
 
   /**
    * Reports Management
@@ -159,17 +123,9 @@ export const adminService = {
     const query = new URLSearchParams(params).toString();
     return api.get(`/admin/reports/driver-duty/download?${query}`, { responseType: 'blob' });
   },
-  downloadOwnerReport: (params) => {
-    const query = new URLSearchParams(params).toString();
-    return api.get(`/admin/reports/owner/download?${query}`, { responseType: 'blob' });
-  },
   downloadFinanceReport: (params) => {
     const query = new URLSearchParams(params).toString();
     return api.get(`/admin/reports/finance/download?${query}`, { responseType: 'blob' });
-  },
-  downloadFleetFinanceReport: (params) => {
-    const query = new URLSearchParams(params).toString();
-    return api.get(`/admin/reports/fleet-finance/download?${query}`, { responseType: 'blob' });
   },
   getReportOptions: () => api.get('/admin/reports/options'),
 
@@ -193,8 +149,6 @@ export const adminService = {
     api.get(`/admin/ride-requests?page=${page}&limit=${limit}&tab=${encodeURIComponent(tab)}&search=${encodeURIComponent(search)}`),
   getDeliveries: ({ page = 1, limit = 10, tab = 'all', search = '' } = {}) =>
     api.get(`/admin/deliveries?page=${page}&limit=${limit}&tab=${encodeURIComponent(tab)}&search=${encodeURIComponent(search)}`),
-  getTrips: ({ page = 1, limit = 10, tab = 'all', search = '' } = {}) =>
-    api.get(`/admin/trips?page=${page}&limit=${limit}&tab=${encodeURIComponent(tab)}&search=${encodeURIComponent(search)}`),
   deleteOngoingRide: (id) => api.delete(`/admin/ongoing-rides/${id}`),
   // Removes a trip from the trips list (a live ride is cancelled first; the ride is kept).
   deleteTripRequest: (id) => api.delete(`/admin/ride-requests/${id}`),
@@ -234,41 +188,10 @@ export const adminService = {
   createAirport: (airportData) => api.post('/admin/airports', airportData),
   updateAirport: (id, airportData) => api.patch(`/admin/airports/${id}`, airportData),
   deleteAirport: (id) => api.delete(`/admin/airports/${id}`),
-  getRentalPackageTypes: () => api.get('/admin/types/rental-packages'),
-  createRentalPackageType: (data) => api.post('/admin/types/rental-packages', data),
-  updateRentalPackageType: (id, data) => api.patch(`/admin/types/rental-packages/${id}`, data),
-  deleteRentalPackageType: (id) => api.delete(`/admin/types/rental-packages/${id}`),
   getSetPrices: (params = {}) => api.get('/admin/types/set-prices', { params }),
   createSetPrice: (data) => api.post('/admin/types/set-prices', data),
   updateSetPrice: (id, data) => api.patch(`/admin/types/set-prices/${id}`, data),
   deleteSetPrice: (id) => api.delete(`/admin/types/set-prices/${id}`),
-  getRentalVehicleTypes: () => api.get('/admin/types/rental-vehicles'),
-  createRentalVehicleType: (data) => api.post('/admin/types/rental-vehicles', data),
-  updateRentalVehicleType: (id, data) => api.patch(`/admin/types/rental-vehicles/${id}`, data),
-  deleteRentalVehicleType: (id) => api.delete(`/admin/types/rental-vehicles/${id}`),
-  getRentalBookingRequests: () => api.get('/admin/rental-booking-requests'),
-  getRentalTrackingDashboard: () => api.get('/admin/rental-tracking'),
-  updateRentalBookingRequest: (id, data) => api.patch(`/admin/rental-booking-requests/${id}`, data),
-  getRentalQuoteRequests: () => api.get('/admin/rental-quote-requests'),
-  updateRentalQuoteRequest: (id, data) => api.patch(`/admin/rental-quote-requests/${id}`, data),
-  getPoolingRoutes: () => api.get('/admin/pooling-routes'),
-  createPoolingRoute: (data) => api.post('/admin/pooling-routes', data),
-  updatePoolingRoute: (id, data) => api.patch(`/admin/pooling-routes/${id}`, data),
-  deletePoolingRoute: (id) => api.delete(`/admin/pooling-routes/${id}`),
-
-  getPoolingVehicles: () => api.get('/admin/pooling-vehicles'),
-  createPoolingVehicle: (data) => api.post('/admin/pooling-vehicles', data),
-  updatePoolingVehicle: (id, data) => api.patch(`/admin/pooling-vehicles/${id}`, data),
-  deletePoolingVehicle: (id) => api.delete(`/admin/pooling-vehicles/${id}`),
-
-  getPoolingBookings: () => api.get('/admin/pooling-bookings'),
-  updatePoolingBookingStatus: (id, status) => api.patch(`/admin/pooling-bookings/${id}/status`, { status }),
-
-  getAdminBusBookings: (params = {}) => api.get('/admin/bus-bookings', { params }),
-  getAdminBusBookingCalendar: (params = {}) => api.get('/admin/bus-bookings/calendar', { params }),
-  createAdminBusBooking: (payload) => api.post('/admin/bus-bookings/manual', payload),
-  cancelAdminBusBookingSeats: (id, payload = {}) => api.post(`/admin/bus-bookings/${id}/cancel`, payload),
-
   uploadImage: (image) => api.post('/admin/upload-image', { image }),
 
   /**

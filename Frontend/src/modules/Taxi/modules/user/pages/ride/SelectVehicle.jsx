@@ -571,21 +571,13 @@ const sortPricingRules = (rules = []) => (
 const isActiveRidePricingRule = (rule, transportType) => {
   const isActive = Number(rule?.active ?? 1) === 1 && String(rule?.status || 'active').toLowerCase() !== 'inactive';
   const scope = String(rule?.pricing_scope || 'ride').trim().toLowerCase();
-  
-  if (String(transportType).toLowerCase() === 'intercity') {
-    return isActive && scope === 'ride' && Boolean(rule?.enable_outstation_ride);
-  }
-  
+
   return isActive && scope === 'ride';
 };
 
 const matchesTransportType = (rule, transportType) => {
   const normalizedRuleTransport = String(rule?.transport_type || 'taxi').trim().toLowerCase();
   const normalizedTransportType = String(transportType || 'taxi').trim().toLowerCase() || 'taxi';
-
-  if (normalizedTransportType === 'intercity' && Boolean(rule?.enable_outstation_ride)) {
-    return true;
-  }
 
   return normalizedRuleTransport === normalizedTransportType
     || normalizedRuleTransport === 'both';
@@ -711,20 +703,11 @@ const calculateEstimatedFare = ({ vehicle, pricingRule, distanceMeters, duration
     return fallbackFare;
   }
 
-  const isIntercity = String(transportType).toLowerCase() === 'intercity';
-  const distanceKm = Math.max(0, Number(distanceMeters || 0) / 1000);
-  const basePrice = isIntercity
-    ? toFiniteNumber(pricingRule.outstation_base_price, 0)
-    : toFiniteNumber(pricingRule.base_price, 0);
-  const baseDistance = isIntercity
-    ? Math.max(0, toFiniteNumber(pricingRule.outstation_base_distance, 0))
-    : Math.max(0, toFiniteNumber(pricingRule.base_distance, 0));
-  const pricePerDistance = isIntercity
-    ? toFiniteNumber(pricingRule.outstation_price_per_distance, 0)
-    : toFiniteNumber(pricingRule.price_per_distance, 0);
-  const timePrice = isIntercity
-    ? toFiniteNumber(pricingRule.outstation_time_price, 0)
-    : toFiniteNumber(pricingRule.time_price, 0);
+    const distanceKm = Math.max(0, Number(distanceMeters || 0) / 1000);
+  const basePrice = toFiniteNumber(pricingRule.base_price, 0);
+  const baseDistance = Math.max(0, toFiniteNumber(pricingRule.base_distance, 0));
+  const pricePerDistance = toFiniteNumber(pricingRule.price_per_distance, 0);
+  const timePrice = toFiniteNumber(pricingRule.time_price, 0);
   const serviceTax = toFiniteNumber(pricingRule.service_tax, 0);
   // Include the ride surge set by admin — only if the zone actually has it enabled (matching backend)
   const rideSurgeAmount = Boolean(pickupZone?.ride_surge_enabled)
@@ -1097,9 +1080,7 @@ const SelectVehicle = () => {
             const isActive = type.active !== false && Number(type.status ?? 1) !== 0;
             const typeTransport = String(type.transport_type || 'taxi').toLowerCase();
             const requestedTransport = resolveRideTransportType(routeState.transportType, routeState.transport_type);
-            const isMatch = typeTransport === requestedTransport || typeTransport === 'both' || 
-                           (requestedTransport === 'intercity' && typeTransport === 'outstation') || 
-                           (requestedTransport === 'outstation' && typeTransport === 'intercity');
+            const isMatch = typeTransport === requestedTransport || typeTransport === 'both';
             return isActive && isMatch;
           })
           .flatMap((type) => {
@@ -1465,12 +1446,7 @@ const SelectVehicle = () => {
     () => displayedVehicles.some((vehicle) => (availabilityByVehicleId[vehicle.id]?.totalDrivers || 0) > 0),
     [availabilityByVehicleId, displayedVehicles],
   );
-  const shouldUseDriverBidding = Boolean(
-    routeState.intercity ||
-    routeState.serviceType === 'intercity' ||
-    routeState.transport_type === 'intercity' ||
-    routeState.transportType === 'intercity',
-  );
+  const shouldUseDriverBidding = false;
   const bidRideSettings = settings?.bidRide || {};
   const selectedBidStepAmount = shouldUseDriverBidding
     ? toConfiguredPositiveInteger(

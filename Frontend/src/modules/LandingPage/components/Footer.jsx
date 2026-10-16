@@ -27,8 +27,7 @@ export default function Footer({ settings }) {
     services: [
       { name: 'Ride Hailing', href: playStoreUrl },
       { name: 'Food Delivery', href: playStoreUrl },
-      { name: 'Parcels & Logistics', href: playStoreUrl },
-      { name: 'Airport Transfers', href: playStoreUrl }
+      { name: 'Parcels & Logistics', href: playStoreUrl }
     ],
     legal: [
       { name: 'Terms of Service', href: '/terms?tab=terms' },

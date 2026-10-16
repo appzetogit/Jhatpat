@@ -80,7 +80,6 @@ const SIGNATURE_SITES = [
     // the one webhook that still exists unguarded.
     'src/core/payments/controllers/razorpayWebhook.controller.js',
     'src/modules/taxi/driver/controllers/driverController.js',
-    'src/modules/taxi/user/controllers/poolingController.js',
     'src/modules/taxi/user/controllers/rideController.js',
     'src/modules/taxi/user/controllers/userController.js',
 ];

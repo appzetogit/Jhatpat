@@ -3,12 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { userService } from '../services/userService';
 
+const REMOVED_SERVICE_TYPES = ['rental', 'outstation', 'intercity', 'pooling', 'carpool', 'bus', 'subscription'];
+
 const getServiceAction = (serviceType, navigate) => {
   switch (serviceType?.toLowerCase()) {
     case 'normal': return () => navigate('/taxi/user/ride/select-location');
-    case 'outstation': return () => navigate('/taxi/user/ride/select-location?rideType=outstation');
     case 'bid': return () => navigate('/taxi/user/ride/select-location?rideType=bid');
-    case 'pooling': return () => navigate('/taxi/user/pooling');
     default: return () => navigate('/taxi/user/ride/select-location');
   }
 };
@@ -32,7 +32,7 @@ const ServiceGrid = () => {
 
   const services = useMemo(() => {
     return appModules
-      .filter(m => m.active !== false && m.service_type?.toLowerCase() !== 'rental')
+      .filter(m => m.active !== false && !REMOVED_SERVICE_TYPES.includes(m.service_type?.toLowerCase()))
       .sort((a, b) => (a.order_by || 99) - (b.order_by || 99))
       .map(m => ({
         id: m._id || m.id,

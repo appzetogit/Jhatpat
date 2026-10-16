@@ -18,9 +18,7 @@ const DEFAULT_SETTINGS_CONTEXT = {
       admin_theme_color: '',
       currency_symbol: '',
     },
-    transportRide: {
-      enable_bus_service: '0',
-    },
+    transportRide: {},
     bidRide: {
       bidding_low_percentage: '10',
       bidding_high_percentage: '20',
@@ -159,7 +157,7 @@ export const SettingsProvider = ({ children }) => {
 
   useEffect(() => {
     const pathname = location.pathname;
-    if (pathname.startsWith('/admin') || pathname.startsWith('/taxi/admin') || pathname.startsWith('/taxi/owner') || pathname.startsWith('/food/admin')) {
+    if (pathname.startsWith('/admin') || pathname.startsWith('/taxi/admin') || pathname.startsWith('/food/admin')) {
       setActiveModule('admin');
     } else if (pathname.startsWith('/food/delivery')) {
       setActiveModule('food_delivery_partner');
@@ -188,7 +186,7 @@ export const SettingsProvider = ({ children }) => {
       setSettings({
         general: bootstrapData.general || {},
         customization: bootstrapData.customization || {},
-        transportRide: bootstrapData.transportRide || { enable_bus_service: '0' },
+        transportRide: bootstrapData.transportRide || {},
         bidRide: bootstrapData.bidRide || DEFAULT_SETTINGS_CONTEXT.settings.bidRide,
         paymentGateway: bootstrapData.paymentGateway || null,
       });

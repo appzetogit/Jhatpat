@@ -60,13 +60,11 @@ const isScheduledRideForFuture = (value) => {
 const normalizeJobType = (job = {}) => {
     const value = String(job.type || job.serviceType || 'ride').toLowerCase();
     if (value === 'parcel') return 'parcel';
-    if (value === 'intercity') return 'intercity';
     return 'ride';
 };
 
 const getJobTitle = (type) => {
     if (type === 'parcel') return 'Delivery';
-    if (type === 'intercity') return 'Intercity Ride';
     return 'Taxi Ride';
 };
 
@@ -79,8 +77,6 @@ const formatTripDistance = (job = {}) => {
             : `${(estimatedMeters / 1000).toFixed(estimatedMeters >= 10000 ? 0 : 1)} km`;
     }
 
-    if (job.intercity?.distance) return `${job.intercity.distance} km`;
-    if (job.raw?.intercity?.distance) return `${job.raw.intercity.distance} km`;
     if (job.radius) return `within ${(Number(job.radius) / 1000).toFixed(1)} km`;
     if (job.raw?.radius) return `within ${(Number(job.raw.radius) / 1000).toFixed(1)} km`;
 

@@ -135,14 +135,10 @@ const deliverySchema = new mongoose.Schema(
       },
       deliveryScope: {
         type: String,
-        enum: ['city', 'outstation'],
+        enum: ['city'],
         default: 'city',
         lowercase: true,
         trim: true,
-      },
-      isOutstation: {
-        type: Boolean,
-        default: false,
       },
       senderName: {
         type: String,

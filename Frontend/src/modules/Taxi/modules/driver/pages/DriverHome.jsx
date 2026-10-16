@@ -223,27 +223,7 @@ const formatSummaryDistance = (meters) => {
     return km >= 10 ? `${Math.round(km)} km` : `${km.toFixed(1)} km`;
 };
 
-const isOwnerManagedDriverProfile = (driver = {}) => {
-    const accountType = String(
-        driver?.accountType
-        || driver?.onboarding?.accountType
-        || driver?.onboarding?.role
-        || driver?.role
-        || '',
-    ).toLowerCase();
-
-    return Boolean(
-        driver?.owner_id
-        || driver?.ownerId
-        || driver?.fleet_id
-        || driver?.fleetId
-        || driver?.owner?._id
-        || driver?.onboarding?.owner_id
-        || ['fleet_driver', 'fleet_drivers'].includes(accountType),
-    );
-};
-
-const getWalletAlertState = (wallet = {}, { ignoreRestrictions = false } = {}) => {
+const getWalletAlertState = (wallet = {}) => {
     const balance = Number(wallet.balance || 0);
     const cashLimit = Math.max(0, Number(wallet.cashLimit || 0));
     const minimumBalanceForOrders = Number(wallet.minimumBalanceForOrders || 0);
@@ -255,8 +235,8 @@ const getWalletAlertState = (wallet = {}, { ignoreRestrictions = false } = {}) =
     const belowMinimumBalance = balance <= minimumBalanceForOrders;
     const cashLimitExceeded = cashLimit > 0 && remainingCashLimit <= 0;
     const rawBlocked = Boolean(wallet.isBlocked) || belowMinimumBalance || cashLimitExceeded;
-    const isBlocked = ignoreRestrictions ? false : rawBlocked;
-    const isWarning = ignoreRestrictions ? false : (!isBlocked && cashLimitUsed > 0 && remainingCashLimit <= warningThreshold);
+    const isBlocked = rawBlocked;
+    const isWarning = !isBlocked && cashLimitUsed > 0 && remainingCashLimit <= warningThreshold;
 
     return {
         balance,
@@ -265,8 +245,8 @@ const getWalletAlertState = (wallet = {}, { ignoreRestrictions = false } = {}) =
         cashLimitUsed,
         remainingCashLimit,
         warningThreshold,
-        belowMinimumBalance: ignoreRestrictions ? false : belowMinimumBalance,
-        cashLimitExceeded: ignoreRestrictions ? false : cashLimitExceeded,
+        belowMinimumBalance,
+        cashLimitExceeded,
         isBlocked,
         isWarning,
     };
@@ -301,7 +281,6 @@ const createScheduledRidePreview = (ride) => ({
         baseFare: ride.baseFare,
         bookingMode: ride.bookingMode || 'normal',
         parcel: ride.parcel || null,
-        intercity: ride.intercity || null,
         user: ride.user || null,
         pickupAddress: ride.pickupAddress || '',
         dropAddress: ride.dropAddress || '',
@@ -313,13 +292,11 @@ const createScheduledRidePreview = (ride) => ({
 const normalizeJobType = (job = {}) => {
     const value = String(job.type || job.serviceType || 'ride').toLowerCase();
     if (value === 'parcel') return 'parcel';
-    if (value === 'intercity') return 'intercity';
     return 'ride';
 };
 
 const getJobTitle = (type) => {
     if (type === 'parcel') return 'Delivery';
-    if (type === 'intercity') return 'Intercity Ride';
     return 'Taxi Ride';
 };
 
@@ -330,14 +307,6 @@ const formatTripDistance = (job = {}) => {
         return estimatedMeters < 1000
             ? `${Math.max(50, Math.round(estimatedMeters / 10) * 10)} m`
             : `${(estimatedMeters / 1000).toFixed(estimatedMeters >= 10000 ? 0 : 1)} km`;
-    }
-
-    if (job.intercity?.distance) {
-        return `${job.intercity.distance} km`;
-    }
-
-    if (job.raw?.intercity?.distance) {
-        return `${job.raw.intercity.distance} km`;
     }
 
     if (job.radius) {
@@ -491,7 +460,6 @@ const DriverHome = () => {
     const appName = settings.general?.app_name || 'App';
     const appLogo = activeLogo || settings.general?.logo || settings.customization?.logo;
     const storedDriverInfo = useMemo(() => readStoredDriverInfo(), []);
-    const [isOwnerManagedDriver, setIsOwnerManagedDriver] = useState(() => isOwnerManagedDriverProfile(storedDriverInfo));
     const [isOnline, setIsOnline] = useState(false);
     const [workMode, setWorkMode] = useState('all');
     const [serviceCapabilities, setServiceCapabilities] = useState([]);
@@ -549,8 +517,8 @@ const DriverHome = () => {
     );
 
     const walletAlertState = useMemo(
-        () => getWalletAlertState(walletSummary, { ignoreRestrictions: isOwnerManagedDriver }),
-        [walletSummary, isOwnerManagedDriver],
+        () => getWalletAlertState(walletSummary),
+        [walletSummary],
     );
 
     const { isLoaded } = useAppGoogleMapsLoader();
@@ -677,12 +645,6 @@ const DriverHome = () => {
             window.clearInterval(interval);
         };
     }, [scheduledRides.length]);
-
-    useEffect(() => {
-        if (isOwnerManagedDriver) {
-            setShowLowBalanceModal(false);
-        }
-    }, [isOwnerManagedDriver]);
 
     useEffect(() => {
         currentRequestRef.current = currentRequest;
@@ -832,7 +794,6 @@ const DriverHome = () => {
         setIsOnline(Boolean(driver?.isOnline));
         if (driver?.workMode) setWorkMode(driver.workMode);
         if (Array.isArray(driver?.serviceCapabilities)) setServiceCapabilities(driver.serviceCapabilities);
-        setIsOwnerManagedDriver(isOwnerManagedDriverProfile(driver));
         setTodaySummary(normalizeTodaySummary(driver?.todaySummary));
         if (driver?.wallet) {
             setWalletSummary(driver.wallet);
@@ -851,7 +812,6 @@ const DriverHome = () => {
 
         const storedDriverInfoSnapshot = readStoredDriverInfo();
         persistStoredDriverInfo({
-            owner_id: driver?.owner_id || storedDriverInfoSnapshot?.owner_id || null,
             vehicleIconType: driver?.vehicleIconType || storedDriverInfoSnapshot?.vehicleIconType || '',
             vehicleType: driver?.vehicleType || storedDriverInfoSnapshot?.vehicleType || '',
             vehicleIconUrl: driver?.vehicleIconUrl || storedDriverInfoSnapshot?.vehicleIconUrl || '',
@@ -1480,9 +1440,7 @@ const DriverHome = () => {
                 if (payload?.wallet) {
                     setWalletSummary(payload.wallet);
 
-                    const nextWalletAlertState = getWalletAlertState(payload.wallet, {
-                        ignoreRestrictions: isOwnerManagedDriver,
-                    });
+                    const nextWalletAlertState = getWalletAlertState(payload.wallet);
 
                     if (nextWalletAlertState.isBlocked) {
                         setShowRequest(false);
@@ -1567,7 +1525,7 @@ const DriverHome = () => {
             socketService.disconnect();
         }
         return undefined;
-    }, [clearRecoveryBurst, fetchActiveJob, isOnline, isOwnerManagedDriver, loadScheduledRides, navigate, scheduleRecoveryBurst]);
+    }, [clearRecoveryBurst, fetchActiveJob, isOnline, loadScheduledRides, navigate, scheduleRecoveryBurst]);
 
     useEffect(() => {
         if (!isOnline) {
@@ -2017,7 +1975,7 @@ const DriverHome = () => {
                                                     <div className="flex items-start justify-between gap-3">
                                                         <div className="min-w-0">
                                                             <p className="truncate text-[14px] font-black text-slate-950">
-                                                                {ride.type === 'parcel' ? 'Scheduled delivery' : ride.type === 'intercity' ? 'Scheduled intercity ride' : 'Scheduled ride'}
+                                                                {ride.type === 'parcel' ? 'Scheduled delivery' : 'Scheduled ride'}
                                                             </p>
                                                             <p className="mt-1 text-[10px] font-black uppercase tracking-[0.16em] text-blue-500">
                                                                 {formatScheduledDateTime(ride.scheduledAt)}

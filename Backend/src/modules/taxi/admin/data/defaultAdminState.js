@@ -15,7 +15,6 @@ export const createDefaultAdminState = () => {
   const driverOneId = objectId();
   const driverTwoId = objectId();
   const driverThreeId = objectId();
-  const ownerOneId = objectId();
 
   return {
     users: [
@@ -97,7 +96,6 @@ export const createDefaultAdminState = () => {
     rideModules: [
       { transport_type: 'taxi' },
       { transport_type: 'delivery' },
-      { transport_type: 'intercity' },
     ],
     appModules: [
       {
@@ -139,30 +137,6 @@ export const createDefaultAdminState = () => {
         for_user: false,
       },
     ],
-    subscriptionPlans: [
-      {
-        name: 'Daily Sedan Booster',
-        description: 'Best for active city cab drivers.',
-        amount: 149,
-        duration: 1,
-        transport_type: 'taxi',
-        vehicle_type_id: sedanId,
-        service_location_id: indoreId,
-        how_it_works: 'Pay once per day and unlock lower commission.',
-        active: true,
-      },
-      {
-        name: 'Weekly Delivery Pro',
-        description: 'Built for mini-truck logistics partners.',
-        amount: 699,
-        duration: 7,
-        transport_type: 'delivery',
-        vehicle_type_id: miniTruckId,
-        service_location_id: delhiId,
-        how_it_works: 'Flat weekly pass for delivery operations.',
-        active: true,
-      },
-    ],
     preferences: [
       {
         name: 'Pet Friendly',
@@ -199,14 +173,6 @@ export const createDefaultAdminState = () => {
         order: 1,
         title: 'Drive On Your Schedule',
         description: 'Go online when ready and track earnings live.',
-        active: true,
-      },
-      {
-        audience: 'owner',
-        screen: 'owner',
-        order: 1,
-        title: 'Scale Your Fleet',
-        description: 'Manage vehicles, drivers, and payouts from one panel.',
         active: true,
       },
     ],

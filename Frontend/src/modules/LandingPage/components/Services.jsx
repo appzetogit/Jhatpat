@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { Car, Utensils, Package, Plane, Bike, Truck } from 'lucide-react'
+import { Car, Utensils, Package, Truck } from 'lucide-react'
 import { LANDING_THEME } from '../constants/theme'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -25,18 +25,6 @@ const services = [
     bg: LANDING_THEME.orange.bg, accent: LANDING_THEME.orange.primary, secondary: LANDING_THEME.orange.accent,
     gradient: 'from-[#ff5100] to-[#e11d48]'
   },
-  {
-    icon: Plane, title: 'Airport Transfers',
-    description: 'Stress-free airport drop-offs and pick-ups with dedicated luggage assistance.',
-    bg: LANDING_THEME.blue.bg, accent: LANDING_THEME.blue.primary, secondary: LANDING_THEME.blue.accent,
-    gradient: 'from-[#1d4ed8] to-[#10b981]'
-  },
-  /*{
-    icon: Bike, title: 'Hourly Rentals',
-    description: 'Rent motorcycles, scooters, or cars with smart keyless check-in and flexible KYC.',
-    bg: LANDING_THEME.orange.bg, accent: LANDING_THEME.orange.primary, secondary: LANDING_THEME.orange.accent,
-    gradient: 'from-[#ff5100] to-[#e11d48]'
-  },*/
   {
     icon: Truck, title: 'Cargo & Logistics',
     description: 'Heavy-duty trucks and vans for warehouse moves and large corporate transport demands.',

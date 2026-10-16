@@ -21,9 +21,7 @@ import api from '../../../../shared/api/axiosInstance';
 
 const serviceCategoryOptions = [
   { value: 'taxi', label: 'Taxi' },
-  { value: 'outstation', label: 'Outstation' },
   { value: 'delivery', label: 'Delivery' },
-  { value: 'pooling', label: 'Pooling' },
 ];
 
 const normalizeTransportTypeForSelect = (value, options = []) => {
@@ -56,7 +54,7 @@ const normalizeServiceCategories = (value, fallback = 'taxi') => {
   const normalized = [...new Set(
     rawValues
       .map((item) => String(item || '').trim().toLowerCase())
-      .flatMap((item) => item === 'both' ? ['taxi', 'outstation'] : item ? [item] : [])
+      .flatMap((item) => item === 'both' ? ['taxi', 'delivery'] : item ? [item] : [])
       .filter((item) => serviceCategoryOptions.some((option) => option.value === item)),
   )];
 
@@ -66,7 +64,7 @@ const normalizeServiceCategories = (value, fallback = 'taxi') => {
 
   const fallbackValue = String(fallback || 'taxi').trim().toLowerCase();
   if (fallbackValue === 'both') {
-    return ['taxi', 'outstation'];
+    return ['taxi', 'delivery'];
   }
 
   return serviceCategoryOptions.some((option) => option.value === fallbackValue) ? [fallbackValue] : ['taxi'];

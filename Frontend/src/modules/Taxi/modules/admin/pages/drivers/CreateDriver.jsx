@@ -138,9 +138,7 @@ const extractResults = (payload) => {
 
 const serviceCategoryChoices = [
   { id: 'taxi', label: 'Taxi' },
-  { id: 'outstation', label: 'Outstation' },
   { id: 'delivery', label: 'Delivery' },
-  { id: 'pooling', label: 'Pooling' },
 ];
 
 const initialFormData = {
@@ -372,8 +370,8 @@ const CreateDriver = () => {
       vehicle_type_id: '',
       service_categories:
         nextTransportType === 'both'
-          ? ['taxi', 'outstation']
-          : [nextTransportType === 'delivery' ? 'delivery' : nextTransportType === 'pooling' ? 'pooling' : 'taxi'],
+          ? ['taxi', 'delivery']
+          : [nextTransportType === 'delivery' ? 'delivery' : 'taxi'],
     }));
   };
 
