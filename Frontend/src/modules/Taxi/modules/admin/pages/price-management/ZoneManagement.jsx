@@ -1153,7 +1153,12 @@ const ZoneManagement = ({ mode: initialMode = "list" }) => {
                           <div className="space-y-2">
                             {(formData.popular_places || []).map((place, index) => (
                               <div
-                                key={`${place.name}-${index}`}
+                                // index only, never place.name: the name changes on every
+                                // keystroke in the input below, and a key that changes makes
+                                // React remount this whole row instead of updating it in
+                                // place -- the input lost focus and the cursor jumped to the
+                                // end after every single character typed.
+                                key={index}
                                 className="flex items-start gap-3 rounded-lg border border-gray-200 p-3"
                               >
                                 <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-gray-100">
