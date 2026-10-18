@@ -410,7 +410,12 @@ const SetPrices = ({ mode }) => {
                               ) : (
                                  filteredPrizes.map((prize) => (
                                     <tr key={prize.id || prize._id} className="hover:bg-slate-50/50 transition-colors">
-                                       <td className="px-8 py-6 text-sm font-semibold text-slate-700">{prize.zone_name || 'India'}</td>
+                                       {/* zone_name is only set for rows tied to a specific zone (not every
+                                           price row is); the fallback used to be the literal string "India",
+                                           which hid the real city for every row priced at service-location
+                                           level instead of zone level -- service_location_name is what the
+                                           backend already resolves for exactly that case. */}
+                                       <td className="px-8 py-6 text-sm font-semibold text-slate-700">{prize.zone_name || prize.service_location_name || '—'}</td>
                                        <td className="px-8 py-6 text-sm text-slate-600 font-medium">
                                           {prize.transport_type === 'both' ? 'All' : (prize.transport_type === 'taxi' ? 'Ride Hailing' : (prize.transport_type || 'All'))}
                                        </td>
