@@ -1012,28 +1012,6 @@ availableCashLimit: deliveryman.availableCashLimit || 0,
                         </div>
                       )}
 
-                      {/* PAN */}
-                      {viewDetails.documents.pan && (
-                        <div>
-                          <label className="text-xs font-semibold text-slate-500 uppercase">PAN Card</label>
-                          <div className="mt-2">
-                            {viewDetails.documents.pan.number && (
-                              <p className="text-sm text-slate-700 mb-1">Number: {viewDetails.documents.pan.number}</p>
-                            )}
-                            {viewDetails.documents.pan.document && (
-                              <a 
-                                href={viewDetails.documents.pan.document} 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700"
-                              >
-                                <ExternalLink className="w-3 h-3" /> View Document
-                              </a>
-                            )}
-                          </div>
-                        </div>
-                      )}
-
                       {/* Driving License */}
                       {viewDetails.documents.drivingLicense && (
                         <div>

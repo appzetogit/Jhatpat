@@ -43,7 +43,7 @@ async function main() {
   });
   const matchedPartner = await FoodDeliveryPartner.create({
     name: 'Ravi D', phone: '9876500001', vehicleType: 'bike', vehicleNumber: 'GJ01AB1111',
-    status: 'approved', panNumber: 'ABCDE1234F', bankName: 'HDFC',
+    status: 'approved', bankName: 'HDFC',
     lastLocation: { type: 'Point', coordinates: [72.5, 23.0] },
   });
   await FoodDeliveryWallet.create({ deliveryPartnerId: matchedPartner._id, balance: 250, cashInHand: 120, totalEarnings: 900 });
@@ -78,7 +78,6 @@ async function main() {
   await test('DeliveryProfile created with KYC + wallet snapshot', async () => {
     const prof = await DeliveryProfile.findOne({ driverId: existingDriver._id }).lean();
     assert.ok(prof, 'profile exists');
-    assert.equal(prof.panNumber, 'ABCDE1234F');
     assert.equal(prof.bankName, 'HDFC');
     assert.equal(prof.walletSnapshot.balance, 250);
     assert.equal(prof.walletSnapshot.cashInHand, 120);

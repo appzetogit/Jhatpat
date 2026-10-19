@@ -4886,9 +4886,6 @@ export async function getDeliveryPartnerById(id) {
             aadhar: (partner.aadharPhoto || partner.aadharNumber)
                 ? { number: partner.aadharNumber || null, document: partner.aadharPhoto || null }
                 : null,
-            pan: (partner.panPhoto || partner.panNumber)
-                ? { number: partner.panNumber || null, document: partner.panPhoto || null }
-                : null,
             // The number was collected at signup and never passed on, so the
             // admin saw a licence photo with nothing to check it against.
             drivingLicense: (partner.drivingLicensePhoto || partner.drivingLicenseNumber)

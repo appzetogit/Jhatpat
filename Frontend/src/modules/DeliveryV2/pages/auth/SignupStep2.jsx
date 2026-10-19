@@ -12,7 +12,6 @@ const debugError = (...args) => {}
 const createEmptyUploadedDocs = () => ({
   profilePhoto: null,
   aadharPhoto: null,
-  panPhoto: null,
   drivingLicensePhoto: null
 })
 
@@ -37,7 +36,6 @@ const sanitizeUploadedDocValue = (value) => {
 const sanitizeUploadedDocs = (docs) => ({
   profilePhoto: sanitizeUploadedDocValue(docs?.profilePhoto),
   aadharPhoto: sanitizeUploadedDocValue(docs?.aadharPhoto),
-  panPhoto: sanitizeUploadedDocValue(docs?.panPhoto),
   drivingLicensePhoto: sanitizeUploadedDocValue(docs?.drivingLicensePhoto)
 })
 
@@ -51,10 +49,6 @@ const getFriendlyRegistrationError = (error) => {
   if (/E11000 duplicate key error/i.test(rawMessage)) {
     if (/vehicleNumber_1/i.test(rawMessage) || /vehicleNumber/i.test(rawMessage)) {
       return "This vehicle number is already registered. Please use a different vehicle number."
-    }
-
-    if (/panNumber_1/i.test(rawMessage) || /panNumber/i.test(rawMessage)) {
-      return "This PAN number is already registered."
     }
 
     if (/aadharNumber_1/i.test(rawMessage) || /aadharNumber/i.test(rawMessage)) {
@@ -81,13 +75,11 @@ export default function SignupStep2() {
   const fileInputRefs = useRef({
     profilePhoto: null,
     aadharPhoto: null,
-    panPhoto: null,
     drivingLicensePhoto: null
   })
   const [documents, setDocuments] = useState({
     profilePhoto: null,
     aadharPhoto: null,
-    panPhoto: null,
     drivingLicensePhoto: null
   })
   const [uploadedDocs, setUploadedDocs] = useState(() => {
@@ -213,10 +205,9 @@ export default function SignupStep2() {
 
     const profilePhotoVal = getDocValue("profilePhoto");
     const aadharPhotoVal = getDocValue("aadharPhoto");
-    const panPhotoVal = getDocValue("panPhoto");
     const drivingLicensePhotoVal = getDocValue("drivingLicensePhoto");
 
-    if (!profilePhotoVal || !aadharPhotoVal || !panPhotoVal || !drivingLicensePhotoVal) {
+    if (!profilePhotoVal || !aadharPhotoVal || !drivingLicensePhotoVal) {
       toast.error("Please upload all required documents")
       return
     }
@@ -253,12 +244,10 @@ export default function SignupStep2() {
       formData.append("drivingLicenseNumber", details.drivingLicenseNumber)
       formData.append("documents[drivingLicense][number]", details.drivingLicenseNumber)
     }
-    if (details.panNumber) formData.append("panNumber", details.panNumber)
     if (details.aadharNumber) formData.append("aadharNumber", details.aadharNumber)
 
     formData.append("profilePhoto", profilePhotoVal)
     formData.append("aadharPhoto", aadharPhotoVal)
-    formData.append("panPhoto", panPhotoVal)
     formData.append("drivingLicensePhoto", drivingLicensePhotoVal)
 
     // Try to get FCM token before registering
@@ -438,14 +427,13 @@ export default function SignupStep2() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <DocumentUpload docType="profilePhoto" label="Profile Photo" required={true} />
           <DocumentUpload docType="aadharPhoto" label="Aadhar Card Photo" required={true} />
-          <DocumentUpload docType="panPhoto" label="PAN Card Photo" required={true} />
           <DocumentUpload docType="drivingLicensePhoto" label="Driving License Photo" required={true} />
 
           {/* Submit Button */}
           <button
             type="submit"
-            disabled={isSubmitting || !uploadedDocs.profilePhoto || !uploadedDocs.aadharPhoto || !uploadedDocs.panPhoto || !uploadedDocs.drivingLicensePhoto}
-            className={`w-full py-4 rounded-xl font-bold text-white text-base transition-all mt-6 shadow-md ${isSubmitting || !uploadedDocs.profilePhoto || !uploadedDocs.aadharPhoto || !uploadedDocs.panPhoto || !uploadedDocs.drivingLicensePhoto
+            disabled={isSubmitting || !uploadedDocs.profilePhoto || !uploadedDocs.aadharPhoto || !uploadedDocs.drivingLicensePhoto}
+            className={`w-full py-4 rounded-xl font-bold text-white text-base transition-all mt-6 shadow-md ${isSubmitting || !uploadedDocs.profilePhoto || !uploadedDocs.aadharPhoto || !uploadedDocs.drivingLicensePhoto
               ? "bg-gray-400 cursor-not-allowed"
               : "bg-[#1A1A1A] hover:bg-black hover:shadow-lg"
               }`}

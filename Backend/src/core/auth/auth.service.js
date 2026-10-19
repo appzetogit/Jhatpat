@@ -701,13 +701,6 @@ export const getProfile = async (userId, role) => {
                   document: partner.aadharPhoto || null,
                 }
               : null,
-          pan:
-            partner.panPhoto || partner.panNumber
-              ? {
-                  number: partner.panNumber || null,
-                  document: partner.panPhoto || null,
-                }
-              : null,
           drivingLicense: partner.drivingLicensePhoto || partner.drivingLicenseNumber
             ? {
                 number: partner.drivingLicenseNumber || null,

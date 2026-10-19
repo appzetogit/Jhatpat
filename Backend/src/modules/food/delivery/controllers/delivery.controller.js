@@ -92,8 +92,7 @@ export const updateDeliveryPartnerBankDetailsController = async (req, res, next)
                 bankName: partner.bankName,
                 upiId: partner.upiId,
                 upiQrCode: partner.upiQrCode
-            },
-            panNumber: partner.panNumber
+            }
         };
         return sendResponse(res, 200, 'Bank details updated successfully', data);
     } catch (error) {

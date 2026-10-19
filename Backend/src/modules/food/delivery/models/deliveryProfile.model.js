@@ -29,11 +29,9 @@ const deliveryProfileSchema = new mongoose.Schema(
     city: { type: String, default: '' },
     state: { type: String, default: '' },
     // KYC / documents
-    panNumber: { type: String, default: '' },
     aadharNumber: { type: String, default: '' },
     drivingLicenseNumber: { type: String, default: '' },
     aadharPhoto: { type: String, default: '' },
-    panPhoto: { type: String, default: '' },
     drivingLicensePhoto: { type: String, default: '' },
     // Banking / payout
     bankAccountHolderName: { type: String, default: '' },

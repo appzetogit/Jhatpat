@@ -198,13 +198,11 @@ export default function DeliveryOTP() {
             vehicleName: partner.vehicleName || "",
             vehicleNumber: partner.vehicleNumber || "",
             drivingLicenseNumber: partner.drivingLicenseNumber || "",
-            panNumber: partner.panNumber || "",
             aadharNumber: partner.aadharNumber || ""
           }))
           sessionStorage.setItem("deliverySignupDocs", JSON.stringify({
             profilePhoto: partner.profilePhoto || null,
             aadharPhoto: partner.aadharPhoto || null,
-            panPhoto: partner.panPhoto || null,
             drivingLicensePhoto: partner.drivingLicensePhoto || null
           }))
         }

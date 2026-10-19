@@ -51,8 +51,8 @@ const deliveryPartnerSchema = new mongoose.Schema(
      * Whatever the admin asked this class of driver for, as uploaded.
      *
      * Keyed by the catalogue entry, so a document added in the panel
-     * lands here without a schema change. Deliberately NOT where the four
-     * original fields live: aadhar, PAN, licence and the profile photo are
+     * lands here without a schema change. Deliberately NOT where the
+     * original fields live: aadhar, licence and the profile photo are
      * read by name all over the admin panel and by every partner that
      * predates this, and moving them would break both.
      */
@@ -81,9 +81,6 @@ const deliveryPartnerSchema = new mongoose.Schema(
             unique: true,
             sparse: true
         },
-        panNumber: {
-            type: String
-        },
         aadharNumber: {
             type: String
         },
@@ -103,9 +100,6 @@ const deliveryPartnerSchema = new mongoose.Schema(
             default: []
         },
         aadharPhoto: {
-            type: String
-        },
-        panPhoto: {
             type: String
         },
         drivingLicensePhoto: {

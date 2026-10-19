@@ -121,9 +121,9 @@ async function main() {
             $set: {
               legacyDeliveryPartnerId: p._id,
               address: p.address || '', city: p.city || '', state: p.state || '',
-              panNumber: p.panNumber || '', aadharNumber: p.aadharNumber || '',
+              aadharNumber: p.aadharNumber || '',
               drivingLicenseNumber: p.drivingLicenseNumber || '',
-              aadharPhoto: p.aadharPhoto || '', panPhoto: p.panPhoto || '',
+              aadharPhoto: p.aadharPhoto || '',
               drivingLicensePhoto: p.drivingLicensePhoto || '',
               bankAccountHolderName: p.bankAccountHolderName || '', bankAccountNumber: p.bankAccountNumber || '',
               bankIfscCode: p.bankIfscCode || '', bankName: p.bankName || '',
