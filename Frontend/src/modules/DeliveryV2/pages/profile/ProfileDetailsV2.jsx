@@ -39,7 +39,6 @@ export const ProfileDetailsV2 = () => {
     accountNumber: "",
     ifscCode: "",
     bankName: "",
-    panNumber: "",
     upiId: "",
     upiQrCode: null
   })
@@ -105,7 +104,6 @@ export const ProfileDetailsV2 = () => {
             accountNumber: profileData?.documents?.bankDetails?.accountNumber || "",
             ifscCode: profileData?.documents?.bankDetails?.ifscCode || "",
             bankName: profileData?.documents?.bankDetails?.bankName || "",
-            panNumber: profileData?.documents?.pan?.number || "",
             upiId: profileData?.documents?.bankDetails?.upiId || "",
             upiQrCode: profileData?.documents?.bankDetails?.upiQrCode || null
           })
@@ -213,7 +211,6 @@ export const ProfileDetailsV2 = () => {
         accountNumber: pd?.documents?.bankDetails?.accountNumber || "",
         ifscCode: pd?.documents?.bankDetails?.ifscCode || "",
         bankName: pd?.documents?.bankDetails?.bankName || "",
-        panNumber: pd?.documents?.pan?.number || "",
         upiId: pd?.documents?.bankDetails?.upiId || "",
         upiQrCode: pd?.documents?.bankDetails?.upiQrCode || null
       })
@@ -346,7 +343,7 @@ export const ProfileDetailsV2 = () => {
     setIsUpdatingBankDetails(true)
     try {
       // Validation
-      const { accountNumber, ifscCode, panNumber, upiId } = bankDetails
+      const { accountNumber, ifscCode, upiId } = bankDetails
 
       if (accountNumber && !/^\d{9,18}$/.test(accountNumber.trim())) {
         return toast.error("Invalid Account Number (9-18 digits)")
@@ -355,11 +352,6 @@ export const ProfileDetailsV2 = () => {
       const ifscRegex = /^[A-Z]{4}0[A-Z0-9]{6}$/
       if (ifscCode && !ifscRegex.test(ifscCode.trim().toUpperCase())) {
         return toast.error("Invalid IFSC Code (e.g. SBIN0001234)")
-      }
-
-      const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/
-      if (panNumber && !panRegex.test(panNumber.trim().toUpperCase())) {
-        return toast.error("Invalid PAN Card format (e.g. ABCDE1234F)")
       }
 
       const upiRegex = /^[\w\.-]+@[\w\.-]+$/
@@ -374,7 +366,6 @@ export const ProfileDetailsV2 = () => {
       formData.append("documents[bankDetails][ifscCode]", (bankDetails.ifscCode || "").trim().toUpperCase())
       formData.append("documents[bankDetails][bankName]", (bankDetails.bankName || "").trim())
       formData.append("documents[bankDetails][upiId]", (bankDetails.upiId || "").trim())
-      formData.append("documents[pan][number]", (bankDetails.panNumber || "").trim().toUpperCase())
 
       if (upiQrFile) {
         formData.append("upiQrCode", upiQrFile)
@@ -565,7 +556,6 @@ export const ProfileDetailsV2 = () => {
                     accountNumber: profile?.documents?.bankDetails?.accountNumber || "",
                     ifscCode: profile?.documents?.bankDetails?.ifscCode || "",
                     bankName: profile?.documents?.bankDetails?.bankName || "",
-                    panNumber: profile?.documents?.pan?.number || "",
                     upiId: profile?.documents?.bankDetails?.upiId || "",
                     upiQrCode: profile?.documents?.bankDetails?.upiQrCode || null
                   })
@@ -639,7 +629,6 @@ export const ProfileDetailsV2 = () => {
           <div className="grid gap-3">
              {[
                { icon: FileText, label: "Aadhar Card", doc: profile?.documents?.aadhar },
-               { icon: FileText, label: "PAN Card", doc: profile?.documents?.pan },
                { icon: Truck, label: "Driving License", doc: profile?.documents?.drivingLicense, number: getDrivingLicenseNumber() }
              ].map((item, i) => (
                <div key={i} className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between">
@@ -838,7 +827,6 @@ export const ProfileDetailsV2 = () => {
                { label: "Account Number", key: "accountNumber", icon: Banknote, maxLength: 20, isNumeric: true },
                { label: "IFSC Code", key: "ifscCode", icon: Shield, format: (v) => v.toUpperCase(), maxLength: 11 },
                { label: "Bank Name", key: "bankName", icon: MapPin, maxLength: 60 },
-               { label: "PAN Number", key: "panNumber", icon: FileText, format: (v) => v.toUpperCase(), maxLength: 10 },
                { label: "UPI ID", key: "upiId", icon: Smartphone, maxLength: 60 }
              ].map((field) => (
                <div key={field.key} className="bg-gray-50/50 p-4 rounded-2xl border border-gray-100 group focus-within:border-primary-orange/50/50 transition-all">

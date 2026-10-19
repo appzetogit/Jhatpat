@@ -6,7 +6,6 @@ const phoneSchema = z
     .min(8, 'Phone must be at least 8 digits')
     .max(15, 'Phone must be at most 15 digits');
 
-const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
 const aadharRegex = /^[0-9]{12}$/;
 // India-wide DL support (normalized, no spaces/hyphens):
 // 2 letters (state) + 1-2 digits (RTO) + 2 or 4 digits (year) + 4-7 digits (serial)
@@ -39,11 +38,6 @@ const deliveryRegisterSchema = z.object({
         .optional()
         .or(z.literal('')),
     ref: z.string().trim().max(64).optional().or(z.literal('')),
-    panNumber: z
-        .string()
-        .regex(panRegex, 'Invalid PAN format')
-        .optional()
-        .or(z.literal('')),
     aadharNumber: z
         .string()
         .regex(aadharRegex, 'Invalid Aadhar format')
@@ -115,8 +109,7 @@ const bankDetailsSchema = z.object({
 
 const bankDetailsUpdateSchema = z.object({
     documents: z.object({
-        bankDetails: bankDetailsSchema.optional(),
-        pan: z.object({ number: z.string().optional() }).optional()
+        bankDetails: bankDetailsSchema.optional()
     }).optional()
 }).optional();
 
@@ -132,9 +125,6 @@ export const validateDeliveryBankDetailsDto = (body) => {
             bankName: body['documents[bankDetails][bankName]'],
             upiId: body['documents[bankDetails][upiId]']
         };
-    }
-    if (!processed.documents.pan && body['documents[pan][number]']) {
-        processed.documents.pan = { number: body['documents[pan][number]'] };
     }
 
     const result = bankDetailsUpdateSchema.safeParse(processed);

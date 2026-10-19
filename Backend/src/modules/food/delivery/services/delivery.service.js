@@ -53,7 +53,7 @@ const collectCatalogueDocuments = async (payload = {}, files = {}) => {
 };
 
 /*
- * The three papers the admin panel reads BY NAME (aadharPhoto, panPhoto,
+ * The two papers the admin panel reads BY NAME (aadharPhoto,
  * drivingLicensePhoto and their numbers) everywhere a partner is reviewed.
  * When one of them arrives through the catalogue instead -- keyed by its slug,
  * e.g. doc_aadhar-card_front -- it is copied into the named field too, if that
@@ -61,7 +61,6 @@ const collectCatalogueDocuments = async (payload = {}, files = {}) => {
  */
 const LEGACY_DOCUMENTS = [
     { match: /aadha?a?r/i, photo: 'aadharPhoto', number: 'aadharNumber' },
-    { match: /(^|[-_ ])pan([-_ ]|$)|pan[-_ ]?card/i, photo: 'panPhoto', number: 'panNumber' },
     { match: /licen[cs]e|(^|[-_ ])dl([-_ ]|$)/i, photo: 'drivingLicensePhoto', number: 'drivingLicenseNumber' },
 ];
 
@@ -76,13 +75,12 @@ export const mirrorLegacyDocuments = (catalogueDocs = [], images = {}, numbers =
 };
 
 export const registerDeliveryPartner = async (payload, files) => {
-    const { 
-        name, phone, email, countryCode, address, city, state, 
-        vehicleType, vehicleName, vehicleNumber, drivingLicenseNumber, panNumber, aadharNumber,
+    const {
+        name, phone, email, countryCode, address, city, state,
+        vehicleType, vehicleName, vehicleNumber, drivingLicenseNumber, aadharNumber,
         fcmToken, platform, driverClass, serviceIntents,
         profilePhoto: preExistingProfilePhoto,
         aadharPhoto: preExistingAadharPhoto,
-        panPhoto: preExistingPanPhoto,
         drivingLicensePhoto: preExistingDrivingLicensePhoto
     } = payload;
     const refRaw = typeof payload?.ref === 'string' ? String(payload.ref).trim() : '';
@@ -112,7 +110,6 @@ export const registerDeliveryPartner = async (payload, files) => {
     const images = {
         profilePhoto: preExistingProfilePhoto || '',
         aadharPhoto: preExistingAadharPhoto || '',
-        panPhoto: preExistingPanPhoto || '',
         drivingLicensePhoto: preExistingDrivingLicensePhoto || ''
     };
 
@@ -121,9 +118,6 @@ export const registerDeliveryPartner = async (payload, files) => {
     }
     if (files?.aadharPhoto?.[0]) {
         images.aadharPhoto = await uploadImageBuffer(files.aadharPhoto[0].buffer, 'food/delivery/aadhar');
-    }
-    if (files?.panPhoto?.[0]) {
-        images.panPhoto = await uploadImageBuffer(files.panPhoto[0].buffer, 'food/delivery/pan');
     }
     if (files?.drivingLicensePhoto?.[0]) {
         images.drivingLicensePhoto = await uploadImageBuffer(
@@ -134,7 +128,7 @@ export const registerDeliveryPartner = async (payload, files) => {
 
     const onboardingDocuments = await collectCatalogueDocuments(payload, files);
     const { numbers: legacyNumbers } = mirrorLegacyDocuments(onboardingDocuments, images, {
-        aadharNumber, panNumber, drivingLicenseNumber,
+        aadharNumber, drivingLicenseNumber,
     });
 
     const partner = await FoodDeliveryPartner.create({
@@ -149,7 +143,6 @@ export const registerDeliveryPartner = async (payload, files) => {
         vehicleName,
         vehicleNumber,
         drivingLicenseNumber: legacyNumbers.drivingLicenseNumber,
-        panNumber: legacyNumbers.panNumber,
         aadharNumber: legacyNumbers.aadharNumber,
         // Recorded as asked, filtered to the options that belong to the
         // class. A cross-class pick is dropped rather than refused: it
@@ -215,7 +208,7 @@ export const updateDeliveryPartnerProfile = async (userId, payload, files) => {
 
     const {
         name, countryCode, address, city, state,
-        vehicleType, vehicleName, vehicleNumber, drivingLicenseNumber, panNumber, aadharNumber,
+        vehicleType, vehicleName, vehicleNumber, drivingLicenseNumber, aadharNumber,
         fcmToken, platform
     } = payload;
 
@@ -309,7 +302,6 @@ export const updateDeliveryPartnerBankDetails = async (userId, payload, files) =
 
     // Handle both nested JSON and flat FormData from multer
     let bankDetails = payload?.documents?.bankDetails;
-    let panDetails = payload?.documents?.pan;
 
     // Multer flattens FormData keys like 'documents[bankDetails][accountNumber]'
     if (!bankDetails && payload) {
@@ -320,10 +312,6 @@ export const updateDeliveryPartnerBankDetails = async (userId, payload, files) =
         if (payload['documents[bankDetails][bankName]'] !== undefined) b.bankName = payload['documents[bankDetails][bankName]'];
         if (payload['documents[bankDetails][upiId]'] !== undefined) b.upiId = payload['documents[bankDetails][upiId]'];
         if (Object.keys(b).length > 0) bankDetails = b;
-    }
-
-    if (!panDetails && payload?.['documents[pan][number]'] !== undefined) {
-        panDetails = { number: payload['documents[pan][number]'] };
     }
 
     if (bankDetails) {
@@ -339,10 +327,6 @@ export const updateDeliveryPartnerBankDetails = async (userId, payload, files) =
         // these changes need no re-review, so the pause is the brake.
         const after = [partner.bankAccountNumber, partner.bankIfscCode, partner.upiId].map((v) => String(v || ''));
         if (before.some((v, i) => v && v !== after[i])) partner.bankDetailsChangedAt = new Date();
-    }
-
-    if (panDetails?.number !== undefined) {
-        partner.panNumber = panDetails.number ? String(panDetails.number).trim().toUpperCase() : '';
     }
 
     if (files?.upiQrCode?.[0]) {

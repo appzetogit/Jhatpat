@@ -15,8 +15,7 @@ export const ProfileBankV2 = () => {
     accountHolderName: "",
     accountNumber: "",
     ifscCode: "",
-    bankName: "",
-    panNumber: ""
+    bankName: ""
   });
   const [isSaving, setIsSaving] = useState(false);
 
@@ -30,8 +29,7 @@ export const ProfileBankV2 = () => {
               accountHolderName: profile?.documents?.bankDetails?.accountHolderName || "",
               accountNumber: profile?.documents?.bankDetails?.accountNumber || "",
               ifscCode: profile?.documents?.bankDetails?.ifscCode || "",
-              bankName: profile?.documents?.bankDetails?.bankName || "",
-              panNumber: profile?.documents?.pan?.number || ""
+              bankName: profile?.documents?.bankDetails?.bankName || ""
            });
         }
       } catch (e) { toast.error("Failed to load details"); }
@@ -51,8 +49,7 @@ export const ProfileBankV2 = () => {
                  accountNumber: form.accountNumber,
                  ifscCode: form.ifscCode,
                  bankName: form.bankName
-              },
-              pan: { number: form.panNumber }
+              }
            }
         };
         const response = await deliveryAPI.updateProfileDetails(payload);
@@ -82,8 +79,7 @@ export const ProfileBankV2 = () => {
                 "Account Holder": "accountHolderName",
                 "Account Number": "accountNumber",
                 "IFSC Code": "ifscCode",
-                "Bank Name": "bankName",
-                "PAN Number": "panNumber"
+                "Bank Name": "bankName"
              }).map(([label, key]) => (
                 <div key={key} className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">{label}</label>

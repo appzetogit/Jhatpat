@@ -10,7 +10,7 @@
  *   - every document goes out with a key the app can name its upload by -- the
  *     admin form never sets one on documents, so they all went out keyed '';
  *   - a document limited to one class of partner reaches only that class;
- *   - a paper that arrives through the catalogue (Aadhaar, PAN, licence) also
+ *   - a paper that arrives through the catalogue (Aadhaar, licence) also
  *     fills the named field the admin panel reads, without overwriting one that
  *     was sent the old way; other documents are left alone.
  */
@@ -44,7 +44,6 @@ const { DriverNeededDocument } = await import('../src/modules/taxi/admin/models/
 // The catalogue as it is live: documents saved by the admin form, no field_key.
 await DriverNeededDocument.collection.insertMany([
   { name: 'aadhar card', slug: 'aadhar-card', template_type: 'document', image_type: 'front_back', applies_to: [], is_required: true, active: true, field_key: '' },
-  { name: 'pan card', slug: 'pan-card', template_type: 'document', image_type: 'front_back', applies_to: ['two_wheeler'], is_required: true, active: true },
   { name: 'Goods permit', slug: 'goods-permit', template_type: 'document', image_type: 'front', applies_to: ['parcel_vehicle'], is_required: true, active: true },
   { name: 'Brand / Make', slug: 'vehicle-field-brand', template_type: 'vehicle_field', field_key: 'brand', active: true },
 ]);
@@ -52,7 +51,7 @@ await DriverNeededDocument.collection.insertMany([
 console.log('\nWhat the app is asked for');
 await check('every document has a key the app can name its upload by', async () => {
   const { documents } = await getOnboardingRequirements({ driverClass: 'two_wheeler', intents: ['food_daily_medical_parcel'] });
-  assert.deepEqual(documents.map((d) => d.key).sort(), ['aadhar-card', 'pan-card']);
+  assert.deepEqual(documents.map((d) => d.key).sort(), ['aadhar-card']);
   assert.ok(documents.every((d) => d.key));
 });
 await check('a document for one class reaches only that class', async () => {
@@ -72,18 +71,17 @@ await check('a key the admin did set still wins', async () => {
 });
 
 console.log('\nWhat the admin panel reads');
-await check('Aadhaar, PAN and licence sent through the catalogue fill the named fields', async () => {
+await check('Aadhaar and licence sent through the catalogue fill the named fields', async () => {
   const { images, numbers } = mirrorLegacyDocuments(
     [
       { key: 'aadhar-card', name: 'aadhar card', frontUrl: 'https://x/a.jpg', number: '1111 2222 3333' },
-      { key: 'pan-card', name: 'pan card', frontUrl: 'https://x/p.jpg', number: 'ABCDE1234F' },
       { key: 'driving-license', name: 'driving license', frontUrl: 'https://x/l.jpg', number: 'HP01 2020' },
     ],
     {},
     {},
   );
-  assert.deepEqual(images, { aadharPhoto: 'https://x/a.jpg', panPhoto: 'https://x/p.jpg', drivingLicensePhoto: 'https://x/l.jpg' });
-  assert.deepEqual(numbers, { aadharNumber: '1111 2222 3333', panNumber: 'ABCDE1234F', drivingLicenseNumber: 'HP01 2020' });
+  assert.deepEqual(images, { aadharPhoto: 'https://x/a.jpg', drivingLicensePhoto: 'https://x/l.jpg' });
+  assert.deepEqual(numbers, { aadharNumber: '1111 2222 3333', drivingLicenseNumber: 'HP01 2020' });
 });
 await check('a paper sent the old way is never overwritten', async () => {
   const { images, numbers } = mirrorLegacyDocuments(
@@ -94,7 +92,7 @@ await check('a paper sent the old way is never overwritten', async () => {
   assert.equal(images.aadharPhoto, 'https://x/old.jpg');
   assert.equal(numbers.aadharNumber, '1111');
 });
-await check('other documents are left alone ("Company Name" is not PAN)', async () => {
+await check('other documents are left alone ("Company Name" is not Aadhaar)', async () => {
   const { images } = mirrorLegacyDocuments(
     [
       { key: 'goods-permit', name: 'Goods permit', frontUrl: 'https://x/g.jpg' },

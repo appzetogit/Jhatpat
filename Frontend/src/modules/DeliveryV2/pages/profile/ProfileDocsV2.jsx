@@ -66,7 +66,6 @@ export const ProfileDocsV2 = () => {
 
   const docs = [
     { label: "Aadhar Card", field: "aadharPhoto", data: profile?.documents?.aadhar },
-    { label: "PAN Card", field: "panPhoto", data: profile?.documents?.pan },
     { label: "Driving License", field: "drivingLicensePhoto", data: profile?.documents?.drivingLicense }
   ];
 

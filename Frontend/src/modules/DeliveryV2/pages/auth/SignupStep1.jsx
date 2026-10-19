@@ -27,7 +27,6 @@ export default function SignupStep1() {
       vehicleName: "",
       vehicleNumber: "",
       drivingLicenseNumber: "",
-      panNumber: "",
       aadharNumber: ""
     }
     if (saved) {
@@ -83,8 +82,8 @@ export default function SignupStep1() {
     const { name, value } = e.target
     let updatedValue = value
 
-    // Auto-uppercase for Vehicle, DL and PAN numbers
-    if (name === "vehicleNumber" || name === "panNumber" || name === "drivingLicenseNumber") {
+    // Auto-uppercase for Vehicle and DL numbers
+    if (name === "vehicleNumber" || name === "drivingLicenseNumber") {
       updatedValue = value.toUpperCase()
     }
 
@@ -167,12 +166,6 @@ export default function SignupStep1() {
       newErrors.drivingLicenseNumber = "Invalid DL format (e.g., DL0120110012345)"
     }
 
-    if (!formData.panNumber.trim()) {
-      newErrors.panNumber = "PAN number is required"
-    } else if (!/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(formData.panNumber)) {
-      newErrors.panNumber = "Invalid PAN format (e.g., ABCDE1234F)"
-    }
-
     if (!formData.aadharNumber.trim()) {
       newErrors.aadharNumber = "Aadhar number is required"
     } else if (!/^\d{12}$/.test(formData.aadharNumber.replace(/\s/g, ""))) {
@@ -207,7 +200,6 @@ export default function SignupStep1() {
         vehicleName: formData.vehicleName?.trim() || "",
         vehicleNumber: formData.vehicleNumber.trim(),
         drivingLicenseNumber: formData.drivingLicenseNumber.trim().toUpperCase(),
-        panNumber: formData.panNumber.trim().toUpperCase(),
         aadharNumber: formData.aadharNumber.replace(/\s/g, "")
       }
       sessionStorage.setItem("deliverySignupDetails", JSON.stringify(details))
@@ -410,24 +402,6 @@ export default function SignupStep1() {
               placeholder="e.g., MH1220110012345"
             />
             {errors.drivingLicenseNumber && <p className="text-red-500 text-sm mt-1">{errors.drivingLicenseNumber}</p>}
-          </div>
-
-          {/* PAN Number */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              PAN Number <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              name="panNumber"
-              value={formData.panNumber}
-              onChange={handleChange}
-              maxLength={10}
-              className={`w-full px-4 py-3 border rounded-xl bg-[#F8F9FA] border-gray-200 focus:outline-none focus:border-[#F38F24] focus:ring-1 focus:ring-[#F38F24] transition-all font-semibold text-[#1A1A1A] uppercase ${errors.panNumber ? "border-red-500" : ""
-                }`}
-              placeholder="ABCDE1234F"
-            />
-            {errors.panNumber && <p className="text-red-500 text-sm mt-1">{errors.panNumber}</p>}
           </div>
 
           {/* Aadhar Number */}
