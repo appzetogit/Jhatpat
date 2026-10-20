@@ -700,13 +700,21 @@ const serializeEmergencyContact = (contact = {}) => ({
       : "manual",
 });
 
+// A base64-encoded vehicle photo in map_icon/icon/image can be multiple MB.
+// Sending that back on every /taxi/drivers/me and goOnline call made those
+// requests take ~20s and get cut off client-side ("Could not check your
+// services"). Only a `data:` URI is dropped -- a real upload is an http(s)
+// URL and still goes out fine.
+const isInlineImageData = (value) => String(value || "").trim().startsWith("data:");
+
 const resolveVehicleMapIcon = async (vehicleTypeId) => {
   if (!vehicleTypeId) {
     return "";
   }
 
   const vehicle = await Vehicle.findById(vehicleTypeId).select("icon map_icon image").lean();
-  return vehicle?.map_icon || vehicle?.icon || vehicle?.image || "";
+  const resolved = vehicle?.map_icon || vehicle?.icon || vehicle?.image || "";
+  return isInlineImageData(resolved) ? "" : resolved;
 };
 
 const serializeDriverNotification = (item = {}) => ({
@@ -997,12 +1005,6 @@ export const getCurrentDriver = async (req, res) => {
   let driverNeedsSave = false;
   if (!String(driver.referralCode || "").trim()) {
     driver.referralCode = generateDriverReferralCode(driver);
-    driverNeedsSave = true;
-  }
-
-  if (driver.approve === false || driver.approve === 0 || !driver.approve || String(driver.status || "").toLowerCase() === "pending" || !driver.status) {
-    driver.approve = true;
-    driver.status = "approved";
     driverNeedsSave = true;
   }
 

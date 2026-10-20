@@ -28,14 +28,22 @@ const iconKey = (value) =>
         .toLowerCase()
         .replace(/[\s-]+/g, '_');
 
-const serializeVehicle = (vehicle) => ({
-    id: String(vehicle._id),
-    name: vehicle.name || '',
-    iconType: vehicle.icon_types || '',
-    transportType: vehicle.transport_type || '',
-    image: vehicle.image || vehicle.map_icon || '',
-    capacity: Number(vehicle.capacity || 0),
-});
+// A base64-encoded photo in `image`/`map_icon` can be multiple MB; selecting
+// it here made this endpoint take ~20s and sometimes 502. Only a `data:` URI
+// is skipped -- a real upload is an http(s) URL and still goes out fine.
+const isInlineImageData = (value) => String(value || '').trim().startsWith('data:');
+
+const serializeVehicle = (vehicle) => {
+    const image = vehicle.image || vehicle.map_icon || '';
+    return {
+        id: String(vehicle._id),
+        name: vehicle.name || '',
+        iconType: vehicle.icon_types || '',
+        transportType: vehicle.transport_type || '',
+        image: isInlineImageData(image) ? '' : image,
+        capacity: Number(vehicle.capacity || 0),
+    };
+};
 
 const serializeDocument = (doc) => ({
     id: String(doc._id),
