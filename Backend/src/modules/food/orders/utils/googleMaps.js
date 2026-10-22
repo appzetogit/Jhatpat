@@ -1,11 +1,53 @@
 import { config } from '../../../../config/env.js';
 import { logger } from '../../../../utils/logger.js';
 
+const ROUTES_URL = 'https://routes.googleapis.com/directions/v2:computeRoutes';
+
 /**
- * Fetches an encoded polyline from Google Directions API.
- * This should be called ONLY ONCE per order assignment to save costs.
- * @param {Object} origin - { lat, lng }
- * @param {Object} destination - { lat, lng }
+ * Driving route via the Routes API (the legacy Directions / Distance Matrix
+ * APIs are not enabled on current keys and answer REQUEST_DENIED).
+ * @returns {Promise<{polyline: string, distanceMeters: number|null, durationSeconds: number|null}|null>}
+ */
+export async function computeRoute(origin, destination, apiKey, { timeoutMs = 5000 } = {}) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+        const res = await fetch(ROUTES_URL, {
+            method: 'POST',
+            signal: controller.signal,
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Goog-Api-Key': apiKey,
+                'X-Goog-FieldMask': 'routes.polyline.encodedPolyline,routes.distanceMeters,routes.duration',
+            },
+            body: JSON.stringify({
+                origin: { location: { latLng: { latitude: Number(origin.lat), longitude: Number(origin.lng) } } },
+                destination: { location: { latLng: { latitude: Number(destination.lat), longitude: Number(destination.lng) } } },
+                travelMode: 'DRIVE',
+            }),
+        });
+        const data = await res.json();
+        const route = data?.routes?.[0];
+        if (!res.ok || !route) {
+            logger.warn(`Routes API ${data?.error?.status || res.status}: ${data?.error?.message || 'no routes'}`);
+            return null;
+        }
+        const seconds = parseInt(String(route.duration || '').replace('s', ''), 10);
+        return {
+            polyline: route.polyline?.encodedPolyline || '',
+            distanceMeters: Number.isFinite(route.distanceMeters) ? route.distanceMeters : null,
+            durationSeconds: Number.isFinite(seconds) ? seconds : null,
+        };
+    } catch (err) {
+        logger.warn(`Routes API request failed: ${err.message}`);
+        return null;
+    } finally {
+        clearTimeout(timer);
+    }
+}
+
+/**
+ * Fetches an encoded polyline. Call ONLY ONCE per order assignment to save costs.
  * @returns {Promise<string>} - Encoded polyline points
  */
 export async function fetchPolyline(origin, destination) {
@@ -14,26 +56,6 @@ export async function fetchPolyline(origin, destination) {
         logger.warn('Google Maps API key missing. Polyline fetch skipped.');
         return '';
     }
-
-    try {
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 5000);
-        const originStr = `${origin.lat},${origin.lng}`;
-        const destStr = `${destination.lat},${destination.lng}`;
-        const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${originStr}&destination=${destStr}&key=${apiKey}`;
-
-        const res = await fetch(url, { signal: controller.signal });
-        clearTimeout(timeout);
-        const data = await res.json();
-
-        if (data.status === 'OK' && data.routes?.length > 0) {
-            return data.routes[0].overview_polyline?.points || '';
-        } else {
-            logger.warn(`Google Directions API returned status: ${data.status}. Message: ${data.error_message || 'No routes found'}`);
-        }
-    } catch (err) {
-        logger.error(`Error fetching polyline from Google: ${err.message}`);
-    }
-
-    return '';
+    const route = await computeRoute(origin, destination, apiKey);
+    return route?.polyline || '';
 }

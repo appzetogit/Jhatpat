@@ -4,6 +4,7 @@ import { FoodRestaurant } from '../../restaurant/models/restaurant.model.js';
 import { ForbiddenError, NotFoundError, ValidationError } from '../../../../core/auth/errors.js';
 import { logger } from '../../../../utils/logger.js';
 import { buildOrderIdentityFilter } from './order.helpers.js';
+import { computeRoute } from '../utils/googleMaps.js';
 
 /**
  * Road route for the leg the rider is currently on.
@@ -16,8 +17,6 @@ import { buildOrderIdentityFilter } from './order.helpers.js';
  * APK is world-readable, and it cannot be restricted to an Android package
  * because web-service calls carry no package signature.
  */
-
-const DIRECTIONS_URL = 'https://maps.googleapis.com/maps/api/directions/json';
 
 /** Phase decides the leg: to the restaurant before pickup, to the customer after. */
 const targetForOrder = (order) => {
@@ -110,27 +109,14 @@ export async function getOrderRoute(orderId, { lat, lng, target } = {}, viewer =
   }
 
   try {
-    const url =
-      `${DIRECTIONS_URL}?origin=${origin.lat},${origin.lng}` +
-      `&destination=${destination.lat},${destination.lng}` +
-      `&mode=driving&key=${key}`;
-    const res = await fetch(url);
-    const data = await res.json();
+    const route = await computeRoute(origin, destination, key);
+    if (!route) return base;
 
-    if (data.status !== 'OK' || !data.routes?.length) {
-      logger.warn(`Directions returned ${data.status}: ${data.error_message || 'no routes'}`);
-      return base;
-    }
-
-    const route = data.routes[0];
-    const legInfo = route.legs?.[0];
     return {
       ...base,
-      polyline: route.overview_polyline?.points || '',
-      durationMins: legInfo ? Math.round((legInfo.duration?.value || 0) / 60) : null,
-      distanceKm: legInfo
-        ? Number(((legInfo.distance?.value || 0) / 1000).toFixed(2))
-        : null,
+      polyline: route.polyline,
+      durationMins: route.durationSeconds != null ? Math.round(route.durationSeconds / 60) : null,
+      distanceKm: route.distanceMeters != null ? Number((route.distanceMeters / 1000).toFixed(2)) : null,
       destination,
     };
   } catch (error) {

@@ -1,6 +1,7 @@
 import { getGoogleMapsApiKey } from '../../../../core/settings/mapSettings.service.js';
 import { logger } from '../../../../utils/logger.js';
 import { haversineKm } from './order.helpers.js';
+import { computeRoute } from '../utils/googleMaps.js';
 
 /**
  * How far the rider actually has to travel, for delivery pricing.
@@ -26,8 +27,6 @@ import { haversineKm } from './order.helpers.js';
  * The chosen source is returned so the fee breakdown can record which was used;
  * a fee is easier to defend when the order says how its distance was measured.
  */
-
-const DISTANCE_MATRIX_URL = 'https://maps.googleapis.com/maps/api/distancematrix/json';
 
 /**
  * Typical road-winding multiplier, used only when Google is unreachable.
@@ -84,40 +83,12 @@ const fetchRoadDistanceKm = async (origin, destination) => {
         return null;
     }
 
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
-
-    try {
-        const params = new URLSearchParams({
-            origins: `${origin.lat},${origin.lng}`,
-            destinations: `${destination.lat},${destination.lng}`,
-            mode: 'driving',
-            units: 'metric',
-            key: apiKey,
-        });
-
-        const response = await fetch(`${DISTANCE_MATRIX_URL}?${params}`, { signal: controller.signal });
-        const data = await response.json();
-
-        if (data.status !== 'OK') {
-            logger.warn(`[delivery-distance] Distance Matrix status ${data.status}: ${data.error_message || ''}`);
-            return null;
-        }
-
-        const element = data.rows?.[0]?.elements?.[0];
-        if (element?.status !== 'OK' || !Number.isFinite(Number(element?.distance?.value))) {
-            // ZERO_RESULTS is normal for an address across water or off-network.
-            logger.warn(`[delivery-distance] no route: ${element?.status || 'unknown'}`);
-            return null;
-        }
-
-        return Number(element.distance.value) / 1000;
-    } catch (error) {
-        logger.warn(`[delivery-distance] lookup failed: ${error?.message || error}`);
+    const route = await computeRoute(origin, destination, apiKey, { timeoutMs: REQUEST_TIMEOUT_MS });
+    if (!route || !Number.isFinite(route.distanceMeters)) {
+        logger.warn('[delivery-distance] no route from Routes API; using scaled straight-line distance');
         return null;
-    } finally {
-        clearTimeout(timer);
     }
+    return route.distanceMeters / 1000;
 };
 
 /**
