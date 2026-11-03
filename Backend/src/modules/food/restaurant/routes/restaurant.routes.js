@@ -177,6 +177,8 @@ router.put('/combos/:comboId', authMiddleware, requireRestaurant, updateComboCon
 router.delete('/combos/:comboId', authMiddleware, requireRestaurant, deleteComboController);
 router.patch('/profile', authMiddleware, requireRestaurant, updateRestaurantProfileController);
 router.delete('/profile/account', authMiddleware, requireRestaurant, deleteCurrentRestaurantAccountController);
+// App calls this path too; same handler, no new logic.
+router.delete('/delete-account', authMiddleware, requireRestaurant, deleteCurrentRestaurantAccountController);
 router.patch('/availability', authMiddleware, requireRestaurant, updateRestaurantAcceptingOrdersController);
 router.patch('/dining-settings', authMiddleware, requireRestaurant, updateCurrentRestaurantDiningSettingsController);
 router.get('/outlet-timings', authMiddleware, requireRestaurant, getCurrentRestaurantOutletTimingsController);
