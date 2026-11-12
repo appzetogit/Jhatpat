@@ -612,33 +612,36 @@ const normalizeStatusFilter = (status) => {
     return s;
 };
 
+// "Today" is India's calendar day, not the server's -- this server runs on
+// UTC, so setHours(0,0,0,0) made the day start at 5:30am IST, counting
+// midnight-5:30am orders as yesterday's. India has no DST, so a fixed
+// +5:30 shift is always correct.
+const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000;
+
 const toStartOfDay = (d) => {
-    const x = new Date(d);
-    x.setHours(0, 0, 0, 0);
-    return x;
+    const ist = new Date(new Date(d).getTime() + IST_OFFSET_MS);
+    ist.setUTCHours(0, 0, 0, 0);
+    return new Date(ist.getTime() - IST_OFFSET_MS);
 };
 
 const toEndOfDay = (d) => {
-    const x = new Date(d);
-    x.setHours(23, 59, 59, 999);
-    return x;
+    const ist = new Date(new Date(d).getTime() + IST_OFFSET_MS);
+    ist.setUTCHours(23, 59, 59, 999);
+    return new Date(ist.getTime() - IST_OFFSET_MS);
 };
 
 const getWeekRange = (anchorDate) => {
-    const d = new Date(anchorDate);
-    const start = toStartOfDay(d);
-    start.setDate(start.getDate() - start.getDay()); // Sunday
-    const end = toEndOfDay(start);
-    end.setDate(start.getDate() + 6);
+    const ist = new Date(new Date(anchorDate).getTime() + IST_OFFSET_MS);
+    const sundayIst = new Date(Date.UTC(ist.getUTCFullYear(), ist.getUTCMonth(), ist.getUTCDate() - ist.getUTCDay()));
+    const start = toStartOfDay(new Date(sundayIst.getTime() - IST_OFFSET_MS));
+    const end = toEndOfDay(new Date(start.getTime() + 6 * 24 * 60 * 60 * 1000));
     return { start, end };
 };
 
 const getMonthRange = (anchorDate) => {
-    const d = new Date(anchorDate);
-    const start = new Date(d.getFullYear(), d.getMonth(), 1);
-    start.setHours(0, 0, 0, 0);
-    const end = new Date(d.getFullYear(), d.getMonth() + 1, 0);
-    end.setHours(23, 59, 59, 999);
+    const ist = new Date(new Date(anchorDate).getTime() + IST_OFFSET_MS);
+    const start = toStartOfDay(new Date(Date.UTC(ist.getUTCFullYear(), ist.getUTCMonth(), 1)));
+    const end = toEndOfDay(new Date(Date.UTC(ist.getUTCFullYear(), ist.getUTCMonth() + 1, 0)));
     return { start, end };
 };
 
