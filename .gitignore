@@ -8,8 +8,6 @@ temp_interactive_push.bat
 # commit dependencies by accident.
 
 # Secrets — never commit real env files (.env.example is intentionally tracked)
-.env
-.env.*
 !.env.example
 *.pem
 *.key
