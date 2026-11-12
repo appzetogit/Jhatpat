@@ -53,8 +53,14 @@ export const buildDriverMatchFilters = ({ zoneId, vehicleTypeId, vehicleTypeIds,
       ? { $or: vehicleTypeClauses }
       : vehicleTypeClauses[0] || {};
 
+  // A parcel is matched on the 'parcel' capability, not on what the driver
+  // first registered for -- parcel jobs carry transport_type 'delivery', which
+  // made this filter demand registerFor delivery/both/all and reject every
+  // driver who registered as 'taxi', even with serviceCapabilities: parcel.
+  const isParcelJob = String(serviceType || '').trim().toLowerCase() === 'parcel';
+
   let transportFilter = {};
-  if (transportType) {
+  if (transportType && !isParcelJob) {
     if (transportType === 'taxi') {
       transportFilter = { registerFor: { $in: ['taxi', 'both', 'all'] } };
     } else if (transportType === 'delivery') {
@@ -84,9 +90,11 @@ export const buildDriverMatchFilters = ({ zoneId, vehicleTypeId, vehicleTypeIds,
     // A parcel is not a passenger. Asking for the taxi capability on a
     // parcel job matched the wrong people in both directions: a
     // parcel-only driver got nothing, and a passenger driver got boxes.
-    baseFilters.serviceCapabilities =
-      String(serviceType || '').trim().toLowerCase() === 'parcel' ? 'parcel' : 'taxi';
+    baseFilters.serviceCapabilities = isParcelJob ? 'parcel' : 'taxi';
     baseFilters.activeAssignment = null;
+  } else if (isParcelJob) {
+    // Flag off: only parcel-capable drivers get boxes.
+    baseFilters.serviceCapabilities = 'parcel';
   }
 
   const andClauses = [];
