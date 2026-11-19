@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+import mongoose from "mongoose";
 import { managedBrand } from '../../../../core/settings/platformProfile.service.js';
 import { safeSignatureEqual } from '../../../../utils/safeCompare.js';
 import QRCode from "qrcode";
@@ -953,6 +954,20 @@ export const goOnline = async (req, res) => {
   // Self-heal a cross-service busy-lock left behind by an abandoned/force-quit job, otherwise
   // the driver would come back online permanently unassignable.
   await reconcileDriverAssignment(existingDriver._id);
+  // Self-heal drivers created before vehicleTypeId lookup covered catalogue
+  // ids (ensureUnifiedDriverForPartner) -- matchingService's vehicleTypeId
+  // clause never finds them otherwise, so dispatch silently skips them.
+  if (!existingDriver.vehicleTypeId && existingDriver.vehicleType) {
+    const raw = String(existingDriver.vehicleType).trim();
+    const matchedVehicle = mongoose.Types.ObjectId.isValid(raw)
+      ? await Vehicle.findById(raw).select('_id icon_types').lean()
+      : await Vehicle.findOne({ icon_types: raw.toLowerCase() }).select('_id icon_types').lean();
+    if (matchedVehicle) {
+      existingDriver.vehicleTypeId = matchedVehicle._id;
+      existingDriver.vehicleIconType = matchedVehicle.icon_types || existingDriver.vehicleIconType;
+      await existingDriver.save();
+    }
+  }
   const trackingBeforeOnline = mergeOnlineSessionIntoTracking(
     existingDriver.incentiveTracking || {},
     existingDriver.incentiveTracking?.currentOnlineStartedAt,
@@ -2411,10 +2426,17 @@ export const updateDriverVehicle = async (req, res) => {
     update.vehicleType = nextVehicleType;
     update.vehicleIconType = nextVehicleIconType;
 
+    // Filling in a vehicleTypeId that was previously missing (the
+    // ensureUnifiedDriverForPartner backfill gap) isn't the driver
+    // switching vehicles -- only an actual change from one real vehicle
+    // to another should cost them their approval.
     if (
-      String(driver.vehicleTypeId || "") !== String(selectedVehicle._id || "") ||
-      String(driver.vehicleType || "") !== String(nextVehicleType) ||
-      String(driver.vehicleIconType || "") !== String(nextVehicleIconType)
+      driver.vehicleTypeId &&
+      (
+        String(driver.vehicleTypeId) !== String(selectedVehicle._id || "") ||
+        String(driver.vehicleType || "") !== String(nextVehicleType) ||
+        String(driver.vehicleIconType || "") !== String(nextVehicleIconType)
+      )
     ) {
       vehicleChanged = true;
     }

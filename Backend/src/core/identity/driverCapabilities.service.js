@@ -267,14 +267,23 @@ export async function ensureUnifiedDriverForPartner(partner, { approved } = {}) 
 
     if (!driver) {
         const crypto = await import('crypto');
-        const vehicleTypeKey = String(partner.vehicleType || 'bike').trim().toLowerCase();
+        const vehicleTypeRaw = String(partner.vehicleType || 'bike').trim();
+        const vehicleTypeKey = vehicleTypeRaw.toLowerCase();
         // So dispatch's vehicleTypeId-based matching (matchingService.js
         // buildDriverMatchFilters) can find this driver too, not only its
         // vehicleType-string clause. A miss here just leaves the field unset,
         // same as before -- never worse than the existing behaviour.
+        //
+        // partner.vehicleType holds either a catalogue id (set by newer
+        // flows) or an icon-type string like "bike" (legacy) -- try id first.
         let matchedVehicle = null;
         try {
-            matchedVehicle = await Vehicle.findOne({ icon_types: vehicleTypeKey }).select('_id icon_types').lean();
+            if (mongoose.Types.ObjectId.isValid(vehicleTypeRaw)) {
+                matchedVehicle = await Vehicle.findById(vehicleTypeRaw).select('_id icon_types').lean();
+            }
+            if (!matchedVehicle) {
+                matchedVehicle = await Vehicle.findOne({ icon_types: vehicleTypeKey }).select('_id icon_types').lean();
+            }
         } catch (err) {
             logger.warn(`ensureUnifiedDriverForPartner: vehicle type lookup failed: ${err.message}`);
         }

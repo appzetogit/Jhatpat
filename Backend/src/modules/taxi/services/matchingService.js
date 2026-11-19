@@ -58,9 +58,15 @@ export const buildDriverMatchFilters = ({ zoneId, vehicleTypeId, vehicleTypeIds,
   // made this filter demand registerFor delivery/both/all and reject every
   // driver who registered as 'taxi', even with serviceCapabilities: parcel.
   const isParcelJob = String(serviceType || '').trim().toLowerCase() === 'parcel';
+  // Same story for taxi rides once unified dispatch is on: serviceCapabilities
+  // (below) is the real, admin-controlled gate for who can take a ride.
+  // registerFor is set once at onboarding and never updated when an admin
+  // grants taxi access later, so a delivery-onboarded driver given taxi
+  // capability afterwards was still rejected here.
+  const skipRegisterForTaxi = config.unifiedDispatchEnabled && transportType === 'taxi';
 
   let transportFilter = {};
-  if (transportType && !isParcelJob) {
+  if (transportType && !isParcelJob && !skipRegisterForTaxi) {
     if (transportType === 'taxi') {
       transportFilter = { registerFor: { $in: ['taxi', 'both', 'all'] } };
     } else if (transportType === 'delivery') {

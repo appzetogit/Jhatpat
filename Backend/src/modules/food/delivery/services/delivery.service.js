@@ -9,6 +9,28 @@ import { uploadImageBuffer } from '../../../../services/cloudinary.service.js';
 import { ValidationError } from '../../../../core/auth/errors.js';
 import { getDeliveryCashLimitSettings } from '../../admin/services/admin.service.js';
 
+// A partner's vehicle change only ever touched this document -- the linked
+// taxi Driver (same person, unified identity) kept its old vehicleTypeId,
+// so taxi dispatch matched the wrong/stale vehicle type for them.
+const syncDriverVehicleType = async (partner, nextVehicleTypeRaw) => {
+    if (!partner.driverId || !nextVehicleTypeRaw) return;
+    const raw = String(nextVehicleTypeRaw).trim();
+    if (!raw) return;
+
+    const { Driver } = await import('../../../taxi/driver/models/Driver.js');
+    const { Vehicle } = await import('../../../taxi/admin/models/Vehicle.js');
+
+    const matchedVehicle = mongoose.Types.ObjectId.isValid(raw)
+        ? await Vehicle.findById(raw).select('_id icon_types').lean()
+        : await Vehicle.findOne({ icon_types: raw.toLowerCase() }).select('_id icon_types').lean();
+    if (!matchedVehicle) return;
+
+    await Driver.updateOne(
+        { _id: partner.driverId },
+        { $set: { vehicleTypeId: matchedVehicle._id, vehicleIconType: matchedVehicle.icon_types || raw.toLowerCase() } },
+    );
+};
+
 /**
  * The documents the admin asked for, as the app sent them.
  *
@@ -221,6 +243,7 @@ export const updateDeliveryPartnerProfile = async (userId, payload, files) => {
     if (vehicleName !== undefined) partner.vehicleName = vehicleName;
     if (vehicleNumber !== undefined) partner.vehicleNumber = vehicleNumber;
     if (drivingLicenseNumber !== undefined) partner.drivingLicenseNumber = drivingLicenseNumber;
+    if (vehicleType !== undefined) await syncDriverVehicleType(partner, vehicleType);
 
     if (fcmToken) {
         if (platform === 'mobile') {
@@ -261,6 +284,7 @@ export const updateDeliveryPartnerDetails = async (userId, payload) => {
         if (vehicle.type !== undefined) partner.vehicleType = String(vehicle.type || '').trim();
         if (vehicle.brand !== undefined) partner.vehicleName = String(vehicle.brand || '').trim();
         if (vehicle.model !== undefined) partner.vehicleName = String(vehicle.model || '').trim();
+        if (vehicle.type !== undefined) await syncDriverVehicleType(partner, vehicle.type);
     }
 
     if (payload?.profilePhoto !== undefined) {
