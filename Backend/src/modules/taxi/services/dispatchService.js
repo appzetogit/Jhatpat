@@ -617,6 +617,18 @@ const emitRideRequestToDrivers = async ({
       serviceType: ride.serviceType || 'ride',
       userId: String(ride.userId?._id || ride.userId || ''),
     },
+    // Data-only: a notification payload is handled by the OS tray while the
+    // app is backgrounded, which several OEMs (OnePlus among them) throttle
+    // or drop under battery management. android.priority is already 'high'
+    // for every push this service sends; data-only is what additionally
+    // wakes the app's own handler, which is what shows the ride-request UI.
+    dataOnly: true,
+  }).then((result) => {
+    // The only visibility into whether this ride's offer actually reached
+    // anyone -- sendPushToTargets swallows per-token failures (e.g. a stale
+    // or malformed FCM token) into counts, never a thrown error, so without
+    // this log a silently-zero-delivered push looked identical to a sent one.
+    console.log(`[emitRideRequestToDrivers] push result for ride=${ride._id}: ${JSON.stringify(result)}`);
   }).catch((error) => {
     console.error('Failed to send driver ride-request push notification', error);
   });

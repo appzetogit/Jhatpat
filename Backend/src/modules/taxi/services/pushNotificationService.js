@@ -123,6 +123,12 @@ const sendPushToTargets = async ({
   body,
   image = '',
   data = {},
+  // A notification payload is rendered by the OS tray while the app is
+  // backgrounded; several Android OEMs throttle or drop that path under
+  // battery management. Data-only wakes the app's own background handler
+  // instead, which is what a time-sensitive ride offer needs. title/body
+  // still travel inside data so the handler can build the same UI.
+  dataOnly = false,
 }) => {
   const messaging = getFirebaseMessaging();
 
@@ -162,26 +168,34 @@ const sendPushToTargets = async ({
   for (const batch of chunk(dedupedTargets, 500)) {
     const response = await messaging.sendEachForMulticast({
       tokens: batch.map((target) => target.token),
-      notification: {
-        title,
-        body,
-        ...(image ? { imageUrl: image } : {}),
-      },
+      ...(dataOnly ? {} : {
+        notification: {
+          title,
+          body,
+          ...(image ? { imageUrl: image } : {}),
+        },
+      }),
       data: {
         ...safeData,
+        ...(dataOnly ? { title: String(title ?? ''), body: String(body ?? '') } : {}),
         click_action: 'FLUTTER_NOTIFICATION_CLICK',
       },
       android: {
         priority: 'high',
-        notification: image ? { imageUrl: image } : undefined,
+        ...(dataOnly ? {} : { notification: image ? { imageUrl: image } : undefined }),
       },
-      webpush: {
-        notification: {
-          title,
-          body,
-          ...(image ? { image } : {}),
+      // Mobile only -- a data-only message has nothing for a browser tab
+      // (no service worker handler for it), and this push is only ever
+      // aimed at the driver app.
+      ...(dataOnly ? {} : {
+        webpush: {
+          notification: {
+            title,
+            body,
+            ...(image ? { image } : {}),
+          },
         },
-      },
+      }),
     });
 
     response.responses.forEach((item, index) => {
@@ -426,6 +440,7 @@ export const sendPushNotificationToEntities = async ({
   body,
   image = '',
   data = {},
+  dataOnly = false,
 }) => {
   // Ride updates to customers are filed in the one inbox the app reads
   // (core/notifications/customerInbox.js). Drivers have their own app.
@@ -440,5 +455,6 @@ export const sendPushNotificationToEntities = async ({
     body,
     image,
     data,
+    dataOnly,
   });
 };
