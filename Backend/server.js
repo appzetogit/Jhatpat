@@ -35,6 +35,7 @@ let server = null;
 let expireOffersInterval = null;
 let fssaiExpiryInterval = null;
 let ledgerNightlyInterval = null;
+let staleDriverSweeperInterval = null;
 
 const gracefulShutdown = async (signal) => {
     logger.info(`${signal} received, starting graceful shutdown`);
@@ -50,6 +51,7 @@ const gracefulShutdown = async (signal) => {
             if (expireOffersInterval) clearInterval(expireOffersInterval);
             if (fssaiExpiryInterval) clearInterval(fssaiExpiryInterval);
             if (ledgerNightlyInterval) clearInterval(ledgerNightlyInterval);
+            if (staleDriverSweeperInterval) clearInterval(staleDriverSweeperInterval);
             logger.info('Graceful shutdown complete');
             process.exit(0);
         } catch (err) {
@@ -233,6 +235,15 @@ const startServer = async () => {
                 .then(() => import('./src/core/orders/orderHold.js'))
                 .then(({ startOrderHoldSweeper }) => startOrderHoldSweeper())
                 .catch((err) => logger.error(`Order hold sweeper failed to start: ${err.message}`));
+
+            // Takes a driver offline once their last location ping is too old to
+            // trust (crashed/killed app, dead socket). Not tied to
+            // BACKGROUND_JOBS_ENABLED: a driver stuck "online" with a dead
+            // session is a dispatch-correctness bug, not a convenience job.
+            // See modules/taxi/driver/services/staleDriverSweeper.js.
+            import('./src/modules/taxi/driver/services/staleDriverSweeper.js')
+                .then(({ startStaleDriverSweeper }) => { staleDriverSweeperInterval = startStaleDriverSweeper(); })
+                .catch((err) => logger.error(`Stale driver sweeper failed to start: ${err.message}`));
 
             if (!config.backgroundJobsEnabled) {
                 logger.warn('BACKGROUND_JOBS_ENABLED=false — skipping offer expiry and FSSAI sync (read-mostly instance)');

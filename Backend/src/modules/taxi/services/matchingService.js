@@ -10,6 +10,11 @@ import { compareInBackground } from '../../../core/finance/eligibilityShadow.js'
 
 const EARTH_RADIUS_METERS = 6371000;
 
+// Same idea as food's DISPATCH_STALE_GPS_MS (45 min), tighter: a taxi pickup
+// needs the driver's last-known position to be genuinely current, not just
+// "online sometime today".
+const STALE_LOCATION_MS = Number(process.env.DISPATCH_STALE_LOCATION_MS) || 8 * 60 * 1000;
+
 const normalizeVehicleKey = (value = '') => String(value || '').trim().toLowerCase();
 
 const normalizeVehicleKeys = (vehicles = []) => {
@@ -83,6 +88,14 @@ export const buildDriverMatchFilters = ({ zoneId, vehicleTypeId, vehicleTypeIds,
     // and kept receiving rides (the REST routes refused them; this did not).
     approve: { $ne: false },
     deletedAt: null,
+    // A driver whose app/socket died without a clean disconnect (killed,
+    // crashed, no signal) stayed isOnline forever with a last-known position
+    // from hours or days ago -- dispatch kept sending every ride to that
+    // "dead" account before it ever reached a driver who could actually take
+    // it. locationUpdatedAt is stamped on every live location ping
+    // (socket/index.js); same idea as food's 45-minute staleness window, but
+    // tighter, since a taxi pickup needs a genuinely current position.
+    locationUpdatedAt: { $gte: new Date(Date.now() - STALE_LOCATION_MS) },
     ...(zoneId ? { zoneId } : {}),
   };
 
