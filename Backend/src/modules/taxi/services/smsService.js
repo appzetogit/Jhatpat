@@ -5,8 +5,11 @@ import { ApiError } from '../../../utils/ApiError.js';
 import { AdminBusinessSetting } from '../admin/models/AdminBusinessSetting.js';
 
 const SMS_INDIA_HUB_ENDPOINT = 'http://cloud.smsindiahub.in/api/mt/SendSMS';
+// Must match the approved TRAI DLT template EXACTLY (Template Id 1077104580057767222,
+// SenderId BGADPL) -- any difference, even punctuation, makes the provider reject the
+// send with ErrorCode 006 "Invalid template text" and silently drop the OTP.
 const DLT_TEMPLATE_TEXT =
-  'Welcome to ##var## Powered by IIDMTB. Use OTP ##var## to verify your login.';
+  'Welcome to ##var##, powered by ##var##. Your OTP for registration ##var##. This OTP is valid for 10 minutes. Please do not share it with anyone.BGADPL';
 const DEFAULT_BRAND_NAME = 'App';
 
 const isTruthy = (value) => ['1', 'true', 'yes', 'on'].includes(String(value || '').trim().toLowerCase());
@@ -141,7 +144,10 @@ const getConfiguredBrandName = async () => {
 };
 
 const renderOtpMessage = ({ appName, otp }) =>
-  DLT_TEMPLATE_TEXT.replace('##var##', String(appName)).replace('##var##', String(otp));
+  DLT_TEMPLATE_TEXT
+    .replace('##var##', String(appName))
+    .replace('##var##', String(appName))
+    .replace('##var##', String(otp));
 
 const isSuccessfulProviderResponse = (response, responseText) => {
   const parsed = parseProviderResponse(responseText);
