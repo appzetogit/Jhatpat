@@ -34,10 +34,23 @@ const getStaticUserOtpConfig = () => ({
   phone: normalizeUserPhone(env.sms?.staticOtpPhone || TEST_LOGIN_OTP_PHONE),
   otp: String(env.sms?.staticOtpCode || TEST_LOGIN_OTP_CODE).trim(),
 });
+const WHITELISTED_OTP_CODE = '1234';
+
 const resolveUserOtpForPhone = (phone) => {
   const normalizedPhone = normalizeUserPhone(phone);
   const staticOtpConfig = getStaticUserOtpConfig();
   const defaultOtpEnabled = isTruthy(env.sms?.useDefaultOtp);
+
+  // Deliberate, scoped production feature: specific known phone numbers always get
+  // OTP "1234", in every environment. This is NOT the STATIC_OTP_PHONE/USE_DEFAULT_OTP
+  // dev-only bypass below -- it's an explicit allowlist for named numbers only.
+  const whitelistedPhones = (env.sms?.whitelistedOtpPhones || []).map(normalizeUserPhone);
+  if (whitelistedPhones.includes(normalizedPhone)) {
+    return {
+      otp: WHITELISTED_OTP_CODE,
+      isStatic: true,
+    };
+  }
 
   // Both shortcuts below hand out a KNOWN code instead of a random one, so either is a
   // sign-in bypass for whoever knows it. Neither was gated before, which meant the

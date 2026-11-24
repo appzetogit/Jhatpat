@@ -59,10 +59,23 @@ const getStaticDriverOtpConfig = () => ({
   phone: normalizePhone(env.sms?.staticOtpPhone || TEST_LOGIN_OTP_PHONE),
   otp: String(env.sms?.staticOtpCode || TEST_LOGIN_OTP_CODE).trim(),
 });
+const WHITELISTED_OTP_CODE = '1234';
+
 const resolveDriverLoginOtpForPhone = (phone) => {
   const normalizedPhone = normalizePhone(phone);
   const staticOtpConfig = getStaticDriverOtpConfig();
   const defaultOtpEnabled = isTruthy(env.sms?.useDefaultOtp);
+
+  // Deliberate, scoped production feature: specific known phone numbers always get
+  // OTP "1234", in every environment. This is NOT the STATIC_OTP_PHONE/USE_DEFAULT_OTP
+  // dev-only bypass below -- it's an explicit allowlist for named numbers only.
+  const whitelistedPhones = (env.sms?.whitelistedOtpPhones || []).map(normalizePhone);
+  if (whitelistedPhones.includes(normalizedPhone)) {
+    return {
+      otp: WHITELISTED_OTP_CODE,
+      isStatic: true,
+    };
+  }
 
   // Both shortcuts hand out a KNOWN code, so each is a sign-in bypass for
   // whoever knows it. The fallback test phone ('6268423925' / '0000') applied

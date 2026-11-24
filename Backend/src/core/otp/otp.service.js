@@ -223,8 +223,11 @@ export const createOrUpdateOtp = async (phone, scope = 'default', { service = OT
         existing.requestCount = now - existing.lastRequestAt < windowMs ? existing.requestCount + 1 : 1;
     }
 
+    // useDefaultOtp is a dev-only SMS-delivery shortcut, not an environment switch --
+    // see the matching guard on the verify-side bypasses below. Without this gate,
+    // every phone in production got OTP "1234" and no SMS was ever sent (bug).
     let otp;
-    if (config.useDefaultOtp) {
+    if (config.useDefaultOtp && config.nodeEnv !== 'production') {
         otp = '1234';
         logger.info(`Default OTP mode enabled – OTP is ${otp} for phone ${normalizedPhone}`);
     } else {
@@ -274,7 +277,7 @@ export const createOrUpdateOtp = async (phone, scope = 'default', { service = OT
     }
 
     // Only send SMS if not in default OTP mode
-    if (!config.useDefaultOtp) {
+    if (!(config.useDefaultOtp && config.nodeEnv !== 'production')) {
         const delivery = await sendSmsViaIndiaHub(normalizedPhone, otp);
         // In production an undelivered code is a failed request, not a silent one.
         // Elsewhere the code is logged above, so local sign-in still works.

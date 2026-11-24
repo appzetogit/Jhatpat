@@ -231,6 +231,14 @@ export const env = {
         otpExpiryMinutes: config.otpExpiryMinutes,
         staticOtpPhone: process.env.STATIC_OTP_PHONE,
         staticOtpCode: process.env.STATIC_OTP_CODE,
+        // Narrow, explicit allowlist of phones that always get OTP "1234" -- in every
+        // environment, including production. Unlike STATIC_OTP_PHONE/USE_DEFAULT_OTP
+        // (dev-only bypasses, see validateEnv.js), this is a deliberate, scoped
+        // production feature for specific known numbers (e.g. demo/review accounts).
+        whitelistedOtpPhones: String(process.env.WHITELISTED_OTP_PHONES || '')
+            .split(',')
+            .map((phone) => phone.trim())
+            .filter(Boolean),
         indiaHub: {
             username: config.smsIndiaHubUsername,
             password: process.env.SMS_INDIA_HUB_PASSWORD,
