@@ -628,6 +628,30 @@ const rideSchema = new mongoose.Schema(
       default: '',
       trim: true,
     },
+    // The stable code a CancelReason row is keyed on (core/cancelReasons),
+    // alongside the label text above -- empty for "other" or an unrecognised
+    // code, same as cancellation_reason always has been.
+    cancellation_reason_code: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    // A ride can be cancelled by more than one driver in turn (cancel,
+    // re-dispatch, cancel again). cancelled_by/cancellation_reason above are
+    // for the RIDE's own cancellation (by the user, or by the system); a
+    // driver cancelling an ACCEPTED ride sends it back to searching rather
+    // than cancelling it, so that reason has nowhere to go but here.
+    driverCancellations: {
+      type: [
+        {
+          driverId: { type: mongoose.Schema.Types.ObjectId, ref: 'TaxiDriver' },
+          reasonCode: { type: String, default: '', trim: true },
+          reason: { type: String, default: '', trim: true },
+          at: { type: Date, default: Date.now },
+        },
+      ],
+      default: [],
+    },
     cancellation_charge: {
       type: Number,
       default: 0,

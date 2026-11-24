@@ -759,7 +759,7 @@ export const cancelRideByAdmin = async (rideId) => {
   return ride;
 };
 
-export const cancelRideByUser = async ({ rideId, userId, reason = '' }) => {
+export const cancelRideByUser = async ({ rideId, userId, reason = '', reasonCode = '' }) => {
   const dispatchState = getDispatchState(rideId);
   stopDispatchFlow(rideId);
   const session = await mongoose.startSession();
@@ -797,6 +797,7 @@ export const cancelRideByUser = async ({ rideId, userId, reason = '' }) => {
     const totalCancellationFee = Number(cancellationSettlement?.totalFeeAmount || 0);
     ride.cancelled_by = 'user';
     ride.cancellation_reason = String(reason || 'User cancelled').trim();
+    ride.cancellation_reason_code = String(reasonCode || '').trim();
     ride.cancellation_time = new Date();
 
     if (totalCancellationFee > 0) {
@@ -962,7 +963,7 @@ export const cancelRideByUser = async ({ rideId, userId, reason = '' }) => {
   return { ride, cancellationSettlement };
 };
 
-export const cancelScheduledRideByDriver = async ({ rideId, driverId }) => {
+export const cancelScheduledRideByDriver = async ({ rideId, driverId, reason = '', reasonCode = '' }) => {
   const dispatchState = getDispatchState(rideId);
   stopDispatchFlow(rideId);
   const session = await mongoose.startSession();
@@ -999,6 +1000,10 @@ export const cancelScheduledRideByDriver = async ({ rideId, driverId }) => {
 
     ride.status = RIDE_STATUS.CANCELLED;
     ride.liveStatus = RIDE_LIVE_STATUS.CANCELLED;
+    ride.cancelled_by = 'driver';
+    ride.cancellation_reason = String(reason || '').trim() || 'Cancelled by driver';
+    ride.cancellation_reason_code = String(reasonCode || '').trim();
+    ride.cancellation_time = new Date();
     if (ride.bookingMode === 'bidding') {
       ride.biddingStatus = 'cancelled';
     }
@@ -1100,7 +1105,7 @@ export const cancelScheduledRideByDriver = async ({ rideId, driverId }) => {
  * rider isn't stranded.
  * @returns {Promise<{ride: object, settlement: object|null}>}
  */
-export const cancelActiveRideByDriver = async ({ rideId, driverId, reason = '' }) => {
+export const cancelActiveRideByDriver = async ({ rideId, driverId, reason = '', reasonCode = '' }) => {
   const session = await mongoose.startSession();
   let ride = null;
   let cancellationSettlement = null;
@@ -1136,6 +1141,17 @@ export const cancelActiveRideByDriver = async ({ rideId, driverId, reason = '' }
     ride.liveStatus = RIDE_LIVE_STATUS.SEARCHING;
     if (ride.bookingMode === 'bidding') {
       ride.biddingStatus = 'searching';
+    }
+    // The ride itself is not cancelled (it goes back to searching), so
+    // cancellation_reason/cancelled_by stay for the ride's own eventual
+    // cancellation. This driver's reason for dropping it lives on its own
+    // trail instead -- a ride can rack up more than one across re-dispatch.
+    if (String(reason || '').trim()) {
+      ride.driverCancellations.push({
+        driverId: previousDriverId,
+        reasonCode: String(reasonCode || '').trim(),
+        reason: String(reason || '').trim(),
+      });
     }
     await ride.save({ session });
 

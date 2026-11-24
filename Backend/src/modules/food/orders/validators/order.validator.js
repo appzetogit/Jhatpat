@@ -200,7 +200,8 @@ export function validateVerifyPaymentDto(body) {
 
 export function validateCancelOrderDto(body) {
     const schema = z.object({
-        reason: z.string().optional()
+        reason: z.string().optional(),
+        reasonCode: z.string().optional(),
     });
     const result = schema.safeParse(body || {});
     if (!result.success) {

@@ -1002,7 +1002,7 @@ async function processOrderRefundOnce(order, refundUserId) {
   order.payment.refund = refundPatch["payment.refund"];
 }
 
-export async function cancelOrder(orderId, userId, reason) {
+export async function cancelOrder(orderId, userId, reason, reasonCode = "") {
   const identity = buildOrderIdentityFilter(orderId);
   if (!identity) throw new ValidationError("Order id required");
 
@@ -1021,6 +1021,12 @@ export async function cancelOrder(orderId, userId, reason) {
   const from = order.orderStatus;
   const assignedRiderId = order.dispatch?.deliveryPartnerId ? String(order.dispatch.deliveryPartnerId) : null;
   order.orderStatus = "cancelled_by_user";
+  // The User app reads cancellationReason directly off the order; the
+  // status-history note alone (kept below too) never populated it.
+  order.cancellationReason = reason || "";
+  order.cancellationReasonCode = reasonCode || "";
+  order.cancelledBy = "user";
+  order.cancelledAt = new Date();
   pushStatusHistory(order, {
     byRole: "USER",
     byId: userId,

@@ -32,6 +32,7 @@ import platformModuleRoutes from '../core/modules/module.routes.js';
 import platformSettingRoutes from '../core/config/config.routes.js';
 import { zoneSettingsWriteGuard } from '../core/admin/zoneAdminSettings.js';
 import appServicesRoutes from '../core/appServices/appServices.routes.js';
+import cancelReasonRoutes from '../core/cancelReasons/cancelReason.routes.js';
 import platformAdminRoutes from '../core/admin/platformAdmins.routes.js';
 import supportInboxRoutes from '../core/support/supportInbox.routes.js';
 import couponListRoutes from '../core/promotions/couponList.routes.js';
@@ -110,6 +111,11 @@ router.use('/v1/platform/settings', authMiddleware, requireRoles('ADMIN'), zoneS
  * the router. See core/appServices.
  */
 router.use('/v1/platform/app-services', appServicesRoutes);
+// Admin-managed cancel/reject reasons for the User and Delivery apps. Public
+// GET (the reason sheet is part of cancelling, asked before sign-in isn't
+// required); admin CRUD and the delivery reject-reason POST authenticate
+// inside the router. See core/cancelReasons.
+router.use('/v1/platform/cancel-reasons', cancelReasonRoutes);
 // Admin accounts for every panel (food, quick commerce, medical, taxi).
 router.use('/v1/platform/admins', platformAdminRoutes);
 // One support inbox over every service's tickets (Master > Help & Support).

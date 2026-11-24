@@ -95,7 +95,15 @@ export async function cancelOrderController(req, res, next) {
         const userId = req.user?.userId;
         const orderId = req.params.orderId;
         const dto = validateCancelOrderDto(req.body);
-        const order = await orderService.cancelOrder(orderId, userId, dto.reason);
+        const { resolveReasonText } = await import('../../../../core/cancelReasons/services/cancelReason.service.js');
+        const resolved = await resolveReasonText({
+            app: 'user',
+            action: 'cancel',
+            service: 'food',
+            reasonCode: String(dto.reasonCode || '').trim().toLowerCase(),
+            reason: dto.reason,
+        });
+        const order = await orderService.cancelOrder(orderId, userId, resolved.reason, resolved.reasonCode);
         return sendResponse(res, 200, 'Order cancelled', { order });
     } catch (err) {
         next(err);

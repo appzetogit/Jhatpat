@@ -1240,9 +1240,20 @@ export const cancelDriverScheduledRide = async (req, res) => {
     throw new ApiError(400, "Ride id is required");
   }
 
+  const { resolveReasonText } = await import("../../../../core/cancelReasons/services/cancelReason.service.js");
+  const resolved = await resolveReasonText({
+    app: "delivery",
+    action: "cancel",
+    service: "scheduled_ride",
+    reasonCode: String(req.body?.reasonCode || "").trim().toLowerCase(),
+    reason: toCleanString(req.body?.reason),
+  });
+
   const ride = await cancelScheduledRideByDriver({
     rideId,
     driverId: req.auth.sub,
+    reason: resolved.reason,
+    reasonCode: resolved.reasonCode,
   });
 
   if (!ride) {
@@ -1266,10 +1277,21 @@ export const cancelDriverActiveRide = async (req, res) => {
     throw new ApiError(400, "Ride id is required");
   }
 
+  const reasonService = String(req.body?.serviceType || "").trim().toLowerCase() === "parcel" ? "parcel" : "ride";
+  const { resolveReasonText } = await import("../../../../core/cancelReasons/services/cancelReason.service.js");
+  const resolved = await resolveReasonText({
+    app: "delivery",
+    action: "cancel",
+    service: reasonService,
+    reasonCode: String(req.body?.reasonCode || "").trim().toLowerCase(),
+    reason: toCleanString(req.body?.reason),
+  });
+
   const { ride, settlement } = await cancelActiveRideByDriver({
     rideId,
     driverId: req.auth.sub,
-    reason: toCleanString(req.body?.reason),
+    reason: resolved.reason,
+    reasonCode: resolved.reasonCode,
   });
 
   if (!ride) {

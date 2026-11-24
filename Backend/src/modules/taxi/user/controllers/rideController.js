@@ -1226,10 +1226,25 @@ export const getRideAppTipSettings = async (_req, res) => {
 };
 
 export const cancelRide = async (req, res) => {
+  const rawReasonCode = String(req.body?.reasonCode || '').trim().toLowerCase();
+  const rawReason = req.body?.reason || req.query?.reason || 'User cancelled';
+  // The reason catalogue is keyed by 'ride' or 'parcel'; anything else (an
+  // older app build) falls back to 'ride' rather than losing the reason text.
+  const reasonService = String(req.body?.serviceType || '').trim().toLowerCase() === 'parcel' ? 'parcel' : 'ride';
+  const { resolveReasonText } = await import('../../../../core/cancelReasons/services/cancelReason.service.js');
+  const resolved = await resolveReasonText({
+    app: 'user',
+    action: 'cancel',
+    service: reasonService,
+    reasonCode: rawReasonCode,
+    reason: rawReason,
+  });
+
   const result = await cancelRideByUser({
     rideId: req.params.rideId,
     userId: req.auth.sub,
-    reason: req.body?.reason || req.query?.reason || 'User cancelled',
+    reason: resolved.reason,
+    reasonCode: resolved.reasonCode,
   });
 
   if (!result || !result.ride) {

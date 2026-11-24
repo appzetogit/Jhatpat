@@ -37,7 +37,16 @@ export async function sweepStaleRides(now = Date.now()) {
   for (const ride of stale) {
     const res = await Ride.updateOne(
       { _id: ride._id, status: ride.status },
-      { $set: { status: RIDE_STATUS.CANCELLED, liveStatus: RIDE_LIVE_STATUS.CANCELLED, cancelReason: 'Timed out' } },
+      {
+        $set: {
+          status: RIDE_STATUS.CANCELLED,
+          liveStatus: RIDE_LIVE_STATUS.CANCELLED,
+          cancelled_by: 'system',
+          cancellation_reason: 'Timed out',
+          cancellation_reason_code: 'timed_out',
+          cancellation_time: new Date(now),
+        },
+      },
     );
     if (res.modifiedCount !== 1) continue;
     cancelled += 1;

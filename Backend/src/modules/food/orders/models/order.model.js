@@ -483,6 +483,13 @@ const orderSchema = new mongoose.Schema(
             type: [statusHistorySchema],
             default: []
         },
+        // The User app already reads cancellationReason; it only ever got
+        // the status-history note (see pushStatusHistory in cancelOrder),
+        // never this field. Kept alongside statusHistory, not instead of it.
+        cancellationReason: { type: String, default: '', trim: true },
+        cancellationReasonCode: { type: String, default: '', trim: true },
+        cancelledBy: { type: String, default: '', trim: true },
+        cancelledAt: { type: Date, default: null },
         ratings: {
             type: orderRatingsSchema,
             default: () => ({})
