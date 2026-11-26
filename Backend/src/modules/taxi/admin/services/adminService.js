@@ -83,6 +83,11 @@ const deepMerge = (target, source) => {
   return result;
 };
 
+// Trips/Deliveries lists sort+filter in JS after the query, so the query itself
+// must still be bounded -- without a limit, sorting the entire ride history
+// exceeded MongoDB's 32MB in-memory sort limit and the admin page returned a 500.
+const RIDE_REQUEST_LIST_CAP = 2000;
+
 const buildPaginator = (items, page = 1, limit = 50) => {
   const safePage = Number(page) || 1;
   const safeLimit = Number(limit) || 50;
@@ -3766,6 +3771,7 @@ export const listOngoingRides = async (query = {}) => {
     status: { $in: [RIDE_STATUS.SEARCHING, RIDE_STATUS.ACCEPTED, RIDE_STATUS.ONGOING] },
   })
     .sort({ createdAt: -1 })
+    .allowDiskUse(true)
     .populate('userId', 'name phone')
     .populate('driverId', 'name phone vehicleType vehicleNumber')
     .lean();
@@ -3807,6 +3813,8 @@ export const listRideRequests = async (query = {}) => {
     adminHiddenAt: null,
   })
     .sort({ createdAt: -1 })
+    .allowDiskUse(true)
+    .limit(RIDE_REQUEST_LIST_CAP)
     .populate('userId', 'name phone')
     .populate('driverId', 'name phone vehicleType vehicleNumber')
     .lean();
@@ -3847,6 +3855,8 @@ export const listDeliveries = async (query = {}) => {
 
   const rides = await Ride.find({ serviceType: 'parcel' })
     .sort({ createdAt: -1 })
+    .allowDiskUse(true)
+    .limit(RIDE_REQUEST_LIST_CAP)
     .populate('deliveryId')
     .populate('userId', 'name phone')
     .populate('driverId', 'name phone vehicleType vehicleNumber')
