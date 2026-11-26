@@ -153,7 +153,7 @@ const Deliveries = () => {
           <table className="min-w-full border-separate border-spacing-0">
             <thead>
               <tr className="bg-[#f6f6f8]">
-                {['Request Id', 'Date', 'Sender', 'Receiver', 'Driver Name', 'Parcel Category', 'Trip Status', 'Payment Option'].map((heading, index, array) => (
+                {['Request Id', 'Date', 'Booking Type', 'Sender', 'Receiver', 'Driver Name', 'Parcel Category', 'Trip Status', 'Payment Option'].map((heading, index, array) => (
                   <th
                     key={heading}
                     className={`px-4 py-4 text-left text-[14px] font-semibold text-gray-900 ${
@@ -169,7 +169,7 @@ const Deliveries = () => {
             <tbody>
               {isLoading && (
                 <tr>
-                  <td colSpan={7} className="px-4 py-14 text-center">
+                  <td colSpan={8} className="px-4 py-14 text-center">
                     <div className="inline-flex items-center gap-3 text-sm font-medium text-gray-500">
                       <LoaderCircle size={18} className="animate-spin" />
                       Loading deliveries
@@ -180,7 +180,7 @@ const Deliveries = () => {
 
               {!isLoading && error && (
                 <tr>
-                  <td colSpan={7} className="px-4 py-14 text-center text-sm font-medium text-red-500">
+                  <td colSpan={8} className="px-4 py-14 text-center text-sm font-medium text-red-500">
                     {error}
                   </td>
                 </tr>
@@ -188,7 +188,7 @@ const Deliveries = () => {
 
               {!isLoading && !error && rows.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-4 py-14 text-center text-sm font-medium text-gray-500">
+                  <td colSpan={8} className="px-4 py-14 text-center text-sm font-medium text-gray-500">
                     No deliveries found.
                   </td>
                 </tr>
@@ -210,6 +210,11 @@ const Deliveries = () => {
                       </div>
                     </td>
                     <td className="border-b border-gray-200 px-4 py-5 text-[14px] font-medium text-gray-900">{formatDate(row.date)}</td>
+                    <td className="border-b border-gray-200 px-4 py-5">
+                      <span className="inline-flex rounded-md px-3 py-1 text-[11px] font-bold uppercase leading-none bg-amber-100 text-amber-700">
+                        Parcel
+                      </span>
+                    </td>
                     <td className="border-b border-gray-200 px-4 py-5 text-[14px] font-medium text-gray-900">{row.parcel?.senderName || row.userName || '--'}</td>
                     <td className="border-b border-gray-200 px-4 py-5 text-[14px] font-medium text-gray-900">{row.parcel?.receiverName || '--'}</td>
                     <td className="border-b border-gray-200 px-4 py-5 text-[14px] font-medium text-gray-900">{row.driverName}</td>
@@ -227,7 +232,7 @@ const Deliveries = () => {
                   </tr>
                   {expandedRow === row.id && (
                     <tr>
-                      <td colSpan={7} className="px-0 py-0 border-b border-gray-200">
+                      <td colSpan={8} className="px-0 py-0 border-b border-gray-200">
                         <motion.div
                           initial={{ opacity: 0, height: 0 }}
                           animate={{ opacity: 1, height: 'auto' }}

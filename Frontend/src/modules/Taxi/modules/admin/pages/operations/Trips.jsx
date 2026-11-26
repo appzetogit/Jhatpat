@@ -165,7 +165,7 @@ const Trips = () => {
             <table className="w-full text-left border-separate border-spacing-0">
               <thead>
                 <tr className="bg-slate-50">
-                  {['Request Id', 'Date', 'User Name', 'Driver Name', 'Transport Type', 'Trip Status', 'Payment Option', 'Action'].map((heading) => (
+                  {['Request Id', 'Date', 'Booking Type', 'User Name', 'Driver Name', 'Transport Type', 'Trip Status', 'Payment Option', 'Action'].map((heading) => (
                     <th key={heading} className="px-6 py-4 text-[13px] font-bold text-slate-900 border-b border-slate-100">
                       {heading}
                     </th>
@@ -175,13 +175,13 @@ const Trips = () => {
               <tbody className="divide-y divide-slate-50">
                 {loading ? (
                   <tr>
-                    <td colSpan={8} className="py-20 text-center">
+                    <td colSpan={9} className="py-20 text-center">
                       <Loader2 className="animate-spin text-slate-300 mx-auto" size={32} />
                     </td>
                   </tr>
                 ) : error ? (
                   <tr>
-                    <td colSpan={8} className="py-20 text-center text-[14px] font-medium text-red-500">
+                    <td colSpan={9} className="py-20 text-center text-[14px] font-medium text-red-500">
                       {error}
                     </td>
                   </tr>
@@ -202,6 +202,11 @@ const Trips = () => {
                           </div>
                         </td>
                         <td className="px-6 py-5 text-[14px] text-slate-600 font-medium">{formatDate(row.date)}</td>
+                        <td className="px-6 py-5">
+                          <span className="inline-block px-3 py-1 text-[10px] font-bold rounded uppercase bg-indigo-100 text-indigo-700">
+                            Ride
+                          </span>
+                        </td>
                         <td className="px-6 py-5 text-[14px] text-slate-600 font-medium">{row.userName}</td>
                         <td className="px-6 py-5 text-[14px] text-slate-600 font-medium">{row.driverName}</td>
                         <td className="px-6 py-5 text-[14px] text-slate-600 font-medium">{row.transportType}</td>
@@ -233,7 +238,7 @@ const Trips = () => {
                       </tr>
                       {expandedRow === row.id && (
                         <tr>
-                          <td colSpan={8} className="px-0 py-0 border-b border-slate-100">
+                          <td colSpan={9} className="px-0 py-0 border-b border-slate-100">
                             <motion.div
                               initial={{ opacity: 0, height: 0 }}
                               animate={{ opacity: 1, height: 'auto' }}
@@ -366,7 +371,7 @@ const Trips = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={8} className="py-20 text-center text-[14px] font-medium text-slate-400">
+                    <td colSpan={9} className="py-20 text-center text-[14px] font-medium text-slate-400">
                       No ride requests found.
                     </td>
                   </tr>

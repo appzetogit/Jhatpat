@@ -129,7 +129,7 @@ const Ongoing = () => {
             <table className="w-full text-left border-separate border-spacing-0">
               <thead>
                 <tr className="bg-slate-50">
-                  {['Request Id', 'Date', 'User Name', 'Driver Name', 'Transport Type', 'Trip Status', 'Payment Option', 'Action'].map((h) => (
+                  {['Request Id', 'Date', 'Booking Type', 'User Name', 'Driver Name', 'Transport Type', 'Trip Status', 'Payment Option', 'Action'].map((h) => (
                     <th key={h} className="px-6 py-4 text-[13px] font-bold text-slate-900 border-b border-slate-100">
                       {h}
                     </th>
@@ -139,7 +139,7 @@ const Ongoing = () => {
               <tbody className="divide-y divide-slate-50">
                 {loading ? (
                   <tr>
-                    <td colSpan={8} className="py-20 text-center">
+                    <td colSpan={9} className="py-20 text-center">
                       <Loader2 className="animate-spin text-slate-300 mx-auto" size={32} />
                     </td>
                   </tr>
@@ -160,6 +160,11 @@ const Ongoing = () => {
                           </div>
                         </td>
                         <td className="px-6 py-5 text-[14px] text-slate-600 font-medium">{formatDate(row.date)}</td>
+                        <td className="px-6 py-5">
+                          <span className={`inline-block px-3 py-1 text-[10px] font-bold rounded uppercase ${row.bookingType === 'PARCEL' ? 'bg-amber-100 text-amber-700' : 'bg-indigo-100 text-indigo-700'}`}>
+                            {row.bookingType === 'PARCEL' ? 'Parcel' : 'Ride'}
+                          </span>
+                        </td>
                         <td className="px-6 py-5 text-[14px] text-slate-600 font-medium">{row.userName}</td>
                         <td className="px-6 py-5 text-[14px] text-slate-600 font-medium">{row.driverName || '----'}</td>
                         <td className="px-6 py-5 text-[14px] text-slate-600 font-medium">{row.transportType}</td>
@@ -188,7 +193,7 @@ const Ongoing = () => {
                       </tr>
                       {expandedRow === row.id && (
                         <tr>
-                          <td colSpan={8} className="px-0 py-0 border-b border-slate-100">
+                          <td colSpan={9} className="px-0 py-0 border-b border-slate-100">
                             <motion.div
                               initial={{ opacity: 0, height: 0 }}
                               animate={{ opacity: 1, height: 'auto' }}
@@ -232,31 +237,55 @@ const Ongoing = () => {
                                     </div>
                                   </div>
                                 </div>
-                                <div className="space-y-4">
-                                  <h3 className="text-[11px] font-black uppercase tracking-wider text-slate-400">Fare Breakdown</h3>
-                                  <div className="bg-white rounded-lg border border-slate-200 p-4 space-y-2">
-                                    <div className="flex justify-between items-center text-[13px] text-slate-600">
-                                      <span>Base Fare</span>
-                                      <span className="font-bold">₹{(row.raw?.baseFare || 0).toFixed(2)}</span>
-                                    </div>
-                                    <div className="flex justify-between items-center text-[13px] text-slate-600">
-                                      <span>Wait Time Charge</span>
-                                      <span className="font-bold text-amber-500">₹{(row.raw?.waitingChargeAmount || 0).toFixed(2)}</span>
-                                    </div>
-                                    <div className="flex justify-between items-center text-[13px] text-slate-600">
-                                      <span>Time Charge</span>
-                                      <span className="font-bold">₹{(row.raw?.timeChargeAmount || 0).toFixed(2)}</span>
-                                    </div>
-                                    <div className="flex justify-between items-center text-[13px] text-slate-600">
-                                      <span>Distance Charge</span>
-                                      <span className="font-bold">₹{(row.raw?.distanceChargeAmount || 0).toFixed(2)}</span>
-                                    </div>
-                                    <div className="pt-2 mt-2 border-t border-slate-100 flex justify-between items-center text-[15px] font-black text-slate-900">
-                                      <span>Total Payable</span>
-                                      <span>₹{(Number(row.raw?.fare || 0)).toFixed(2)}</span>
+                                {row.bookingType === 'PARCEL' ? (
+                                  <div className="space-y-4">
+                                    <h3 className="text-[11px] font-black uppercase tracking-wider text-slate-400">Parcel Details</h3>
+                                    <div className="bg-white rounded-lg border border-slate-200 p-4 space-y-2 text-[13px] text-slate-600">
+                                      <div className="flex justify-between items-center">
+                                        <span>Category</span>
+                                        <span className="font-bold text-slate-800">{row.raw?.parcel?.category || '--'}</span>
+                                      </div>
+                                      <div className="flex justify-between items-center">
+                                        <span>Sender</span>
+                                        <span className="font-bold text-slate-800">{row.raw?.parcel?.senderName || '--'}</span>
+                                      </div>
+                                      <div className="flex justify-between items-center">
+                                        <span>Receiver</span>
+                                        <span className="font-bold text-slate-800">{row.raw?.parcel?.receiverName || '--'}</span>
+                                      </div>
+                                      <div className="pt-2 mt-2 border-t border-slate-100 flex justify-between items-center text-[15px] font-black text-slate-900">
+                                        <span>Total Payable</span>
+                                        <span>₹{Number(row.raw?.fare || 0).toFixed(2)}</span>
+                                      </div>
                                     </div>
                                   </div>
-                                </div>
+                                ) : (
+                                  <div className="space-y-4">
+                                    <h3 className="text-[11px] font-black uppercase tracking-wider text-slate-400">Fare Breakdown</h3>
+                                    <div className="bg-white rounded-lg border border-slate-200 p-4 space-y-2">
+                                      <div className="flex justify-between items-center text-[13px] text-slate-600">
+                                        <span>Base Fare</span>
+                                        <span className="font-bold">₹{(row.raw?.baseFare || 0).toFixed(2)}</span>
+                                      </div>
+                                      <div className="flex justify-between items-center text-[13px] text-slate-600">
+                                        <span>Wait Time Charge</span>
+                                        <span className="font-bold text-amber-500">₹{(row.raw?.waitingChargeAmount || 0).toFixed(2)}</span>
+                                      </div>
+                                      <div className="flex justify-between items-center text-[13px] text-slate-600">
+                                        <span>Time Charge</span>
+                                        <span className="font-bold">₹{(row.raw?.timeChargeAmount || 0).toFixed(2)}</span>
+                                      </div>
+                                      <div className="flex justify-between items-center text-[13px] text-slate-600">
+                                        <span>Distance Charge</span>
+                                        <span className="font-bold">₹{(row.raw?.distanceChargeAmount || 0).toFixed(2)}</span>
+                                      </div>
+                                      <div className="pt-2 mt-2 border-t border-slate-100 flex justify-between items-center text-[15px] font-black text-slate-900">
+                                        <span>Total Payable</span>
+                                        <span>₹{(Number(row.raw?.fare || 0)).toFixed(2)}</span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
                               </div>
                             </motion.div>
                           </td>
@@ -266,7 +295,7 @@ const Ongoing = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={8} className="py-20 text-center text-[14px] font-medium text-slate-400">
+                    <td colSpan={9} className="py-20 text-center text-[14px] font-medium text-slate-400">
                       No Ongoing Requests Found.
                     </td>
                   </tr>

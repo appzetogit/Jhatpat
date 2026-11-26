@@ -3661,6 +3661,7 @@ const toAdminRideRow = (ride) => {
   return {
     id: String(ride._id),
     requestId: requestCode,
+    bookingType: 'RIDE',
     date: ride.createdAt,
     userName: ride.userId?.name || 'Unknown User',
     driverName: ride.driverId?.name || 'Unassigned',
@@ -3726,6 +3727,7 @@ const toAdminDeliveryRow = (ride) => {
   return {
     id: String(ride._id),
     requestId: requestCode,
+    bookingType: 'PARCEL',
     date: ride.createdAt,
     userName: ride.userId?.name || parcel.senderName || 'Unknown User',
     driverName: ride.driverId?.name || 'Unassigned',
@@ -3774,16 +3776,22 @@ export const listOngoingRides = async (query = {}) => {
     .allowDiskUse(true)
     .populate('userId', 'name phone')
     .populate('driverId', 'name phone vehicleType vehicleNumber')
+    .populate('deliveryId')
     .lean();
 
-  let rows = rides.map(toAdminRideRow);
+  // Ongoing mixes rides and parcel deliveries together, so each row needs the
+  // mapper that matches its actual booking type -- toAdminRideRow doesn't know
+  // about parcel fields, and used on a parcel row it silently drops them.
+  let rows = rides.map((ride) =>
+    ride.serviceType === 'parcel' ? toAdminDeliveryRow(ride) : toAdminRideRow(ride),
+  );
 
   if (tab === 'accepted') {
     rows = rows.filter((row) => row.tripStatus === 'ACCEPTED');
   } else if (tab === 'upcoming') {
     rows = rows.filter((row) => row.tripStatus === 'UPCOMING');
   } else if (tab === 'ongoing') {
-    rows = rows.filter((row) => row.tripStatus === 'ONGOING');
+    rows = rows.filter((row) => row.tripStatus === 'ONGOING' || row.tripStatus === 'ON_TRIP');
   }
 
   if (search) {
@@ -3795,6 +3803,9 @@ export const listOngoingRides = async (query = {}) => {
         row.transportType,
         row.pickupLabel,
         row.dropLabel,
+        row.parcel?.category,
+        row.parcel?.senderName,
+        row.parcel?.receiverName,
       ].some((value) => String(value || '').toLowerCase().includes(search)),
     );
   }
