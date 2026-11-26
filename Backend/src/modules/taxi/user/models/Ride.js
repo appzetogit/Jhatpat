@@ -826,5 +826,12 @@ const rideSchema = new mongoose.Schema(
 
 rideSchema.index({ userId: 1, createdAt: -1 });
 rideSchema.index({ driverId: 1, createdAt: -1 });
+// Matches the admin trips/deliveries/ongoing list queries (filter on serviceType +
+// adminHiddenAt, sort by createdAt) so Mongo can satisfy the sort from the index
+// instead of an in-memory sort, which Atlas's free/shared tiers cap at 32MB and
+// refuse to spill to disk for -- without this, listing rides 500'd once the
+// collection grew past that limit.
+rideSchema.index({ serviceType: 1, adminHiddenAt: 1, createdAt: -1 });
+rideSchema.index({ status: 1, createdAt: -1 });
 
 export const Ride = mongoose.models.TaxiRide || mongoose.model('TaxiRide', rideSchema);
