@@ -276,7 +276,11 @@ const Deliveries = () => {
                                 </div>
                                 <div className="flex justify-between items-center">
                                   <span>Sender Phone</span>
-                                  <span className="font-bold text-gray-800">{row.user?.phone || '--'}</span>
+                                  <span className="font-bold text-gray-800">{row.parcel?.senderPhone || row.user?.phone || '--'}</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                  <span>Receiver Phone</span>
+                                  <span className="font-bold text-gray-800">{row.parcel?.receiverPhone || '--'}</span>
                                 </div>
                                 <div className="flex justify-between items-center">
                                   <span>Driver Phone</span>

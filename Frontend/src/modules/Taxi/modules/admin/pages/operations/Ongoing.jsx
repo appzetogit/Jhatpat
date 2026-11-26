@@ -224,8 +224,8 @@ const Ongoing = () => {
                                   <h3 className="text-[11px] font-black uppercase tracking-wider text-slate-400">Rider & Driver</h3>
                                   <div className="bg-white rounded-lg border border-slate-200 p-4 space-y-2 text-[13px] text-slate-600">
                                     <div className="flex justify-between items-center">
-                                      <span>Rider Phone</span>
-                                      <span className="font-bold text-slate-800">{row.raw?.user?.phone || '--'}</span>
+                                      <span>{row.bookingType === 'PARCEL' ? 'Sender Phone' : 'Rider Phone'}</span>
+                                      <span className="font-bold text-slate-800">{row.raw?.parcel?.senderPhone || row.raw?.user?.phone || '--'}</span>
                                     </div>
                                     <div className="flex justify-between items-center">
                                       <span>Driver Phone</span>
@@ -252,6 +252,10 @@ const Ongoing = () => {
                                       <div className="flex justify-between items-center">
                                         <span>Receiver</span>
                                         <span className="font-bold text-slate-800">{row.raw?.parcel?.receiverName || '--'}</span>
+                                      </div>
+                                      <div className="flex justify-between items-center">
+                                        <span>Receiver Phone</span>
+                                        <span className="font-bold text-slate-800">{row.raw?.parcel?.receiverPhone || '--'}</span>
                                       </div>
                                       <div className="pt-2 mt-2 border-t border-slate-100 flex justify-between items-center text-[15px] font-black text-slate-900">
                                         <span>Total Payable</span>
