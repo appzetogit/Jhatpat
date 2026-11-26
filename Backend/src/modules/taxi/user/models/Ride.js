@@ -833,5 +833,8 @@ rideSchema.index({ driverId: 1, createdAt: -1 });
 // collection grew past that limit.
 rideSchema.index({ serviceType: 1, adminHiddenAt: 1, createdAt: -1 });
 rideSchema.index({ status: 1, createdAt: -1 });
+// listDeliveries filters only on serviceType (no adminHiddenAt), so the 3-field
+// index above can't also serve its sort -- a dedicated 2-field index can.
+rideSchema.index({ serviceType: 1, createdAt: -1 });
 
 export const Ride = mongoose.models.TaxiRide || mongoose.model('TaxiRide', rideSchema);

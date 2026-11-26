@@ -3820,7 +3820,10 @@ export const listRideRequests = async (query = {}) => {
   const search = String(query.search || '').trim().toLowerCase();
 
   const rides = await Ride.find({
-    serviceType: { $ne: 'parcel' },
+    // Equality (not $ne) so the index can also satisfy the sort directly --
+    // $ne can't be served as a single index bound aligned with createdAt order,
+    // so Mongo fell back to an in-memory sort and 500'd once the collection grew.
+    serviceType: { $in: ['ride', null] },
     adminHiddenAt: null,
   })
     .sort({ createdAt: -1 })
