@@ -88,6 +88,18 @@ const deepMerge = (target, source) => {
 // exceeded MongoDB's 32MB in-memory sort limit and the admin page returned a 500.
 const RIDE_REQUEST_LIST_CAP = 2000;
 
+// Fetching the full Ride document (pricingSnapshot, messages, feedback, bidding
+// fields, etc.) made these admin lists take ~3s for ~130 small rows -- selecting
+// only what toAdminRideRow/toAdminDeliveryRow actually read brought the same
+// query down to a few hundred ms.
+const ADMIN_RIDE_LIST_PROJECTION =
+  'userId driverId vehicleIconType serviceType deliveryId adminHiddenAt createdAt ' +
+  'status liveStatus paymentMethod fare baseFare waitingChargeAmount distanceChargeAmount ' +
+  'timeChargeAmount pickupLocation dropLocation pickupAddress dropAddress lastDriverLocation ' +
+  'cancelled_by cancellation_reason cancellation_charge cancellation_status ' +
+  'pending_cancellation_due recovery_status recovered_in_ride recovered_at ' +
+  'cancellation_time recovered_cancellation_due';
+
 const buildPaginator = (items, page = 1, limit = 50) => {
   const safePage = Number(page) || 1;
   const safeLimit = Number(limit) || 50;
@@ -3786,6 +3798,7 @@ export const listOngoingRides = async (query = {}) => {
   const rides = await Ride.find({
     status: { $in: [RIDE_STATUS.SEARCHING, RIDE_STATUS.ACCEPTED, RIDE_STATUS.ONGOING] },
   })
+    .select(ADMIN_RIDE_LIST_PROJECTION)
     .sort({ createdAt: -1 })
     .allowDiskUse(true)
     .populate('userId', 'name phone')
@@ -3840,6 +3853,7 @@ export const listRideRequests = async (query = {}) => {
     serviceType: { $in: ['ride', null] },
     adminHiddenAt: null,
   })
+    .select(ADMIN_RIDE_LIST_PROJECTION)
     .sort({ createdAt: -1 })
     .allowDiskUse(true)
     .limit(RIDE_REQUEST_LIST_CAP)
@@ -3882,6 +3896,7 @@ export const listDeliveries = async (query = {}) => {
   const search = String(query.search || '').trim().toLowerCase();
 
   const rides = await Ride.find({ serviceType: 'parcel' })
+    .select(ADMIN_RIDE_LIST_PROJECTION)
     .sort({ createdAt: -1 })
     .allowDiskUse(true)
     .limit(RIDE_REQUEST_LIST_CAP)

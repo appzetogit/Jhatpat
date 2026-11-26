@@ -1,7 +1,7 @@
 import React from 'react';
-import { Filter, Search, Loader2, ChevronRight, Menu, Trash2 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Filter, Search, Loader2, Menu, Trash2, Eye } from 'lucide-react';
 import { adminService } from '../../services/adminService';
+import BookingDetailModal from './BookingDetailModal';
 
 const STATUS_STYLES = {
   CANCELLED: 'bg-primary-orange/50 text-white',
@@ -18,6 +18,7 @@ const PAYMENT_STYLES = {
 };
 
 const TAB_SET = ['All', 'Completed', 'Cancelled', 'Upcoming', 'On Trip'];
+const BOOKING_TYPE_OPTIONS = ['All Types', 'Ride', 'Parcel'];
 
 const formatDate = (value) => {
   const date = value ? new Date(value) : null;
@@ -44,17 +45,19 @@ const normalizeRow = (row = {}) => ({
   transportType: row.transportType || row.transport_type || row.service_type || row.module || '--',
   tripStatus: String(row.tripStatus || row.trip_status || row.status || '').toUpperCase(),
   paymentOption: String(row.paymentOption || row.payment_option || row.payment_method || 'CASH').toUpperCase(),
+  bookingType: row.bookingType || 'RIDE',
   raw: row,
 });
 
 const Trips = () => {
   const [activeTab, setActiveTab] = React.useState('All');
+  const [bookingTypeFilter, setBookingTypeFilter] = React.useState('All Types');
   const [search, setSearch] = React.useState('');
   const [limit, setLimit] = React.useState(10);
   const [rows, setRows] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState('');
-  const [expandedRow, setExpandedRow] = React.useState(null);
+  const [viewingRow, setViewingRow] = React.useState(null);
   const [deletingId, setDeletingId] = React.useState(null);
 
   const loadRows = React.useCallback(async () => {
@@ -101,16 +104,17 @@ const Trips = () => {
     loadRows();
   }, [loadRows]);
 
+  const visibleRows = React.useMemo(() => {
+    if (bookingTypeFilter === 'All Types') return rows;
+    const wanted = bookingTypeFilter.toUpperCase();
+    return rows.filter((row) => row.bookingType === wanted);
+  }, [rows, bookingTypeFilter]);
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
       <div className="p-4 space-y-4">
         <div className="flex items-center justify-between px-4 py-2 bg-white rounded-t-xl">
           <h1 className="text-[20px] font-black tracking-tight text-slate-800 uppercase">RIDE REQUESTS</h1>
-          <div className="flex items-center gap-2 text-[12px] font-medium text-slate-400">
-            <span>Operations</span>
-            <ChevronRight size={14} className="text-slate-300" />
-            <span className="text-slate-500">Ride Requests</span>
-          </div>
         </div>
 
         <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm relative">
@@ -139,13 +143,22 @@ const Trips = () => {
                 >
                   {tab}
                   {activeTab === tab && (
-                    <motion.div layoutId="trip-tab" className="absolute -bottom-3 left-0 right-0 h-0.5 bg-indigo-600" />
+                    <span className="absolute -bottom-3 left-0 right-0 h-0.5 bg-indigo-600" />
                   )}
                 </button>
               ))}
             </div>
 
             <div className="flex items-center gap-3">
+              <select
+                value={bookingTypeFilter}
+                onChange={(e) => setBookingTypeFilter(e.target.value)}
+                className="h-10 border border-slate-200 rounded-full bg-white px-4 text-[13px] font-medium text-slate-600 outline-none focus:border-slate-300"
+              >
+                {BOOKING_TYPE_OPTIONS.map((opt) => (
+                  <option key={opt} value={opt}>{opt}</option>
+                ))}
+              </select>
               <div className="relative">
                 <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
@@ -185,189 +198,53 @@ const Trips = () => {
                       {error}
                     </td>
                   </tr>
-                ) : rows.length > 0 ? (
-                  rows.map((row) => (
-                    <React.Fragment key={row.id}>
-                      <tr
-                        className={`cursor-pointer transition-colors ${expandedRow === row.id ? 'bg-slate-50' : 'hover:bg-slate-50/30'}`}
-                        onClick={() => setExpandedRow(expandedRow === row.id ? null : row.id)}
-                      >
-                        <td className="px-6 py-5 text-[14px] text-slate-600 font-medium">
-                          <div className="flex items-center gap-2">
-                            <ChevronRight
-                              size={16}
-                              className={`text-slate-400 transition-transform ${expandedRow === row.id ? 'rotate-90' : ''}`}
-                            />
-                            {row.requestId}
-                          </div>
-                        </td>
-                        <td className="px-6 py-5 text-[14px] text-slate-600 font-medium">{formatDate(row.date)}</td>
-                        <td className="px-6 py-5">
-                          <span className="inline-block px-3 py-1 text-[10px] font-bold rounded uppercase bg-indigo-100 text-indigo-700">
-                            Ride
-                          </span>
-                        </td>
-                        <td className="px-6 py-5 text-[14px] text-slate-600 font-medium">{row.userName}</td>
-                        <td className="px-6 py-5 text-[14px] text-slate-600 font-medium">{row.driverName}</td>
-                        <td className="px-6 py-5 text-[14px] text-slate-600 font-medium">{row.transportType}</td>
-                        <td className="px-6 py-5">
-                          <span className={`inline-block px-3 py-1 text-[10px] font-bold rounded uppercase ${STATUS_STYLES[row.tripStatus] || 'bg-slate-200 text-slate-700'}`}>
-                            {row.tripStatus || 'UNKNOWN'}
-                          </span>
-                        </td>
-                        <td className="px-6 py-5">
-                          <span className={`inline-block px-3 py-1 text-[10px] font-bold rounded uppercase ${PAYMENT_STYLES[row.paymentOption] || 'bg-primary-orange/50 text-white'}`}>
-                            {row.paymentOption}
-                          </span>
-                        </td>
-                        <td className="px-6 py-5">
+                ) : visibleRows.length > 0 ? (
+                  visibleRows.map((row) => (
+                    <tr key={row.id} className="hover:bg-slate-50/30">
+                      <td className="px-6 py-5 text-[14px] text-slate-600 font-medium">{row.requestId}</td>
+                      <td className="px-6 py-5 text-[14px] text-slate-600 font-medium">{formatDate(row.date)}</td>
+                      <td className="px-6 py-5">
+                        <span className={`inline-block px-3 py-1 text-[10px] font-bold rounded uppercase ${row.bookingType === 'PARCEL' ? 'bg-amber-100 text-amber-700' : 'bg-indigo-100 text-indigo-700'}`}>
+                          {row.bookingType === 'PARCEL' ? 'Parcel' : 'Ride'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-5 text-[14px] text-slate-600 font-medium">{row.userName}</td>
+                      <td className="px-6 py-5 text-[14px] text-slate-600 font-medium">{row.driverName}</td>
+                      <td className="px-6 py-5 text-[14px] text-slate-600 font-medium">{row.transportType}</td>
+                      <td className="px-6 py-5">
+                        <span className={`inline-block px-3 py-1 text-[10px] font-bold rounded uppercase ${STATUS_STYLES[row.tripStatus] || 'bg-slate-200 text-slate-700'}`}>
+                          {row.tripStatus || 'UNKNOWN'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-5">
+                        <span className={`inline-block px-3 py-1 text-[10px] font-bold rounded uppercase ${PAYMENT_STYLES[row.paymentOption] || 'bg-primary-orange/50 text-white'}`}>
+                          {row.paymentOption}
+                        </span>
+                      </td>
+                      <td className="px-6 py-5">
+                        <div className="flex items-center gap-3">
+                          <button
+                            type="button"
+                            title="View details"
+                            aria-label={`View trip ${row.requestId}`}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-indigo-50 text-indigo-700 text-[12px] font-bold hover:bg-indigo-100"
+                            onClick={() => setViewingRow(row.raw)}
+                          >
+                            <Eye size={14} /> View
+                          </button>
                           <button
                             type="button"
                             title="Delete trip"
                             aria-label={`Delete trip ${row.requestId}`}
                             disabled={deletingId === row.id}
                             className="text-slate-400 hover:text-red-600 disabled:opacity-40"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              deleteTrip(row);
-                            }}
+                            onClick={() => deleteTrip(row)}
                           >
                             {deletingId === row.id ? <Loader2 size={18} className="animate-spin" /> : <Trash2 size={18} />}
                           </button>
-                        </td>
-                      </tr>
-                      {expandedRow === row.id && (
-                        <tr>
-                          <td colSpan={9} className="px-0 py-0 border-b border-slate-100">
-                            <motion.div
-                              initial={{ opacity: 0, height: 0 }}
-                              animate={{ opacity: 1, height: 'auto' }}
-                              exit={{ opacity: 0, height: 0 }}
-                              className="bg-slate-50/50 p-6 border-t border-slate-100"
-                            >
-                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                                <div className="space-y-4">
-                                  <h3 className="text-[11px] font-black uppercase tracking-wider text-slate-400">Trip Locations</h3>
-                                  <div className="space-y-3">
-                                    <div className="flex items-start gap-3">
-                                      <div className="mt-1 w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
-                                      <div>
-                                        <p className="text-[12px] font-bold text-slate-700">Pickup</p>
-                                        <p className="text-[13px] text-slate-600">{row.raw?.pickupLabel || '--'}</p>
-                                      </div>
-                                    </div>
-                                    <div className="flex items-start gap-3">
-                                      <div className="mt-1 w-2 h-2 rounded-full bg-rose-500 shrink-0" />
-                                      <div>
-                                        <p className="text-[12px] font-bold text-slate-700">Drop-off</p>
-                                        <p className="text-[13px] text-slate-600">{row.raw?.dropLabel || '--'}</p>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div className="space-y-4">
-                                  <h3 className="text-[11px] font-black uppercase tracking-wider text-slate-400">Rider & Driver</h3>
-                                  <div className="bg-white rounded-lg border border-slate-200 p-4 space-y-2 text-[13px] text-slate-600">
-                                    <div className="flex justify-between items-center">
-                                      <span>Rider Phone</span>
-                                      <span className="font-bold text-slate-800">{row.raw?.user?.phone || '--'}</span>
-                                    </div>
-                                    <div className="flex justify-between items-center">
-                                      <span>Driver Phone</span>
-                                      <span className="font-bold text-slate-800">{row.raw?.driver?.phone || '--'}</span>
-                                    </div>
-                                    <div className="flex justify-between items-center">
-                                      <span>Vehicle Number</span>
-                                      <span className="font-bold text-slate-800">{row.raw?.driver?.vehicleNumber || '--'}</span>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div className="space-y-4">
-                                  <h3 className="text-[11px] font-black uppercase tracking-wider text-slate-400">Fare Breakdown</h3>
-                                  <div className="bg-white rounded-lg border border-slate-200 p-4 space-y-2">
-                                    <div className="flex justify-between items-center text-[13px] text-slate-600">
-                                      <span>Base Fare</span>
-                                      <span className="font-bold">₹{(row.raw?.baseFare || 0).toFixed(2)}</span>
-                                    </div>
-                                    <div className="flex justify-between items-center text-[13px] text-slate-600">
-                                      <span>Wait Time Charge</span>
-                                      <span className="font-bold text-amber-500">₹{(row.raw?.waitingChargeAmount || 0).toFixed(2)}</span>
-                                    </div>
-                                    <div className="flex justify-between items-center text-[13px] text-slate-600">
-                                      <span>Time Charge</span>
-                                      <span className="font-bold">₹{(row.raw?.timeChargeAmount || 0).toFixed(2)}</span>
-                                    </div>
-                                    <div className="flex justify-between items-center text-[13px] text-slate-600">
-                                      <span>Distance Charge</span>
-                                      <span className="font-bold">₹{(row.raw?.distanceChargeAmount || 0).toFixed(2)}</span>
-                                    </div>
-                                    {row.raw?.recovered_cancellation_due > 0 && (
-                                      <div className="flex justify-between items-center text-[13px] text-red-500">
-                                        <span>Previous Cancellation Due</span>
-                                        <span className="font-bold">₹{Number(row.raw.recovered_cancellation_due).toFixed(2)}</span>
-                                      </div>
-                                    )}
-                                    <div className="pt-2 mt-2 border-t border-slate-100 flex justify-between items-center text-[15px] font-black text-slate-900">
-                                      <span>Total Payable</span>
-                                      <span>₹{(Number(row.raw?.fare || 0) + Number(row.raw?.recovered_cancellation_due || 0)).toFixed(2)}</span>
-                                    </div>
-                                  </div>
-                                </div>
-                                {row.tripStatus === 'CANCELLED' && (
-                                  <div className="space-y-4">
-                                    <h3 className="text-[11px] font-black uppercase tracking-wider text-rose-500">Cancellation Details</h3>
-                                    <div className="bg-white rounded-lg border border-slate-200 p-4 space-y-2 text-[13px] text-slate-600">
-                                      <div className="flex justify-between items-center">
-                                        <span>Cancelled By</span>
-                                        <span className="font-bold text-slate-800 capitalize">{row.raw?.cancelled_by || 'User'}</span>
-                                      </div>
-                                      <div className="flex justify-between items-center">
-                                        <span>Reason</span>
-                                        <span className="font-bold text-slate-800">{row.raw?.cancellation_reason || 'N/A'}</span>
-                                      </div>
-                                      <div className="flex justify-between items-center">
-                                        <span>Cancellation Time</span>
-                                        <span className="font-bold text-slate-800">{formatDate(row.raw?.cancellation_time || row.date)}</span>
-                                      </div>
-                                      <div className="flex justify-between items-center">
-                                        <span>Status at Cancellation</span>
-                                        <span className="font-bold text-slate-800">{row.raw?.liveStatus || row.raw?.rideStatus || 'N/A'}</span>
-                                      </div>
-                                      <div className="flex justify-between items-center">
-                                        <span>Free Cancellation?</span>
-                                        <span className="font-bold text-slate-800">{Number(row.raw?.cancellation_charge || 0) === 0 ? 'Yes' : 'No'}</span>
-                                      </div>
-                                      <div className="flex justify-between items-center">
-                                        <span>Cancellation Fee</span>
-                                        <span className="font-bold text-red-500">₹{(row.raw?.cancellation_charge || 0).toFixed(2)}</span>
-                                      </div>
-                                      <div className="flex justify-between items-center">
-                                        <span>Status</span>
-                                        <span className={`font-bold ${row.raw?.cancellation_status === 'recovered' ? 'text-emerald-600' : 'text-amber-600'}`}>
-                                          {row.raw?.cancellation_status === 'recovered' ? 'Recovered' : 'Pending'}
-                                        </span>
-                                      </div>
-                                      {row.raw?.cancellation_status === 'recovered' && (
-                                        <>
-                                          <div className="flex justify-between items-center">
-                                            <span>Recovery Ride ID</span>
-                                            <span className="font-bold text-indigo-600">{row.raw?.recovered_in_ride ? `REQ_${String(row.raw?.recovered_in_ride).slice(-12).toUpperCase()}` : 'N/A'}</span>
-                                          </div>
-                                          <div className="flex justify-between items-center">
-                                            <span>Recovery Time</span>
-                                            <span className="font-bold text-slate-800">{formatDate(row.raw?.recovered_at)}</span>
-                                          </div>
-                                        </>
-                                      )}
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                            </motion.div>
-                          </td>
-                        </tr>
-                      )}
-                    </React.Fragment>
+                        </div>
+                      </td>
+                    </tr>
                   ))
                 ) : (
                   <tr>
@@ -385,6 +262,7 @@ const Trips = () => {
           </button>
         </div>
       </div>
+      {viewingRow && <BookingDetailModal row={viewingRow} onClose={() => setViewingRow(null)} />}
     </div>
   );
 };
