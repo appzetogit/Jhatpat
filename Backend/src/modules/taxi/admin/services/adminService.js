@@ -3663,7 +3663,7 @@ const toAdminRideRow = (ride) => {
     tripStatus,
     rideStatus: ride.status,
     liveStatus: ride.liveStatus,
-    paymentOption: 'CASH',
+    paymentOption: String(ride.paymentMethod || 'cash').toUpperCase(),
     fare: Number(ride.fare || 0),
     baseFare: Number(ride.baseFare || ride.fare || 0),
     waitingChargeAmount: Number(ride.waitingChargeAmount || 0),

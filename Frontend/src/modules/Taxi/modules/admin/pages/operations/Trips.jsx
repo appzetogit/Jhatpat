@@ -261,6 +261,23 @@ const Trips = () => {
                                   </div>
                                 </div>
                                 <div className="space-y-4">
+                                  <h3 className="text-[11px] font-black uppercase tracking-wider text-slate-400">Rider & Driver</h3>
+                                  <div className="bg-white rounded-lg border border-slate-200 p-4 space-y-2 text-[13px] text-slate-600">
+                                    <div className="flex justify-between items-center">
+                                      <span>Rider Phone</span>
+                                      <span className="font-bold text-slate-800">{row.raw?.user?.phone || '--'}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                      <span>Driver Phone</span>
+                                      <span className="font-bold text-slate-800">{row.raw?.driver?.phone || '--'}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                      <span>Vehicle Number</span>
+                                      <span className="font-bold text-slate-800">{row.raw?.driver?.vehicleNumber || '--'}</span>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="space-y-4">
                                   <h3 className="text-[11px] font-black uppercase tracking-wider text-slate-400">Fare Breakdown</h3>
                                   <div className="bg-white rounded-lg border border-slate-200 p-4 space-y-2">
                                     <div className="flex justify-between items-center text-[13px] text-slate-600">
