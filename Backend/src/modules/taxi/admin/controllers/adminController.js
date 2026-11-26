@@ -465,22 +465,6 @@ export const deleteSetPrice = asyncHandler(async (req, res) => {
   await adminService.deleteSetPrice(req.params.id, req.auth?.admin);
   ok(res, { deleted: true });
 });
-export const getInsurancePlans = asyncHandler(async (req, res) =>
-  ok(res, { results: await adminService.listInsurancePlans(req.auth?.admin) }),
-);
-export const createInsurancePlan = asyncHandler(async (req, res) =>
-  ok(res, await adminService.createInsurancePlan(req.body, req.auth?.admin)),
-);
-export const updateInsurancePlan = asyncHandler(async (req, res) =>
-  ok(res, await adminService.updateInsurancePlan(req.params.id, req.body, req.auth?.admin)),
-);
-export const deleteInsurancePlan = asyncHandler(async (req, res) => {
-  await adminService.deleteInsurancePlan(req.params.id, req.auth?.admin);
-  ok(res, { deleted: true });
-});
-export const getInsuredRides = asyncHandler(async (req, res) =>
-  ok(res, await adminService.listInsuredRides(req.query || {}, req.auth?.admin)),
-);
 export const getSurgeSlots = asyncHandler(async (req, res) =>
   ok(res, { results: await adminService.listSurgeSlots(req.auth?.admin) }),
 );

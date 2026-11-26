@@ -435,7 +435,7 @@ export const quoteRide = async (req, res) => {
 };
 
 export const createRide = async (req, res) => {
-  const { pickup, drop, stops, pickupAddress, dropAddress, fare, vehicleTypeId, vehicleTypeIds, vehicleIconType, vehicleIconUrl, paymentMethod, serviceType, promo_code, service_location_id, transport_type, scheduledAt, bookingMode, userMaxBidFare, bidStepAmount, insurancePlanId } =
+  const { pickup, drop, stops, pickupAddress, dropAddress, fare, vehicleTypeId, vehicleTypeIds, vehicleIconType, vehicleIconUrl, paymentMethod, serviceType, promo_code, service_location_id, transport_type, scheduledAt, bookingMode, userMaxBidFare, bidStepAmount } =
     req.body;
 
   if (!pickup || !drop) {
@@ -464,7 +464,6 @@ export const createRide = async (req, res) => {
     bookingMode,
     userMaxBidFare,
     bidStepAmount,
-    insurancePlanId,
   });
 
   await startDispatchFlow(ride);

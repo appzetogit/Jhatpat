@@ -88,7 +88,7 @@ export default function Showcase() {
               </h2>
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#10b981]/10 border border-[#10b981]/20 text-[#10b981] text-[10px] font-black uppercase tracking-wider">
                 <ShieldCheck className="w-3.5 h-3.5" />
-                Passenger Insurance Included
+                Verified Drivers, Real-Time Tracking
               </div>
               <p className="text-slate-400 text-sm sm:text-base leading-relaxed max-w-lg">
                 Enrolling 1 Lac+ Drivers across India. Jhatpat does more than just drive you — interactive voice controls, media playlists, and local insights directly to your ride.
