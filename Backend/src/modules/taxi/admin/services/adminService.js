@@ -5043,10 +5043,11 @@ export const deleteSurgeSlot = async (id, currentAdmin = null) => {
         acc.adminCommission += row.adminCommission;
         acc.driverEarnings += row.driverEarnings;
         if (row.paymentMethod === 'cash') acc.byCash += row.adminCommission;
-        if (row.paymentMethod === 'online') acc.byOnline += row.adminCommission;
+        else if (row.paymentMethod === 'online') acc.byOnline += row.adminCommission;
+        else acc.byWallet += row.adminCommission;
         return acc;
       },
-      { totalTrips: 0, grossFare: 0, adminCommission: 0, driverEarnings: 0, byCash: 0, byOnline: 0 },
+      { totalTrips: 0, grossFare: 0, adminCommission: 0, driverEarnings: 0, byCash: 0, byOnline: 0, byWallet: 0 },
     );
 
     const roundedTotals = Object.fromEntries(
@@ -5082,7 +5083,7 @@ export const getDashboardData = async () => {
     Driver.countDocuments(),
     Driver.countDocuments({ approve: true }),
     Ride.find()
-      .select('status liveStatus fare paymentMethod commissionAmount driverEarnings driverId createdAt updatedAt completedAt')
+      .select('status liveStatus fare paymentMethod commissionAmount driverEarnings driverId cancelled_by createdAt updatedAt completedAt')
       .sort({ createdAt: -1 })
       .lean(),
     SupportTicket.aggregate([
@@ -5158,8 +5159,10 @@ export const getDashboardData = async () => {
 
   const overallByCash = sumFare(completedRides.filter((ride) => String(ride?.paymentMethod || 'cash').toLowerCase() === 'cash'));
   const overallByCard = sumFare(completedRides.filter((ride) => String(ride?.paymentMethod || '').toLowerCase() === 'online'));
+  const overallByWallet = sumFare(completedRides.filter((ride) => String(ride?.paymentMethod || '').toLowerCase() === 'wallet'));
   const todayByCash = sumFare(todayCompletedRides.filter((ride) => String(ride?.paymentMethod || 'cash').toLowerCase() === 'cash'));
   const todayByCard = sumFare(todayCompletedRides.filter((ride) => String(ride?.paymentMethod || '').toLowerCase() === 'online'));
+  const todayByWallet = sumFare(todayCompletedRides.filter((ride) => String(ride?.paymentMethod || '').toLowerCase() === 'wallet'));
 
   const buildRecentMonthKeys = (monthCount = 4) => {
     const months = [];
@@ -5200,6 +5203,11 @@ export const getDashboardData = async () => {
     month.amount += Number(ride?.fare || 0);
   });
 
+  // cancelled_by is the actual record of who cancelled (set by the cancel
+  // endpoint); driverId presence says nothing about who cancelled, it only
+  // says whether a driver had been assigned yet.
+  const cancelledByRole = (ride) => String(ride?.cancelled_by || '').toLowerCase();
+
   cancelledRides.forEach((ride) => {
     const eventDate = getRideEventDate(ride);
     if (!eventDate) return;
@@ -5209,10 +5217,13 @@ export const getDashboardData = async () => {
     const month = recentMonthMap.get(key);
     if (!month) return;
     month.total += 1;
-    if (!ride?.driverId) {
-      month.noDriver += 1;
-    } else {
+    const by = cancelledByRole(ride);
+    if (by === 'driver') {
+      month.byDriver += 1;
+    } else if (by === 'user') {
       month.byUser += 1;
+    } else if (!ride?.driverId) {
+      month.noDriver += 1;
     }
   });
 
@@ -5252,7 +5263,6 @@ export const getDashboardData = async () => {
         declined: totalDrivers - approvedDrivers
       },
       total_earnings: Number(totalOverallFare.toFixed(2)),
-      payment_success_rate: 99.4,
       notifiedSos: {
         total: supportTicketCounts.pending + supportTicketCounts.assigned,
         pending: supportTicketCounts.pending,
@@ -5274,7 +5284,7 @@ export const getDashboardData = async () => {
       todayEarnings: {
         total: Number(totalTodayFare.toFixed(2)),
         by_cash: Number(todayByCash.toFixed(2)),
-        by_wallet: 0,
+        by_wallet: Number(todayByWallet.toFixed(2)),
         by_card: Number(todayByCard.toFixed(2)),
         admin_commission: Number(totalTodayCommission.toFixed(2)),
         driver_earnings: Number(totalTodayDriverEarnings.toFixed(2)),
@@ -5282,7 +5292,7 @@ export const getDashboardData = async () => {
       overallEarnings: {
         total: Number(totalOverallFare.toFixed(2)),
         by_cash: Number(overallByCash.toFixed(2)),
-        by_wallet: 0,
+        by_wallet: Number(overallByWallet.toFixed(2)),
         by_card: Number(overallByCard.toFixed(2)),
         admin_commission: Number(totalOverallCommission.toFixed(2)),
         driver_earnings: Number(totalOverallDriverEarnings.toFixed(2)),
@@ -5290,9 +5300,9 @@ export const getDashboardData = async () => {
       },
       cancelChart: {
         total: cancelledRides.length,
-        byUser: cancelledRides.filter((ride) => ride?.driverId).length,
-        byDriver: 0,
-        noDriver: cancelledRides.filter((ride) => !ride?.driverId).length,
+        byUser: cancelledRides.filter((ride) => cancelledByRole(ride) === 'user').length,
+        byDriver: cancelledRides.filter((ride) => cancelledByRole(ride) === 'driver').length,
+        noDriver: cancelledRides.filter((ride) => !cancelledByRole(ride) && !ride?.driverId).length,
         chart: cancelChartSeries,
       },
       performance_index: rides.length
