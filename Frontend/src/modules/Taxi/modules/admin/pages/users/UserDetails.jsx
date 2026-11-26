@@ -22,6 +22,7 @@ import {
   History as HistoryIcon
 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { adminService } from '../../services/adminService';
 
 const UserDetails = () => {
   const { id } = useParams();
@@ -39,18 +40,13 @@ const UserDetails = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
-  const token = (localStorage.getItem('admin_accessToken') || localStorage.getItem('adminToken'));
-
   const fetchData = async () => {
     try {
       setIsLoading(true);
-      
+
       // Fetch User Info
-      const userRes = await fetch(`${globalThis.__LEGACY_BACKEND_ORIGIN__}/api/v1/taxi/admin/users/${id}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const userData = await userRes.json();
-      
+      const userData = await adminService.getUserById(id);
+
       if (userData.success) {
         let u = userData.data;
         if (Array.isArray(u)) u = u[0];
@@ -94,10 +90,7 @@ const UserDetails = () => {
       }
 
       // Fetch Requests
-      const reqRes = await fetch(`${globalThis.__LEGACY_BACKEND_ORIGIN__}/api/v1/taxi/admin/users/${id}/requests`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const reqData = await reqRes.json();
+      const reqData = await adminService.getUserRequests(id);
       if (reqData.success) {
         const mappedRequests = (reqData.data?.results || []).map(r => ({
           id: r.request_id || 'N/A',
@@ -124,10 +117,7 @@ const UserDetails = () => {
       }
 
       // Fetch Wallet History
-      const walletRes = await fetch(`${globalThis.__LEGACY_BACKEND_ORIGIN__}/api/v1/taxi/admin/users/${id}/wallet-history`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const walletData = await walletRes.json();
+      const walletData = await adminService.getUserWalletHistoryById(id);
       if (walletData.success) {
         const history = (walletData.data?.results || []).map(w => {
           // Determine type from transaction_alias or amount sign
@@ -166,26 +156,18 @@ const UserDetails = () => {
 
   useEffect(() => {
     fetchData();
-  }, [id, token]);
+  }, [id]);
 
   const handleWalletAction = async () => {
     if (!walletAmount || isSubmitting) return;
     try {
       setIsSubmitting(true);
-      const res = await fetch(`${globalThis.__LEGACY_BACKEND_ORIGIN__}/api/v1/taxi/admin/wallet/users/${id}/adjust`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          amount: parseFloat(walletAmount),
-          payment_type: walletType,
-          remarks: `Admin ${walletType} action`
-        })
+      const data = await adminService.adjustUserWallet(id, {
+        amount: parseFloat(walletAmount),
+        operation: walletType,
+        remarks: `Admin ${walletType} action`
       });
-      
-      const data = await res.json();
+
       if (data.success) {
         setWalletModalOpen(false);
         setWalletAmount('');
@@ -196,7 +178,7 @@ const UserDetails = () => {
       }
     } catch (err) {
       console.error(err);
-      alert('Network error');
+      alert(err?.message || 'Network error');
     } finally {
       setIsSubmitting(false);
     }
@@ -398,7 +380,7 @@ const UserDetails = () => {
                   </div>
                   <div className="relative z-10 flex flex-col justify-center h-full">
                     <p className="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-3">{s.label}</p>
-                    <p className="text-3xl font-black text-gray-900 tracking-tighter">? {s.val.toFixed(2)}</p>
+                    <p className="text-3xl font-black text-gray-900 tracking-tighter">₹{s.val.toFixed(2)}</p>
                   </div>
                 </div>
               ))}
@@ -437,7 +419,7 @@ const UserDetails = () => {
                         </div>
                       </div>
                       <p className={`text-[15px] font-black tracking-tight ${tr.type === 'credit' ? 'text-emerald-600' : 'text-rose-600'}`}>
-                        {tr.type === 'credit' ? '+' : '-'} ?{parseFloat(tr.amount).toFixed(2)}
+                        {tr.type === 'credit' ? '+' : '-'} ₹{parseFloat(tr.amount).toFixed(2)}
                       </p>
                     </div>
                   ))
@@ -522,7 +504,7 @@ const UserDetails = () => {
                 <div>
                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block px-1">Amount to {walletType}</label>
                    <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xl font-black text-gray-300 pointer-events-none">?</span>
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xl font-black text-gray-300 pointer-events-none">₹</span>
                       <input 
                         type="number" 
                         value={walletAmount}
