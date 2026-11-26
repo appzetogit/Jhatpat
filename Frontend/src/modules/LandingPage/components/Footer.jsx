@@ -16,8 +16,8 @@ export default function Footer({ settings }) {
 
   const playStoreUrl = settings?.play_store_url || 'https://play.google.com/store/apps/details?id=com.Jhatpat.user'
   const appStoreUrl = settings?.app_store_url || 'https://www.apple.com/app-store/'
-  const contactAddress = settings?.contact_address || 'Jhatpat, Siliguri, West Bengal, India'
-  const contactPhone = settings?.contact_phone || '+91 7358789910'
+  const contactAddress = settings?.contact_address || 'Delhi NCR, India'
+  const contactPhone = settings?.contact_phone || '+91 97561 03627'
   const contactEmail = settings?.contact_email || 'jhatpattaxiofficial@gmail.com'
 
   const links = {
