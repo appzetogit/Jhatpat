@@ -47,6 +47,7 @@ const GodsEye = () => {
    const [refreshMethod, setRefreshMethod] = useState('automatic');
    const [selectedMarker, setSelectedMarker] = useState(null);
    const [mapRef, setMapRef] = useState(null);
+   const [lastUpdatedAt, setLastUpdatedAt] = useState(null);
 
    const { isLoaded, loadError } = useAppGoogleMapsLoader();
 
@@ -65,6 +66,7 @@ const GodsEye = () => {
          setZones(results);
          const dItems = driversRes?.success ? (driversRes?.data?.results || driversRes?.data || []) : (driversRes?.data || driversRes || []);
          setDbDrivers(Array.isArray(dItems) ? dItems : []);
+         setLastUpdatedAt(new Date());
       } catch (error) {
          console.error('Failed to fetch Gods Eye data', error);
       } finally {
@@ -93,8 +95,11 @@ const GodsEye = () => {
             }
 
             const coord = matchedZone.coordinates?.[0]?.[0] || [75.8577, 22.7196];
-            const lat = Number(driver.latitude || driver.lat || (driver.location?.coordinates?.[1]) || (coord[1] + (idx * 0.002 - 0.01)));
-            const lng = Number(driver.longitude || driver.lng || (driver.location?.coordinates?.[0]) || (coord[0] + (idx * 0.002 - 0.01)));
+            const realLat = Number(driver.latitude ?? driver.lat ?? driver.location?.coordinates?.[1]);
+            const realLng = Number(driver.longitude ?? driver.lng ?? driver.location?.coordinates?.[0]);
+            const hasRealLocation = Number.isFinite(realLat) && Number.isFinite(realLng) && (realLat !== 0 || realLng !== 0);
+            const lat = hasRealLocation ? realLat : coord[1] + (idx * 0.002 - 0.01);
+            const lng = hasRealLocation ? realLng : coord[0] + (idx * 0.002 - 0.01);
 
             const statusVal = driver.isOnline ? 'Online' : (driver.approve ? 'On Ride' : 'Online');
             
@@ -203,6 +208,10 @@ const GodsEye = () => {
    const filteredDriversList = useMemo(() => {
       return filteredMarkers.filter(m => m.type === 'driver');
    }, [filteredMarkers]);
+
+   const lastUpdatedLabel = lastUpdatedAt
+      ? lastUpdatedAt.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+      : '--';
 
    return (
       <div className="min-h-screen bg-gray-50 p-6 lg:p-8 font-sans animate-in fade-in duration-500">
@@ -419,7 +428,7 @@ const GodsEye = () => {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 pb-12">
                <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex items-center gap-4">
                   <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center shrink-0 shadow-sm"><Activity size={22} /></div>
-                  <div><p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Fleet Connectivity</p><p className="text-xl font-black text-gray-900 tracking-tight leading-none">98.2% Active</p></div>
+                  <div><p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Online Drivers</p><p className="text-xl font-black text-gray-900 tracking-tight leading-none">{filteredDriversList.filter((d) => d.status === 'Online').length} / {filteredDriversList.length}</p></div>
                </div>
                <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex items-center gap-4">
                   <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center shrink-0 shadow-sm"><Navigation size={22} /></div>
@@ -427,11 +436,11 @@ const GodsEye = () => {
                </div>
                <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex items-center gap-4">
                   <div className="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center shrink-0 shadow-sm"><MousePointer2 size={22} /></div>
-                  <div><p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Incoming Feed</p><p className="text-xl font-black text-amber-600 tracking-tight leading-none">Live Syncing</p></div>
+                  <div><p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Refresh Mode</p><p className="text-xl font-black text-amber-600 tracking-tight leading-none capitalize">{refreshMethod}</p></div>
                </div>
                <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex items-center gap-4 border-l-4 border-l-indigo-500">
                   <div className="w-12 h-12 bg-indigo-600 text-white rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-indigo-100"><Search size={22} /></div>
-                  <div><p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Precision</p><p className="text-xl font-black text-gray-900 tracking-tight leading-none">0.8s Latency</p></div>
+                  <div><p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Last Updated</p><p className="text-xl font-black text-gray-900 tracking-tight leading-none">{lastUpdatedLabel}</p></div>
                </div>
             </div>
 

@@ -120,8 +120,33 @@ const formatZone = (zone, index) => {
   };
 };
 
-const createFleetMarkers = (zones) =>
-  zones.slice(0, 12).flatMap((zone, index) => {
+// Real driver pins when a driver has a usable location; falls back to a
+// near-zone-centroid placement only for drivers with no location yet, so a
+// driver who has never reported GPS is not simply left off the map.
+const createFleetMarkers = (zones, drivers) => {
+  if (Array.isArray(drivers) && drivers.length > 0) {
+    return drivers.map((driver, index) => {
+      const lat = Number(driver.latitude);
+      const lng = Number(driver.longitude);
+      const hasRealLocation = Number.isFinite(lat) && Number.isFinite(lng) && (lat !== 0 || lng !== 0);
+      const zone = zones[index % Math.max(zones.length, 1)];
+      const offsetBase = (index % 4) * 0.006 + 0.004;
+      const position = hasRealLocation
+        ? { lat, lng }
+        : {
+            lat: (zone?.center?.lat ?? DEFAULT_CENTER.lat) + offsetBase,
+            lng: (zone?.center?.lng ?? DEFAULT_CENTER.lng) - offsetBase * 0.7,
+          };
+      return {
+        id: driver.id || driver._id || `driver-${index}`,
+        label: driver.name || `Driver ${index + 1}`,
+        position,
+        kind: 'driver',
+      };
+    });
+  }
+
+  return zones.slice(0, 12).flatMap((zone, index) => {
     const offsetBase = (index % 4) * 0.006 + 0.004;
     return [
       {
@@ -133,17 +158,9 @@ const createFleetMarkers = (zones) =>
         },
         kind: 'driver'
       },
-      {
-        id: `${zone.id}-rider`,
-        label: `Demand in ${zone.name}`,
-        position: {
-          lat: zone.center.lat - offsetBase * 0.5,
-          lng: zone.center.lng + offsetBase * 0.55
-        },
-        kind: 'demand'
-      }
     ];
   });
+};
 
 const ZoneCard = ({ zone, selected, onSelect }) => (
   <button
@@ -189,6 +206,7 @@ const ZoneCard = ({ zone, selected, onSelect }) => (
 const GeoFencing = () => {
   const location = useLocation();
   const [zones, setZones] = useState([]);
+  const [drivers, setDrivers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedZoneId, setSelectedZoneId] = useState(null);
   const [mapRef, setMapRef] = useState(null);
@@ -206,14 +224,20 @@ const GeoFencing = () => {
   const fetchZones = async () => {
     setLoading(true);
     try {
-      const response = await adminService.getZones();
+      const [response, driversRes] = await Promise.all([
+        adminService.getZones(),
+        adminService.getDrivers(1, 200),
+      ]);
       const rawZones = response?.data?.results || response?.data || [];
       const mappedZones = (Array.isArray(rawZones) ? rawZones : []).map(formatZone);
       setZones(mappedZones);
       setSelectedZoneId((current) => current || mappedZones[0]?.id || null);
+      const dItems = driversRes?.success ? (driversRes?.data?.results || driversRes?.data || []) : (driversRes?.data || driversRes || []);
+      setDrivers(Array.isArray(dItems) ? dItems.filter((d) => d.isOnline) : []);
     } catch (error) {
       console.error('Failed to fetch zones', error);
       setZones([]);
+      setDrivers([]);
     } finally {
       setLoading(false);
     }
@@ -241,7 +265,7 @@ const GeoFencing = () => {
 
   const mapCenter = selectedZone?.center || zones[0]?.center || DEFAULT_CENTER;
 
-  const fleetMarkers = useMemo(() => createFleetMarkers(zones), [zones]);
+  const fleetMarkers = useMemo(() => createFleetMarkers(zones, drivers), [zones, drivers]);
   const onlineCount = fleetMarkers.filter((marker) => marker.kind === 'driver').length;
   const activeZoneCount = zones.filter((zone) => zone.status === 'Active').length;
   const averageSurge =
@@ -375,7 +399,7 @@ const GeoFencing = () => {
           <h3 className="text-2xl font-black text-gray-900 tracking-tight">Google Maps is ready to plug in</h3>
           <p className="mt-3 text-sm leading-6 text-gray-500">
             This page now uses the Google Maps loader and your admin zones API. Add a real browser key in
-            [frontend/.env](/z:/projects/Jhatpat-taxi/frontend/.env) to render the live map on `/admin/geo/gods-eye`.
+            the backend `.env` file (`VITE_GOOGLE_MAPS_API_KEY`) to render the live map on `/admin/geo/gods-eye`.
           </p>
           <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="rounded-2xl bg-slate-50 p-4 border border-slate-100">
@@ -503,7 +527,7 @@ const GeoFencing = () => {
                 </Autocomplete>
               ) : (
                 <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-[12px] font-semibold text-amber-800 shadow-sm">
-                  Set `VITE_GOOGLE_MAPS_API_KEY` in [frontend/.env](/z:/projects/Jhatpat-taxi/frontend/.env) to load the live map here.
+                  Set `VITE_GOOGLE_MAPS_API_KEY` in the backend `.env` file (`VITE_GOOGLE_MAPS_API_KEY`) to load the live map here.
                 </div>
               )}
             </div>
@@ -720,7 +744,7 @@ const GeoFencing = () => {
               </Autocomplete>
             ) : (
               <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-[12px] font-semibold text-amber-800 shadow-sm">
-                Set `VITE_GOOGLE_MAPS_API_KEY` in [frontend/.env](/z:/projects/Jhatpat-taxi/frontend/.env) to load the live map here.
+                Set `VITE_GOOGLE_MAPS_API_KEY` in the backend `.env` file (`VITE_GOOGLE_MAPS_API_KEY`) to load the live map here.
               </div>
             )}
           </div>

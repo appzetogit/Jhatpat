@@ -1105,6 +1105,7 @@ const DRIVER_LIST_SELECT = [
   'isOnline',
   'approve',
   'status',
+  'location',
   'createdAt',
   'updatedAt',
 ].join(' ');
@@ -1137,6 +1138,8 @@ const serializeDriverListItem = (driver) => ({
   approve: Boolean(driver.approve),
   status: driver.status || (driver.approve ? 'approved' : 'pending'),
   active: driver.approve !== false && String(driver.status || '').toLowerCase() !== 'inactive',
+  latitude: Array.isArray(driver.location?.coordinates) ? Number(driver.location.coordinates[1]) : null,
+  longitude: Array.isArray(driver.location?.coordinates) ? Number(driver.location.coordinates[0]) : null,
   createdAt: driver.createdAt,
   updatedAt: driver.updatedAt,
 });
