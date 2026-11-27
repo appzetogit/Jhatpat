@@ -38,8 +38,6 @@ export const adminService = {
     return api.get(`/admin/users?${params.toString()}`);
   },
 
-  bulkImportUsers: (payload) => api.post('/admin/users/bulk-import', payload),
-
   createUser: (userData) => api.post('/admin/users', userData),
 
   updateUser: (id, userData) => api.patch(`/admin/users/${id}`, userData),
@@ -48,9 +46,6 @@ export const adminService = {
   getUserById: (id) => api.get(`/admin/users/${id}`),
   getUserRequests: (id) => api.get(`/admin/users/${id}/requests`),
   getUserWalletHistoryById: (id) => api.get(`/admin/users/${id}/wallet-history`),
-  getUserDeleteRequests: () => api.get('/admin/users/delete-requests'),
-  approveUserDeleteRequest: (id) => api.patch(`/admin/users/delete-requests/${id}/approve`),
-  rejectUserDeleteRequest: (id, adminNote = '') => api.patch(`/admin/users/delete-requests/${id}/reject`, { adminNote }),
 
   /**
    * Driver Management
@@ -80,10 +75,6 @@ export const adminService = {
     api.patch(`/admin/referrals/translation/${languageCode}`, data),
   getReferralSettings: (type) => api.get(`/admin/referrals/settings/${type}`),
   updateReferralSettings: (type, data) => api.patch(`/admin/referrals/settings/${type}`, data),
-  // Wallet Payment APIs
-  searchUsers: (query) => api.get(`/admin/users?search=${query}`),
-  searchDrivers: (query) => api.get(`/admin/drivers?search=${query}`),
-
   adjustUserWallet: (id, data) => api.post(`/admin/wallet/users/${id}/adjust`, data),
   getUserWalletHistory: (id) => api.get(`/admin/wallet/users/${id}/history`),
 

@@ -137,7 +137,6 @@ export const masterSidebarMenu = [
           { label: "All Customers", path: "/admin/master/customers" },
           { label: "Food · Customers", path: "/admin/food/customers" },
           { label: "Taxi · Users", path: "/taxi/admin/users" },
-          { label: "Taxi · Deletion Requests", path: "/taxi/admin/users/delete-requests" },
         ],
       },
       {
