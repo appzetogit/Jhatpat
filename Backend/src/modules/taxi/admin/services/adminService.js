@@ -48,7 +48,6 @@ import { RIDE_LIVE_STATUS, RIDE_STATUS, VEHICLE_TYPES } from '../../constants/in
 import {
   cancelRideByAdmin,
   emitToDriver,
-  notifyUserAccountDeleted,
 } from '../../services/dispatchService.js';
 import { sendEmail } from '../../services/mailService.js';
 import { getActivePaymentGateway, normalizePaymentSettingsPayload } from '../../services/paymentGatewayService.js';
@@ -1745,80 +1744,6 @@ export const listUsers = async ({ page = 1, limit = 50, search = '' }) => {
   };
 };
 
-export const bulkImportUsers = async (payload = {}) => {
-  const incomingUsers = Array.isArray(payload.users) ? payload.users : [];
-
-  if (!incomingUsers.length) {
-    throw new ApiError(400, 'users array is required');
-  }
-
-  if (incomingUsers.length > 2000) {
-    throw new ApiError(400, 'Too many users in one import (max 2000)');
-  }
-
-  const errors = [];
-  const created = [];
-  const skipped = [];
-
-  for (let index = 0; index < incomingUsers.length; index += 1) {
-    const raw = incomingUsers[index] || {};
-    const name = String(raw.name || '').trim();
-    const phone = String(raw.phone || raw.mobile || '').replace(/\D/g, '');
-    const email = String(raw.email || '').trim().toLowerCase();
-    const gender = String(raw.gender || '').trim().toLowerCase();
-    const countryCode = String(raw.countryCode || raw.country_code || raw.country || '').trim();
-
-    if (!name) {
-      errors.push({ index, field: 'name', message: 'Name is required' });
-      continue;
-    }
-
-    if (!/^\d{10}$/.test(phone)) {
-      errors.push({ index, field: 'phone', message: 'A valid 10-digit phone number is required' });
-      continue;
-    }
-
-    if (email && !EMAIL_REGEX.test(email)) {
-      errors.push({ index, field: 'email', message: 'A valid email address is required' });
-      continue;
-    }
-
-    const normalizedGender = VALID_USER_GENDERS.has(gender) ? gender : '';
-    const normalizedCountryCode = countryCode && countryCode.startsWith('+') ? countryCode : '+91';
-
-    const existingUser = await User.findOne({ phone }).lean();
-    if (existingUser) {
-      skipped.push({ index, phone, id: String(existingUser._id) });
-      continue;
-    }
-
-    try {
-      const user = await User.create({
-        name,
-        phone,
-        email,
-        gender: normalizedGender,
-        countryCode: normalizedCountryCode,
-        isVerified: true,
-        active: raw.active ?? true,
-      });
-      created.push(serializeUser(user.toObject()));
-    } catch (error) {
-      const message = error?.message || 'Failed to create user';
-      errors.push({ index, message });
-    }
-  }
-
-  return {
-    created_count: created.length,
-    skipped_count: skipped.length,
-    error_count: errors.length,
-    created,
-    skipped: skipped.slice(0, 200),
-    errors: errors.slice(0, 200),
-  };
-};
-
 export const bulkImportDrivers = async (payload = {}) => {
   const incomingDrivers = Array.isArray(payload.drivers) ? payload.drivers : [];
 
@@ -2085,86 +2010,6 @@ export const permanentlyDeleteDeletedUser = async (id) => {
     throw new ApiError(404, 'Deleted user not found');
   }
   return true;
-};
-
-export const listUserDeletionRequests = async ({ page = 1, limit = 50, status = 'pending' } = {}) => {
-  const safePage = Number(page) || 1;
-  const safeLimit = Number(limit) || 50;
-  const requestedStatus = String(status || 'pending').toLowerCase();
-  const start = (safePage - 1) * safeLimit;
-  const statusQuery =
-    requestedStatus === 'all'
-      ? { $in: ['pending', 'approved', 'rejected'] }
-      : requestedStatus;
-  const query = {
-    'deletionRequest.status': statusQuery,
-    deletedAt: null,
-  };
-
-  const [users, total] = await Promise.all([
-    User.find(query)
-      .sort({ 'deletionRequest.requestedAt': -1, createdAt: -1 })
-      .skip(start)
-      .limit(safeLimit)
-      .lean(),
-    User.countDocuments(query),
-  ]);
-
-  return {
-    results: users.map(serializeUser),
-    paginator: {
-      current_page: safePage,
-      per_page: safeLimit,
-      total,
-      last_page: Math.max(1, Math.ceil(total / safeLimit)),
-    },
-  };
-};
-
-export const approveUserDeletionRequest = async (id, adminId) => {
-  const now = new Date();
-  const user = await User.findOneAndUpdate(
-    { _id: id, deletedAt: null, 'deletionRequest.status': 'pending' },
-    {
-      $set: {
-        deletedAt: now,
-        active: false,
-        isActive: false,
-        deletion_reason: 'user_delete_request',
-        'deletionRequest.status': 'approved',
-        'deletionRequest.reviewedAt': now,
-        'deletionRequest.reviewedBy': adminId || null,
-        'deletionRequest.adminNote': '',
-      },
-    },
-    { returnDocument: 'after', runValidators: true },
-  );
-
-  if (!user) throw new ApiError(404, 'Pending user deletion request not found');
-  notifyUserAccountDeleted(user._id);
-  return serializeUser(user.toObject());
-};
-
-export const rejectUserDeletionRequest = async (id, payload = {}, adminId) => {
-  const now = new Date();
-  const adminNote = String(payload.adminNote || payload.note || '').trim();
-  const user = await User.findOneAndUpdate(
-    { _id: id, deletedAt: null, 'deletionRequest.status': 'pending' },
-    {
-      $set: {
-        active: true,
-        isActive: true,
-        'deletionRequest.status': 'rejected',
-        'deletionRequest.reviewedAt': now,
-        'deletionRequest.reviewedBy': adminId || null,
-        'deletionRequest.adminNote': adminNote,
-      },
-    },
-    { returnDocument: 'after', runValidators: true },
-  );
-
-  if (!user) throw new ApiError(404, 'Pending user deletion request not found');
-  return serializeUser(user.toObject());
 };
 
 export const getUserById = async (id) => {

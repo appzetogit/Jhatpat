@@ -43,7 +43,6 @@ import {
   UserCog,
   Users,
   UtensilsCrossed,
-  Wallet,
   Zap,
   SlidersHorizontal,
 } from 'lucide-react';
@@ -767,11 +766,8 @@ const AdminLayout = () => {
             label: 'Customer Management',
             subItems: [
               { label: 'User List', path: '/taxi/admin/users', permission: 'users.view' },
-              { label: 'Delete Request Users', path: '/taxi/admin/users/delete-requests', permission: 'users.view' },
-              { label: 'User Bulk Upload', path: '/taxi/admin/users/bulk-upload', permission: 'users.view' },
             ],
           },
-          { icon: Wallet, label: 'Wallet Payment', path: '/taxi/admin/wallet/payment', permission: 'wallet.view' },
           {
             icon: Car,
             label: 'Driver Management',

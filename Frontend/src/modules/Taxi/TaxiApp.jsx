@@ -125,13 +125,9 @@ const AdminChat = lazy(() => import('./modules/admin/pages/operations/Chat'));
 const AdminTrips = lazy(() => import('./modules/admin/pages/operations/Trips'));
 const AdminDeliveries = lazy(() => import('./modules/admin/pages/operations/Deliveries'));
 const AdminOngoing = lazy(() => import('./modules/admin/pages/operations/Ongoing'));
-const AdminWalletPayment = lazy(() => import('./modules/admin/pages/wallet/WalletPayment'));
 const AdminUserList = lazy(() => import('./modules/admin/pages/users/UserList'));
 const AdminUserCreate = lazy(() => import('./modules/admin/pages/users/UserCreate'));
 const AdminUserDetails = lazy(() => import('./modules/admin/pages/users/UserDetails'));
-const AdminDeleteRequestUsers = lazy(() => import('./modules/admin/pages/users/DeleteRequestUsers'));
-const AdminUserBulkUpload = lazy(() => import('./modules/admin/pages/users/UserBulkUpload'));
-const AdminUserImportCreate = lazy(() => import('./modules/admin/pages/users/UserImportCreate'));
 
 // DRIVER MANAGEMENT IMPORTS
 const AdminDriverList = lazy(() => import('./modules/admin/pages/drivers/DriverList'));
@@ -770,9 +766,6 @@ function TaxiApp() {
 
             {/* Admin Module Routes */}
             <Route path="admin/login" element={<Navigate to="/admin/login" replace />} />
-            <Route path="user-import/create" element={<AdminLayout />}>
-              <Route index element={<AdminUserImportCreate />} />
-            </Route>
             <Route path="driver-import/create" element={<AdminLayout />}>
               <Route index element={<AdminDriverImportCreate />} />
             </Route>
@@ -784,22 +777,9 @@ function TaxiApp() {
               <Route path="trips" element={<AdminTrips />} />
               <Route path="deliveries" element={<AdminDeliveries />} />
               <Route path="ongoing" element={<AdminOngoing />} />
-              <Route path="wallet/payment" element={<AdminWalletPayment />} />
               <Route path="users" element={<AdminUserList />} />
               <Route path="users/create" element={<AdminUserCreate />} />
               <Route path="users/:id" element={<AdminUserDetails />} />
-              <Route
-                path="users/delete-requests"
-                element={<AdminDeleteRequestUsers />}
-              />
-              <Route
-                path="users/bulk-upload"
-                element={<AdminUserBulkUpload />}
-              />
-              <Route
-                path="user-import/create"
-                element={<AdminUserImportCreate />}
-              />
 
               <Route path="drivers" element={<AdminDriverList />} />
               <Route path="drivers/active" element={<AdminDriverList mode="active" />} />
