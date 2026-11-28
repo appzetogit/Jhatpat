@@ -61,12 +61,6 @@ const EditPayment = lazy(() => import("@food/pages/user/profile/EditPayment"))
 const Favorites = lazy(() => import("@food/pages/user/profile/Favorites"))
 const Support = lazy(() => import("@food/pages/user/profile/Support"))
 const Coupons = lazy(() => import("@food/pages/user/profile/Coupons"))
-const About = lazy(() => import("@food/pages/user/profile/About"))
-const Terms = lazy(() => import("@food/pages/user/profile/Terms"))
-const Privacy = lazy(() => import("@food/pages/user/profile/Privacy"))
-const Refund = lazy(() => import("@food/pages/user/profile/Refund"))
-const Shipping = lazy(() => import("@food/pages/user/profile/Shipping"))
-const Cancellation = lazy(() => import("@food/pages/user/profile/Cancellation"))
 const ReportSafetyEmergency = lazy(() => import("@food/pages/user/profile/ReportSafetyEmergency"))
 const Accessibility = lazy(() => import("@food/pages/user/profile/Accessibility"))
 const Logout = lazy(() => import("@food/pages/user/profile/Logout"))
@@ -241,14 +235,7 @@ export default function UserRouter() {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="profile/about"
-            element={
-              <ProtectedRoute requiredRole="user" loginPath="/login">
-                <About />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="profile/about" element={<Navigate to="/about" replace />} />
 
           <Route
             path="profile/report-safety-emergency"
@@ -284,11 +271,11 @@ export default function UserRouter() {
           />
 
           {/* Public Legal Policies (stay public) */}
-          <Route path="profile/terms" element={<Terms />} />
-          <Route path="profile/privacy" element={<Privacy />} />
-          <Route path="profile/refund" element={<Refund />} />
-          <Route path="profile/shipping" element={<Shipping />} />
-          <Route path="profile/cancellation" element={<Cancellation />} />
+          <Route path="profile/terms" element={<Navigate to="/terms" replace />} />
+          <Route path="profile/privacy" element={<Navigate to="/privacy" replace />} />
+          <Route path="profile/refund" element={<Navigate to="/refund" replace />} />
+          <Route path="profile/shipping" element={<Navigate to="/shipping" replace />} />
+          <Route path="profile/cancellation" element={<Navigate to="/cancellation" replace />} />
 
           {/* Auth - User login is centralized at /user/auth/login */}
           <Route path="auth/login" element={<Navigate to="/login" replace />} />

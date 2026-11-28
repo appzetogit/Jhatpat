@@ -138,7 +138,7 @@ globalThis.__qdPlatformCredentials = { razorpayCredentials, smsCredentials, emai
 /* Brand, contact, legal: only the fields an admin has set                  */
 /* ------------------------------------------------------------------------ */
 
-export const LEGAL_KEYS = Object.freeze(['terms', 'privacy', 'refund', 'cancellation', 'shipping']);
+export const LEGAL_KEYS = Object.freeze(['terms', 'privacy', 'refund', 'cancellation', 'shipping', 'about']);
 
 /** The managed brand/contact/business values; unset fields are absent. */
 export const managedBrand = async () => {
@@ -311,7 +311,7 @@ export const syncManagedFromLegacy = async (fields = {}) => {
 
 export const syncManagedLegalFromLegacy = async (key, content) => {
   try {
-    if (!(await managedLegalPage(key)) || !str(content)) return;
+    if (!LEGAL_KEYS.includes(key) || !str(content)) return;
     await PlatformProfile.updateOne({ _id: 'platform' }, { $set: { [`legal.${key}`]: String(content) } });
     await refreshPlatformProfile();
   } catch (err) {

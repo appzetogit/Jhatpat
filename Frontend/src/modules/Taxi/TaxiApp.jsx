@@ -41,9 +41,7 @@ const Activity = lazy(() => import('./modules/user/pages/Activity'));
 const Profile = lazy(() => import('./modules/user/pages/Profile'));
 const Wallet = lazy(() => import('./modules/user/pages/Wallet'));
 
-const LegalPage = lazy(() => import('./modules/shared/pages/LegalPage'));
 // Public Pages
-const AboutPage = lazy(() => import('./modules/shared/pages/AboutPage'));
 const CareersPage = lazy(() => import('./modules/shared/pages/CareersPage'));
 const NewsroomPage = lazy(() => import('./modules/shared/pages/NewsroomPage'));
 const ContactPage = lazy(() => import('./modules/shared/pages/ContactPage'));
@@ -521,7 +519,7 @@ function TaxiApp() {
           <Routes>
             {/* Static / Public routes */}
             <Route index element={<Navigate to="/" replace />} />
-            <Route path="about" element={<AboutPage />} />
+            <Route path="about" element={<Navigate to="/about" replace />} />
             <Route path="careers" element={<CareersPage />} />
             <Route path="newsroom" element={<NewsroomPage />} />
             <Route path="contact" element={<ContactPage />} />
@@ -529,12 +527,12 @@ function TaxiApp() {
             <Route path="services" element={<ServicesPage />} />
             <Route path="blog" element={<BlogPage />} />
             <Route path="links" element={<LinksPage />} />
-            <Route path="terms" element={<LegalPage />} />
-            <Route path="terms-and-conditions" element={<LegalPage />} />
-            <Route path="privacy" element={<LegalPage />} />
-            <Route path="privacy-policy" element={<LegalPage />} />
-            <Route path="refund" element={<LegalPage />} />
-            <Route path="cancellation" element={<LegalPage />} />
+            <Route path="terms" element={<Navigate to="/terms" replace />} />
+            <Route path="terms-and-conditions" element={<Navigate to="/terms" replace />} />
+            <Route path="privacy" element={<Navigate to="/privacy" replace />} />
+            <Route path="privacy-policy" element={<Navigate to="/privacy" replace />} />
+            <Route path="refund" element={<Navigate to="/refund" replace />} />
+            <Route path="cancellation" element={<Navigate to="/cancellation" replace />} />
             <Route path="login" element={<Navigate to="/login" replace />} />
             <Route path="onboarding" element={<Navigate to="/login" replace />} />
             <Route path="verify-otp" element={<Navigate to="/login" replace />} />
@@ -596,9 +594,9 @@ function TaxiApp() {
             {/* User Module Routes (Taxi-prefixed aliases to match Driver style) */}
             <Route path="user/onboarding" element={<Navigate to="/login" replace />} />
             <Route path="user/login" element={<Navigate to="/login" replace />} />
-            <Route path="user/terms" element={<LegalPage />} />
-            <Route path="user/privacy" element={<LegalPage />} />
-            <Route path="user/refund" element={<LegalPage />} />
+            <Route path="user/terms" element={<Navigate to="/terms" replace />} />
+            <Route path="user/privacy" element={<Navigate to="/privacy" replace />} />
+            <Route path="user/refund" element={<Navigate to="/refund" replace />} />
             <Route path="user/verify-otp" element={<Navigate to="/login" replace />} />
             <Route path="user/signup" element={<Signup />} />
             <Route path="user" element={<UserHomeRoute taxiPrefixed />} />
@@ -997,8 +995,6 @@ function TaxiApp() {
               <Route path="safety/sos" element={<AdminSafetyCenter />} />
               <Route path="safety/settings" element={<AdminSafetySettings />} />
 
-              <Route path="settings/cms/about" element={<AdminLandingSettings defaultTab="pages" defaultPage="about_us" />} />
-              <Route path="settings/cms/legal" element={<AdminLandingSettings defaultTab="pages" defaultPage="terms_conditions" />} />
               <Route
                 path="support/ticket-title"
                 element={<AdminSupportTicketTitle />}
@@ -1112,9 +1108,10 @@ function TaxiApp() {
                 path="settings/addons/*"
                 element={<AdminReportPlaceholder title="Addons Management" />}
               />
+              <Route path="settings/cms/careers" element={<AdminLandingSettings defaultTab="pages" defaultPage="careers" />} />
               <Route
                 path="settings/cms/*"
-                element={<Navigate to="/taxi/admin/website" replace />}
+                element={<Navigate to="/admin/master/settings/legal" replace />}
               />
             </Route>
 

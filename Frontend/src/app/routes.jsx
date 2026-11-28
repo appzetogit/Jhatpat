@@ -10,8 +10,7 @@ import FoodApp from '../modules/Food/routes'
 import TaxiApp from '../modules/Taxi/TaxiApp'
 const AuthApp = lazy(() => import('../modules/auth/routes'))
 const HelpSupportPage = lazy(() => import('../modules/auth/pages/HelpSupportPage'))
-const TermsPage = lazy(() => import('../modules/auth/pages/TermsPage'))
-const PrivacyPage = lazy(() => import('../modules/auth/pages/PrivacyPage'))
+const PolicyPage = lazy(() => import('../modules/Website/PolicyPage'))
 const WebsiteHome = lazy(() => import('../modules/Website/WebsiteHome'))
 const PartnerApp = lazy(() => import('../modules/partner/PartnerApp'))
 import ProtectedRoute from '@food/components/ProtectedRoute'
@@ -145,8 +144,12 @@ const AppRoutes = () => {
         <Route path="/support" element={<Suspense fallback={<PageLoader />}><HelpSupportPage /></Suspense>} />
 
         {/* Legal & Policy Modules */}
-        <Route path="/terms" element={<Suspense fallback={<PageLoader />}><TermsPage /></Suspense>} />
-        <Route path="/privacy" element={<Suspense fallback={<PageLoader />}><PrivacyPage /></Suspense>} />
+        <Route path="/terms" element={<Suspense fallback={<PageLoader />}><PolicyPage kind="terms" /></Suspense>} />
+        <Route path="/privacy" element={<Suspense fallback={<PageLoader />}><PolicyPage kind="privacy" /></Suspense>} />
+        <Route path="/refund" element={<Suspense fallback={<PageLoader />}><PolicyPage kind="refund" /></Suspense>} />
+        <Route path="/cancellation" element={<Suspense fallback={<PageLoader />}><PolicyPage kind="cancellation" /></Suspense>} />
+        <Route path="/shipping" element={<Suspense fallback={<PageLoader />}><PolicyPage kind="shipping" /></Suspense>} />
+        <Route path="/about" element={<Suspense fallback={<PageLoader />}><PolicyPage kind="about" /></Suspense>} />
 
 
         {/* Food Module */}

@@ -48,6 +48,8 @@ export const AppLegalPage = mongoose.models.AppLegalPage || mongoose.model('AppL
 
 /** This app's own page, or null. */
 export const appLegalPage = async (app, kind) => {
+  return null; // one page per kind for every app (Master > Legal pages); per-app overrides are retired
+  // eslint-disable-next-line no-unreachable
   if (!APP_KEYS.has(app) || !KIND_KEYS.has(kind)) return null;
   try {
     const doc = await AppLegalPage.findOne({ app, kind }).lean();
@@ -148,4 +150,28 @@ export const saveAppLegal = async (req, res) => {
   } catch (err) {
     return sendError(res, 500, err.message || 'Could not save');
   }
+};
+
+/*
+ * One public page per kind -- terms, privacy, refund, cancellation, shipping,
+ * about -- for every app and the website. Written once in Master > Legal pages.
+ * Until an admin writes it there, the taxi CMS text (the older copy) is shown.
+ */
+const POLICY_TITLES = { terms: 'Terms & Conditions', privacy: 'Privacy Policy', refund: 'Refund Policy', cancellation: 'Cancellation Policy', shipping: 'Shipping Policy', about: 'About Jhatpat' };
+const LEGACY_KEY = { terms: 'terms_conditions', privacy: 'privacy_policy', refund: 'refund_policy', cancellation: 'cancellation_policy', about: 'about_us' };
+
+// GET /v1/platform/page/:kind (public)
+export const getPublicPolicy = async (req, res) => {
+  const { kind } = req.params;
+  if (!POLICY_TITLES[kind]) return sendError(res, 404, 'No such page');
+  let content = (await managedLegalPage(kind)) || '';
+  if (!content && LEGACY_KEY[kind]) {
+    try {
+      const { default: LandingPageSetting } = await import('../../modules/taxi/admin/models/LandingPageSetting.js');
+      const doc = await LandingPageSetting.findOne({ scope: 'default' }).lean();
+      content = String(doc?.pages?.[LEGACY_KEY[kind]] || '');
+    } catch { /* keep empty */ }
+  }
+  res.set('Cache-Control', 'public, max-age=60');
+  return sendResponse(res, 200, 'Page', { kind, title: POLICY_TITLES[kind], content });
 };

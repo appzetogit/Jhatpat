@@ -1,14 +1,9 @@
 import { FoodPageContent } from '../models/pageContent.model.js';
 import { managedLegalPage, syncManagedLegalFromLegacy } from '../../../../core/settings/platformProfile.service.js';
 import { ValidationError } from '../../../../core/auth/errors.js';
-import { appLegalPage } from '../../../../core/settings/appLegal.js';
 
-// The food apps' page keys, and the per-app page (Master settings) each one reads first.
-const APP_LEGAL = {
-    terms: ['food_user', 'terms'], privacy: ['food_user', 'privacy'],
-    terms_restaurant: ['food_restaurant', 'terms'], privacy_restaurant: ['food_restaurant', 'privacy'],
-    terms_delivery: ['food_delivery', 'terms'], privacy_delivery: ['food_delivery', 'privacy'],
-};
+// Restaurant / delivery variants are the same page as the customer one.
+const BASE_KEY = { terms_restaurant: 'terms', terms_delivery: 'terms', privacy_restaurant: 'privacy', privacy_delivery: 'privacy' };
 
 const normalizeKey = (key) => String(key || '').trim().toLowerCase();
 
@@ -46,12 +41,8 @@ const normalizeAboutForResponse = (about) => {
 
 export const getPublicPageByKey = async (key) => {
     const k = normalizeKey(key);
-    if (APP_LEGAL[k]) {
-        const own = await appLegalPage(...APP_LEGAL[k]);
-        if (own) return { key: k, data: normalizeLegalForResponse(own) };
-    }
     // The platform's own page, when Master settings has one.
-    const managed = await managedLegalPage(k);
+    const managed = await managedLegalPage(BASE_KEY[k] || k);
     if (managed) {
         const doc = await FoodPageContent.findOne({ key: k }).select('legal.title').lean();
         return { key: k, data: normalizeLegalForResponse({ title: doc?.legal?.title || '', content: managed }) };
@@ -102,7 +93,7 @@ export const upsertLegalPage = async (key, payload, updatedBy) => {
         { upsert: true, new: true }
     ).lean();
 
-    await syncManagedLegalFromLegacy(k, content);
+    await syncManagedLegalFromLegacy(BASE_KEY[k] || k, content);
     return { key: k, data: normalizeLegalForResponse(doc?.legal || null) };
 };
 

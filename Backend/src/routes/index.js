@@ -40,7 +40,7 @@ import platformPnlRoutes from '../core/finance/platformPnl.routes.js';
 import homeContentRoutes from '../core/cms/homeContent.routes.js';
 import commissionOverviewRoutes from '../core/finance/commissionOverview.routes.js';
 import myOrdersRoutes from '../core/orders/myOrders.routes.js';
-import { getPublicAppLegal } from '../core/settings/appLegal.js';
+import { getPublicAppLegal, getPublicPolicy } from '../core/settings/appLegal.js';
 import { adminZoneScope } from '../core/admin/adminZoneScope.js';
 import { requireModuleEnabled } from '../middleware/moduleEnabled.js';
 import { MODULES } from '../core/modules/moduleRegistry.js';
@@ -132,6 +132,7 @@ router.use('/v1/platform/commission', commissionOverviewRoutes);
 router.use('/v1/platform/me', authMiddleware, requireRoles('USER'), myOrdersRoutes);
 // Terms and privacy for one app, public (shown before sign-in).
 router.get('/v1/platform/legal/:app/:kind', getPublicAppLegal);
+router.get('/v1/platform/page/:kind', getPublicPolicy);
 
 router.get('/v1/health', (req, res) => {
     res.status(200).json({ status: 'UP', message: 'Server is healthy' });

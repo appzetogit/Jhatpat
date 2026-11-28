@@ -40,6 +40,7 @@ const schema = new mongoose.Schema(
       currencySymbol: { type: String, default: '', trim: true },
     },
     legal: {
+      about: { type: String, default: '' },
       terms: { type: String, default: '' },
       privacy: { type: String, default: '' },
       refund: { type: String, default: '' },

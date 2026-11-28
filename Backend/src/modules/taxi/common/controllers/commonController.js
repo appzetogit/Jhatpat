@@ -169,6 +169,7 @@ const MANAGED_LEGAL = Object.freeze([
     ['privacy_policy', 'privacy'],
     ['refund_policy', 'refund'],
     ['cancellation_policy', 'cancellation'],
+    ['about_us', 'about'],
 ]);
 
 async function overlayManagedLegal(pages) {

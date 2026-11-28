@@ -5,7 +5,6 @@ import { toast } from "sonner"
 import { Loader2, Building2, FileText, ScrollText, PlugZap, Wallet, CheckCircle2, ExternalLink, ImagePlus } from "lucide-react"
 import { legalHtmlToPlainText, plainTextToLegalHtml } from "@food/utils/legalContentFormat"
 import CashLimitSettings from "./CashLimitSettings"
-import AppLegalPages from "./AppLegalPages"
 
 /**
  * Master settings: what every service shares, set once for the whole platform
@@ -19,7 +18,6 @@ import AppLegalPages from "./AppLegalPages"
 const TABS = [
   { key: "brand", label: "Brand & contact", icon: Building2 },
   { key: "legal", label: "Legal pages", icon: FileText },
-  { key: "appTerms", label: "App terms", icon: ScrollText },
   { key: "integrations", label: "Payments & messages", icon: PlugZap },
   { key: "money", label: "Money rules", icon: Wallet },
 ]
@@ -30,6 +28,7 @@ const LEGAL = [
   { key: "refund", label: "Refund Policy" },
   { key: "cancellation", label: "Cancellation Policy" },
   { key: "shipping", label: "Shipping Policy" },
+  { key: "about", label: "About Us" },
 ]
 
 const inputCls =
@@ -485,8 +484,6 @@ export default function PlatformSettings() {
         {tab === "money" ? (
           <CashLimitSettings />
 
-        ) : tab === "appTerms" ? (
-          <AppLegalPages />
         ) : !profile ? (
           <div className="flex items-center gap-2 py-10 text-neutral-500">
             <Loader2 className="h-4 w-4 animate-spin" /> Loading settings

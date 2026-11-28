@@ -184,12 +184,12 @@ export const WEBSITE_DEFAULTS = {
   footer: {
     about: 'Jhatpat brings rides, food and parcel delivery together in one fast, trusted app.',
     links: [
-      { label: 'About us', href: '/taxi/about' },
+      { label: 'About us', href: '/about' },
       { label: 'Careers', href: '/taxi/careers' },
-      { label: 'Terms of service', href: '/terms?tab=terms' },
-      { label: 'Privacy policy', href: '/terms?tab=privacy' },
-      { label: 'Refund policy', href: '/terms?tab=refund' },
-      { label: 'Cancellation policy', href: '/terms?tab=cancellation' },
+      { label: 'Terms of service', href: '/terms' },
+      { label: 'Privacy policy', href: '/privacy' },
+      { label: 'Refund policy', href: '/refund' },
+      { label: 'Cancellation policy', href: '/cancellation' },
       { label: 'Support', href: '/support' },
     ],
     copyright: 'Jhatpat. All rights reserved.',

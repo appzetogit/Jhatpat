@@ -128,12 +128,6 @@ const EmailTemplate = lazy(() => import("@food/pages/admin/settings/EmailTemplat
 const ThemeSettings = lazy(() => import("@food/pages/admin/settings/ThemeSettings"));
 const Gallery = lazy(() => import("@food/pages/admin/settings/Gallery"));
 const LoginSetup = lazy(() => import("@food/pages/admin/settings/LoginSetup"));
-const TermsAndCondition = lazy(() => import("@food/pages/admin/settings/TermsAndCondition"));
-const PrivacyPolicy = lazy(() => import("@food/pages/admin/settings/PrivacyPolicy"));
-const AboutUs = lazy(() => import("@food/pages/admin/settings/AboutUs"));
-const RefundPolicy = lazy(() => import("@food/pages/admin/settings/RefundPolicy"));
-const ShippingPolicy = lazy(() => import("@food/pages/admin/settings/ShippingPolicy"));
-const CancellationPolicy = lazy(() => import("@food/pages/admin/settings/CancellationPolicy"));
 const ReactRegistration = lazy(() => import("@food/pages/admin/settings/ReactRegistration"));
 const HelpSupportContent = lazy(() => import("@food/pages/admin/settings/HelpSupportContent"));
 // System Settings
@@ -296,12 +290,12 @@ const verticalAdminRoutes = (
             <Route path="gallery" element={<Gallery />} />
             <Route path="login-setup" element={<LoginSetup />} />
             <Route path="business-settings/fcm-index" element={<FirebaseNotification />} />
-            <Route path="pages-social-media/terms" element={<TermsAndCondition />} />
-            <Route path="pages-social-media/privacy" element={<PrivacyPolicy />} />
-            <Route path="pages-social-media/about" element={<AboutUs />} />
-            <Route path="pages-social-media/refund" element={<RefundPolicy />} />
-            <Route path="pages-social-media/shipping" element={<ShippingPolicy />} />
-            <Route path="pages-social-media/cancellation" element={<CancellationPolicy />} />
+            <Route path="pages-social-media/terms" element={<Navigate to="/admin/master/settings/legal" replace />} />
+            <Route path="pages-social-media/privacy" element={<Navigate to="/admin/master/settings/legal" replace />} />
+            <Route path="pages-social-media/about" element={<Navigate to="/admin/master/settings/legal" replace />} />
+            <Route path="pages-social-media/refund" element={<Navigate to="/admin/master/settings/legal" replace />} />
+            <Route path="pages-social-media/shipping" element={<Navigate to="/admin/master/settings/legal" replace />} />
+            <Route path="pages-social-media/cancellation" element={<Navigate to="/admin/master/settings/legal" replace />} />
             <Route path="pages-social-media/react-registration" element={<ReactRegistration />} />
             <Route path="pages-social-media/help-support" element={<HelpSupportContent />} />
             

@@ -1,5 +1,5 @@
 import { Suspense, lazy } from "react"
-import { Routes, Route } from "react-router-dom"
+import { Routes, Route, Navigate } from "react-router-dom"
 import DeliveryLayout from "./DeliveryLayout"
 import ProtectedRoute from "./ProtectedRoute"
 import Loader from "@food/components/Loader"
@@ -19,8 +19,6 @@ const TransactionHistory = lazy(() => import("@food/pages/delivery/TransactionHi
 const EditProfile = lazy(() => import("@food/pages/delivery/EditProfile"))
 const Settings = lazy(() => import("@food/pages/delivery/Settings"))
 const Conversation = lazy(() => import("@food/pages/delivery/Conversation"))
-const TermsAndConditions = lazy(() => import("@food/pages/delivery/TermsAndConditions"))
-const PrivacyPolicy = lazy(() => import("@food/pages/delivery/PrivacyPolicy"))
 const Payout = lazy(() => import("@food/pages/delivery/Payout"))
 const DeductionStatement = lazy(() => import("@food/pages/delivery/DeductionStatement"))
 const TipsStatement = lazy(() => import("@food/pages/delivery/TipsStatement"))
@@ -372,26 +370,8 @@ export default function DeliveryRouter() {
           }
           path="profile/conversation"
         />
-        <Route
-          element={
-            <ProtectedRoute>
-              <DeliveryLayout>
-                <TermsAndConditions />
-              </DeliveryLayout>
-            </ProtectedRoute>
-          }
-          path="profile/terms"
-        />
-        <Route
-          element={
-            <ProtectedRoute>
-              <DeliveryLayout>
-                <PrivacyPolicy />
-              </DeliveryLayout>
-            </ProtectedRoute>
-          }
-          path="profile/privacy"
-        />
+        <Route element={<Navigate to="/terms" replace />} path="profile/terms" />
+        <Route element={<Navigate to="/privacy" replace />} path="profile/privacy" />
         <Route
           element={
             <ProtectedRoute>

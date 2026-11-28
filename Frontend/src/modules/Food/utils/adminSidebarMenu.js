@@ -253,12 +253,7 @@ export const adminSidebarMenu = [
     type: "section",
     label: "PAGES & SOCIAL MEDIA",
     items: [
-      { type: "link", label: "About Us", path: "/admin/food/pages-social-media/about", icon: "Globe" },
-      { type: "link", label: "Terms & Conditions", path: "/admin/food/pages-social-media/terms", icon: "FileText" },
-      { type: "link", label: "Privacy Policy", path: "/admin/food/pages-social-media/privacy", icon: "Lock" },
-      { type: "link", label: "Refund Policy", path: "/admin/food/pages-social-media/refund", icon: "Receipt" },
-      { type: "link", label: "Shipping Policy", path: "/admin/food/pages-social-media/shipping", icon: "Truck" },
-      { type: "link", label: "Cancellation Policy", path: "/admin/food/pages-social-media/cancellation", icon: "X" },
+      { type: "link", label: "Legal Pages & About Us", path: "/admin/master/settings/legal", icon: "FileText" },
       { type: "link", label: "Help & Support Content", path: "/admin/food/pages-social-media/help-support", icon: "HelpCircle" },
     ],
   },

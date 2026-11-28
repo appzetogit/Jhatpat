@@ -134,13 +134,8 @@ const SectionCard = ({ title, children, subtitle }) => (
 
 
 const PAGE_TABS = [
-  { id: 'about_us', label: 'About Us' },
   { id: 'careers', label: 'Careers' },
   { id: 'newsroom', label: 'Newsroom' },
-  { id: 'terms_conditions', label: 'Terms & Conditions' },
-  { id: 'privacy_policy', label: 'Privacy Policy' },
-  { id: 'refund_policy', label: 'Refund Policy' },
-  { id: 'cancellation_policy', label: 'Cancellation Policy' },
 ];
 
 const EMPTY_PAGES = Object.fromEntries(PAGE_TABS.map((t) => [t.id, '']));
@@ -154,11 +149,11 @@ const unescapeHtml = (text) => (text ? text
   .replace(/&#x2F;/g, '/') : '');
 
 /*
- * About / Careers / Newsroom and the legal policies. These are read by the
+ * Careers and Newsroom text. These are read by the
  * apps and the public /taxi/* pages. The website home page is edited under
  * Taxi admin > Website.
  */
-const ContentPages = ({ defaultPage = 'about_us' }) => {
+const ContentPages = ({ defaultPage = 'careers' }) => {
   const [activePage, setActivePage] = useState(defaultPage);
   const [pages, setPages] = useState(EMPTY_PAGES);
   const [loading, setLoading] = useState(true);
@@ -205,8 +200,8 @@ const ContentPages = ({ defaultPage = 'about_us' }) => {
     <div className="min-h-screen bg-gray-50 p-6 lg:p-8 font-sans pb-24">
       <div className="max-w-5xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900">Content Pages</h1>
-          <p className="text-sm text-gray-500 mt-1">About, Careers, Newsroom and legal text shown in the apps and on the public pages.</p>
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900">Careers & Newsroom</h1>
+          <p className="text-sm text-gray-500 mt-1">Careers and Newsroom text. Terms, Privacy, Refund, Cancellation and About Us are written once in Master settings, Legal pages.</p>
         </div>
 
         <SectionCard title="Select a page" subtitle="Edit the text, or switch to HTML Code for full control.">

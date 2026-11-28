@@ -107,12 +107,8 @@ export const masterSidebarMenu = [
         label: "Pages & Social Media",
         icon: "FileText",
         subItems: [
-          { label: "Website Legal Pages", path: "/admin/master/settings/legal" },
-          { label: "App Terms (all apps)", path: "/admin/master/settings/appTerms" },
-          { label: "About Us", path: "/admin/food/pages-social-media/about" },
+          { label: "Legal Pages & About Us", path: "/admin/master/settings/legal" },
           { label: "Help & Support Content", path: "/admin/food/pages-social-media/help-support" },
-          { label: "Taxi · User Pages", path: "/taxi/admin/settings/cms/user" },
-          { label: "Taxi · Driver Pages", path: "/taxi/admin/settings/cms/driver" },
         ],
       },
       {
