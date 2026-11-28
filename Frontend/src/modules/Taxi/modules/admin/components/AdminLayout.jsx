@@ -878,17 +878,7 @@ const AdminLayout = () => {
           //   label: 'Addons',
           //   subItems: [{ label: 'Dispatcher Addons', path: '/taxi/admin/settings/addons/dispatcher' }],
           // },
-          {
-            icon: Monitor,
-            label: 'Content Pages',
-            permission: 'settings.view',
-            subItems: [
-              { label: 'About Us', path: '/taxi/admin/settings/cms/about', permission: 'settings.view' },
-              { label: 'Driver', path: '/taxi/admin/settings/cms/driver', permission: 'settings.view' },
-              { label: 'User', path: '/taxi/admin/settings/cms/user', permission: 'settings.view' },
-              { label: 'Privacy Policy, T&C and DMV', path: '/taxi/admin/settings/cms/legal', permission: 'settings.view' },
-            ],
-          },
+          { icon: Monitor, label: 'Content Pages', path: '/taxi/admin/settings/cms/about', permission: 'settings.view' },
         ],
       },
     ],

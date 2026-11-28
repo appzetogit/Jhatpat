@@ -998,8 +998,6 @@ function TaxiApp() {
               <Route path="safety/settings" element={<AdminSafetySettings />} />
 
               <Route path="settings/cms/about" element={<AdminLandingSettings defaultTab="pages" defaultPage="about_us" />} />
-              <Route path="settings/cms/driver" element={<AdminLandingSettings defaultTab="pages" defaultPage="about_us" />} />
-              <Route path="settings/cms/user" element={<AdminLandingSettings defaultTab="pages" defaultPage="about_us" />} />
               <Route path="settings/cms/legal" element={<AdminLandingSettings defaultTab="pages" defaultPage="terms_conditions" />} />
               <Route
                 path="support/ticket-title"
