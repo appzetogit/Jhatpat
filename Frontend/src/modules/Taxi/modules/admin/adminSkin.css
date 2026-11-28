@@ -89,3 +89,81 @@ html:not(.dark) .taxi-admin-skin .text-\[12px\] { font-size: 13px; }
 html:not(.dark) .taxi-admin-skin .text-\[13px\] { font-size: 14px; }
 html:not(.dark) .taxi-admin-skin .bg-\[\#F1F5F9\], html:not(.dark) .taxi-admin-skin .bg-\[\#f8fafc\], html:not(.dark) .taxi-admin-skin .bg-\[\#F8FAFC\] { background-color: #f5f5f5; }
 html:not(.dark) .taxi-admin-skin .tracking-widest { letter-spacing: 0.08em; }
+
+/* --- brand accents -> the Food admin's near-black --- */
+html:not(.dark) .taxi-admin-skin { --color-primary-orange: #171717; }
+html:not(.dark) .taxi-admin-skin .bg-\[\#0047ab\] { background-color: #171717 !important; }
+html:not(.dark) .taxi-admin-skin .bg-\[\#00bfa5\] { background-color: #171717 !important; }
+html:not(.dark) .taxi-admin-skin .bg-\[\#0f172a\] { background-color: #262626 !important; }
+html:not(.dark) .taxi-admin-skin .bg-\[\#10b981\] { background-color: #171717 !important; }
+html:not(.dark) .taxi-admin-skin .bg-\[\#14b8a6\] { background-color: #171717 !important; }
+html:not(.dark) .taxi-admin-skin .bg-\[\#17b8a6\] { background-color: #171717 !important; }
+html:not(.dark) .taxi-admin-skin .bg-\[\#1d4ed8\] { background-color: #171717 !important; }
+html:not(.dark) .taxi-admin-skin .bg-\[\#2563eb\] { background-color: #171717 !important; }
+html:not(.dark) .taxi-admin-skin .bg-\[\#2b3b93\] { background-color: #171717 !important; }
+html:not(.dark) .taxi-admin-skin .bg-\[\#2d3a6e\] { background-color: #171717 !important; }
+html:not(.dark) .taxi-admin-skin .bg-\[\#2e3c78\] { background-color: #171717 !important; }
+html:not(.dark) .taxi-admin-skin .bg-\[\#38467f\] { background-color: #171717 !important; }
+html:not(.dark) .taxi-admin-skin .bg-\[\#3b488c\] { background-color: #171717 !important; }
+html:not(.dark) .taxi-admin-skin .bg-\[\#3b82f6\] { background-color: #171717 !important; }
+html:not(.dark) .taxi-admin-skin .bg-\[\#405189\] { background-color: #171717 !important; }
+html:not(.dark) .taxi-admin-skin .bg-\[\#4054b2\] { background-color: #171717 !important; }
+html:not(.dark) .taxi-admin-skin .bg-\[\#4338ca\] { background-color: #171717 !important; }
+html:not(.dark) .taxi-admin-skin .bg-\[\#4b5eaa\] { background-color: #171717 !important; }
+html:not(.dark) .taxi-admin-skin .bg-\[\#4f46e5\] { background-color: #171717 !important; }
+html:not(.dark) .taxi-admin-skin .bg-\[\#e6f8f6\] { background-color: #f5f5f5 !important; }
+html:not(.dark) .taxi-admin-skin .bg-\[\#eef2ff\] { background-color: #f5f5f5 !important; }
+html:not(.dark) .taxi-admin-skin .bg-\[\#eef4ff\] { background-color: #f5f5f5 !important; }
+html:not(.dark) .taxi-admin-skin .bg-\[\#ef6c4d\] { background-color: #171717 !important; }
+html:not(.dark) .taxi-admin-skin .bg-\[\#f0fdfa\] { background-color: #f5f5f5 !important; }
+html:not(.dark) .taxi-admin-skin .bg-\[\#f1f5f9\] { background-color: #f5f5f5 !important; }
+html:not(.dark) .taxi-admin-skin .bg-\[\#f37048\] { background-color: #171717 !important; }
+html:not(.dark) .taxi-admin-skin .bg-\[\#f3f4f9\] { background-color: #f5f5f5 !important; }
+html:not(.dark) .taxi-admin-skin .bg-\[\#f46b45\] { background-color: #171717 !important; }
+html:not(.dark) .taxi-admin-skin .bg-\[\#f59e0b\] { background-color: #171717 !important; }
+html:not(.dark) .taxi-admin-skin .bg-\[\#f6f7fb\] { background-color: #f5f5f5 !important; }
+html:not(.dark) .taxi-admin-skin .bg-\[\#f8f9fd\] { background-color: #f5f5f5 !important; }
+html:not(.dark) .taxi-admin-skin .bg-\[\#f8fafc\] { background-color: #f5f5f5 !important; }
+html:not(.dark) .taxi-admin-skin .bg-\[\#f8fbff\] { background-color: #f5f5f5 !important; }
+html:not(.dark) .taxi-admin-skin .bg-\[\#f97316\] { background-color: #171717 !important; }
+html:not(.dark) .taxi-admin-skin .bg-\[\#fbfcff\] { background-color: #f5f5f5 !important; }
+html:not(.dark) .taxi-admin-skin .bg-\[\#fef2f2\] { background-color: #f5f5f5 !important; }
+html:not(.dark) .taxi-admin-skin .bg-\[\#fff1f1\] { background-color: #f5f5f5 !important; }
+html:not(.dark) .taxi-admin-skin .bg-\[\#fff7ed\] { background-color: #f5f5f5 !important; }
+html:not(.dark) .taxi-admin-skin .bg-\[\#fff8f0\] { background-color: #f5f5f5 !important; }
+html:not(.dark) .taxi-admin-skin .border-\[\#0047ab\] { border-color: #171717 !important; }
+html:not(.dark) .taxi-admin-skin .border-\[\#1d4ed8\] { border-color: #171717 !important; }
+html:not(.dark) .taxi-admin-skin .border-\[\#2b3b93\] { border-color: #171717 !important; }
+html:not(.dark) .taxi-admin-skin .border-\[\#3f51b5\] { border-color: #171717 !important; }
+html:not(.dark) .taxi-admin-skin .text-\[\#00a99d\] { color: #171717 !important; }
+html:not(.dark) .taxi-admin-skin .text-\[\#00bfa5\] { color: #171717 !important; }
+html:not(.dark) .taxi-admin-skin .text-\[\#14b8a6\] { color: #171717 !important; }
+html:not(.dark) .taxi-admin-skin .text-\[\#1e293b\] { color: #171717 !important; }
+html:not(.dark) .taxi-admin-skin .text-\[\#2b3b93\] { color: #171717 !important; }
+html:not(.dark) .taxi-admin-skin .text-\[\#2d3a6e\] { color: #171717 !important; }
+html:not(.dark) .taxi-admin-skin .text-\[\#4054b2\] { color: #171717 !important; }
+html:not(.dark) .taxi-admin-skin .text-\[\#ef4444\] { color: #171717 !important; }
+html:not(.dark) .taxi-admin-skin .text-\[\#f97316\] { color: #171717 !important; }
+html:not(.dark) .taxi-admin-skin .hover\:bg-\[\#00ac95\]:hover { background-color: #262626 !important; }
+html:not(.dark) .taxi-admin-skin .hover\:bg-\[\#1d2756\]:hover { background-color: #262626 !important; }
+html:not(.dark) .taxi-admin-skin .hover\:bg-\[\#1e40af\]:hover { background-color: #262626 !important; }
+html:not(.dark) .taxi-admin-skin .hover\:bg-\[\#24305f\]:hover { background-color: #262626 !important; }
+html:not(.dark) .taxi-admin-skin .hover\:bg-\[\#2d3866\]:hover { background-color: #262626 !important; }
+html:not(.dark) .taxi-admin-skin .hover\:bg-\[\#2d3870\]:hover { background-color: #262626 !important; }
+html:not(.dark) .taxi-admin-skin .hover\:bg-\[\#344475\]:hover { background-color: #262626 !important; }
+html:not(.dark) .taxi-admin-skin .hover\:bg-\[\#3730a3\]:hover { background-color: #262626 !important; }
+html:not(.dark) .taxi-admin-skin .hover\:bg-\[\#3f51b5\]:hover { background-color: #262626 !important; }
+html:not(.dark) .taxi-admin-skin .hover\:bg-\[\#d95b3d\]:hover { background-color: #262626 !important; }
+html:not(.dark) .taxi-admin-skin .hover\:bg-\[\#eb5e3d\]:hover { background-color: #262626 !important; }
+html:not(.dark) .taxi-admin-skin .hover\:bg-\[\#f55a37\]:hover { background-color: #262626 !important; }
+html:not(.dark) .taxi-admin-skin .hover\:text-\[\#008f85\]:hover { color: #171717 !important; }
+html:not(.dark) .taxi-admin-skin .hover\:text-\[\#4054b2\]:hover { color: #171717 !important; }
+html:not(.dark) .taxi-admin-skin .bg-blue-500 { background-color: #171717; }
+html:not(.dark) .taxi-admin-skin .hover\:bg-blue-500:hover { background-color: #262626; }
+html:not(.dark) .taxi-admin-skin .bg-blue-600 { background-color: #171717; }
+html:not(.dark) .taxi-admin-skin .hover\:bg-blue-600:hover { background-color: #262626; }
+html:not(.dark) .taxi-admin-skin .bg-blue-700 { background-color: #171717; }
+html:not(.dark) .taxi-admin-skin .hover\:bg-blue-700:hover { background-color: #262626; }
+html:not(.dark) .taxi-admin-skin h1, html:not(.dark) .taxi-admin-skin h2, html:not(.dark) .taxi-admin-skin h3 { text-transform: none; letter-spacing: normal; }
+html:not(.dark) .taxi-admin-skin .rounded-3xl, html:not(.dark) .taxi-admin-skin .rounded-\[2rem\], html:not(.dark) .taxi-admin-skin .rounded-\[2\.5rem\], html:not(.dark) .taxi-admin-skin .rounded-\[1\.5rem\] { border-radius: 1rem; }
+html:not(.dark) .taxi-admin-skin .shadow-2xl, html:not(.dark) .taxi-admin-skin .shadow-xl { --tw-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.06); box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow); }
