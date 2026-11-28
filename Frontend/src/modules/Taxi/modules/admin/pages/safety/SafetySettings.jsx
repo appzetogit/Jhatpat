@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Save, ShieldCheck, AlertTriangle, Clock, Phone, LoaderCircle } from 'lucide-react';
+import { Save, ShieldCheck, Phone, LoaderCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../../../../shared/api/axiosInstance';
 
@@ -115,61 +115,6 @@ const SafetySettings = () => {
               />
             </label>
 
-            <label className="flex cursor-pointer items-center justify-between rounded-xl border border-slate-100 p-4 transition-colors hover:bg-slate-50">
-              <div className="space-y-0.5">
-                <span className="font-bold text-slate-900 text-sm">Enable Ride Check</span>
-                <span className="block text-xs font-medium text-slate-500">Ask if the user is okay during long stops</span>
-              </div>
-              <input
-                type="checkbox"
-                name="enable_ride_check"
-                checked={settings.enable_ride_check}
-                onChange={handleChange}
-                className="h-5 w-5 rounded border-gray-300 text-primary focus:ring-primary"
-              />
-            </label>
-          </div>
-        </div>
-
-        <div className="rounded-[24px] border border-slate-100 bg-white p-6 shadow-sm">
-          <div className="mb-6 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 text-orange-600">
-              <AlertTriangle className="h-5 w-5" />
-            </div>
-            <div>
-              <h3 className="font-bold text-slate-900">Thresholds & Limits</h3>
-              <p className="text-xs font-medium text-slate-500">Configure parameters for safety checks</p>
-            </div>
-          </div>
-
-          <div className="space-y-5">
-            <div>
-              <label className="mb-2 flex items-center gap-2 text-sm font-bold text-slate-700">
-                <Clock className="h-4 w-4 text-slate-400" /> Ride Check Interval (Minutes)
-              </label>
-              <input
-                type="number"
-                name="popup_interval_minutes"
-                value={settings.popup_interval_minutes}
-                onChange={handleChange}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-semibold focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
-                placeholder="e.g. 15"
-              />
-            </div>
-
-            <div>
-              <label className="mb-2 flex items-center gap-2 text-sm font-bold text-slate-700">
-                <Clock className="h-4 w-4 text-slate-400" /> SOS Auto-Escalation (Minutes)
-              </label>
-              <input
-                type="number"
-                name="alert_timeout_minutes"
-                value={settings.alert_timeout_minutes}
-                onChange={handleChange}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-semibold focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
-                placeholder="e.g. 5"
-              />
-            </div>
           </div>
         </div>
 
@@ -179,24 +124,12 @@ const SafetySettings = () => {
               <Phone className="h-5 w-5" />
             </div>
             <div>
-              <h3 className="font-bold text-slate-900">Contacts & Helplines</h3>
-              <p className="text-xs font-medium text-slate-500">Emergency numbers and trusted contact limits</p>
+              <h3 className="font-bold text-slate-900">Trusted Contacts</h3>
+              <p className="text-xs font-medium text-slate-500">Trusted contact limit</p>
             </div>
           </div>
 
           <div className="grid gap-6 md:grid-cols-2">
-            <div>
-              <label className="mb-2 block text-sm font-bold text-slate-700">Central Emergency Helpline</label>
-              <input
-                type="text"
-                name="emergency_helpline"
-                value={settings.emergency_helpline}
-                onChange={handleChange}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-semibold focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
-                placeholder="e.g. 911 or 112"
-              />
-            </div>
-
             <div>
               <label className="mb-2 block text-sm font-bold text-slate-700">Max Trusted Contacts per User</label>
               <input
