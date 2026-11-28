@@ -77,19 +77,23 @@ const resolveDriverLoginOtpForPhone = (phone) => {
     };
   }
 
+  // Temporary, explicit request from the operator: when USE_DEFAULT_OTP is on,
+  // every driver gets the static code in every environment, including
+  // production -- revert by restoring the `process.env.NODE_ENV !== 'production'`
+  // guard around this branch once real OTP should resume.
+  if (defaultOtpEnabled && staticOtpConfig.otp) {
+    return {
+      otp: staticOtpConfig.otp,
+      isStatic: true,
+    };
+  }
+
   // Both shortcuts hand out a KNOWN code, so each is a sign-in bypass for
   // whoever knows it. The fallback test phone ('6268423925' / '0000') applied
   // on the live system whenever STATIC_OTP_PHONE was unset, which is the
   // default, and USE_DEFAULT_OTP gave every driver the static code. Production
   // always gets a random OTP now -- the same rule the customer flow follows.
   if (process.env.NODE_ENV !== 'production') {
-    if (defaultOtpEnabled && staticOtpConfig.otp) {
-      return {
-        otp: staticOtpConfig.otp,
-        isStatic: true,
-      };
-    }
-
     if (staticOtpConfig.phone && staticOtpConfig.otp && normalizedPhone === staticOtpConfig.phone) {
       return {
         otp: staticOtpConfig.otp,

@@ -231,14 +231,17 @@ export const createOrUpdateOtp = async (phone, scope = 'default', { service = OT
         .map(normalizeOtpPhone)
         .includes(normalizedPhone);
 
-    // useDefaultOtp is a dev-only SMS-delivery shortcut, not an environment switch --
-    // see the matching guard on the verify-side bypasses below. Without this gate,
-    // every phone in production got OTP "1234" and no SMS was ever sent (bug).
+    // Temporary, explicit request from the operator: everyone gets "1234" in
+    // every environment, including production, until turned back off. This
+    // intentionally widens useDefaultOtp beyond its usual non-production gate
+    // (see userOtpService.js / loginOtpService.js for the matching taxi-side
+    // change) -- revert by restoring the `config.nodeEnv !== 'production'`
+    // check once real OTP should resume.
     let otp;
     if (isWhitelistedPhone) {
         otp = '1234';
         logger.info(`Whitelisted OTP phone – OTP is ${otp} for phone ${normalizedPhone}`);
-    } else if (config.useDefaultOtp && config.nodeEnv !== 'production') {
+    } else if (config.useDefaultOtp) {
         otp = '1234';
         logger.info(`Default OTP mode enabled – OTP is ${otp} for phone ${normalizedPhone}`);
     } else {
@@ -288,7 +291,7 @@ export const createOrUpdateOtp = async (phone, scope = 'default', { service = OT
     }
 
     // Only send SMS if not in default OTP mode or whitelisted
-    if (!isWhitelistedPhone && !(config.useDefaultOtp && config.nodeEnv !== 'production')) {
+    if (!isWhitelistedPhone && !config.useDefaultOtp) {
         const delivery = await sendSmsViaIndiaHub(normalizedPhone, otp);
         // In production an undelivered code is a failed request, not a silent one.
         // Elsewhere the code is logged above, so local sign-in still works.
