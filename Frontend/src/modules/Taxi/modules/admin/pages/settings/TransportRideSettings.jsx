@@ -119,22 +119,6 @@ const TransportRideSettings = () => {
                  </div>
 
                  <InputField 
-                    label="Maximum Waiting Time For User to Accept/Reject Bidding Ride in Seconds" 
-                    name="maximum_time_for_accept_reject_bidding_ride" 
-                    value={settings.maximum_time_for_accept_reject_bidding_ride} 
-                    onChange={handleChange} 
-                    type="number" 
-                 />
-
-                 <InputField 
-                    label="Maximum Time For Accept/Reject drivers for Bidding Ride In Seconds" 
-                    name="maximum_time_for_find_drivers_for_bitting_ride" 
-                    value={settings.maximum_time_for_find_drivers_for_bitting_ride} 
-                    onChange={handleChange} 
-                    type="number" 
-                 />
-
-                 <InputField 
                     label="Maximum Time For Find Drivers For Regular Ride" 
                     name="maximum_time_for_find_drivers_for_regular_ride" 
                     value={settings.maximum_time_for_find_drivers_for_regular_ride} 
@@ -150,13 +134,6 @@ const TransportRideSettings = () => {
                     type="number" 
                  />
 
-                 <InputField 
-                    label="Bidding Ride Maximum Distance" 
-                    name="bidding_ride_maximum_distance" 
-                    value={settings.bidding_ride_maximum_distance} 
-                    onChange={handleChange} 
-                    type="number" 
-                 />
               </div>
 
               {/* Right Column */}
@@ -167,23 +144,6 @@ const TransportRideSettings = () => {
                     value={settings.driver_search_radius} 
                     onChange={handleChange} 
                     type="number" 
-                 />
-
-                 <InputField 
-                    label="User Can Schedule a Ride After X Minutes" 
-                    name="user_can_make_a_ride_after_x_miniutes" 
-                    value={settings.user_can_make_a_ride_after_x_miniutes} 
-                    onChange={handleChange} 
-                    type="number" 
-                 />
-
-                 <InputField 
-                    label="Minimum Time For Find drivers for Schedule Ride in Hours" 
-                    name="minimum_time_for_search_drivers_for_schedule_ride" 
-                    value={settings.minimum_time_for_search_drivers_for_schedule_ride} 
-                    onChange={handleChange} 
-                    type="number" 
-                    helpLink
                  />
 
                  <InputField 

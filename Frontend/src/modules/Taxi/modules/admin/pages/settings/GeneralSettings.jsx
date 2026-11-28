@@ -16,8 +16,6 @@ let liveFaviconObjectUrl = '';
 const DEFAULT_ADMIN_THEME_COLOR = '#405189';
 const DEFAULT_LANDING_THEME_COLOR = '#0AB39C';
 const DEFAULT_SIDEBAR_TEXT_COLOR = '#CBD5E1';
-const DEFAULT_DISPATCHER_SIDEBAR_COLOR = '#000000';
-const DEFAULT_DISPATCHER_TEXT_COLOR = '#000000';
 
 const normalizeHexColor = (value, fallback = '') => {
   const trimmed = String(value || '').trim();
@@ -291,14 +289,6 @@ const GeneralSettings = () => {
           settings.customization?.sidebar_text_color,
           DEFAULT_SIDEBAR_TEXT_COLOR
         ),
-        disp_sidebar_bg: normalizeHexColor(
-          settings.customization?.disp_sidebar_bg,
-          DEFAULT_DISPATCHER_SIDEBAR_COLOR
-        ),
-        disp_side_text: normalizeHexColor(
-          settings.customization?.disp_side_text,
-          DEFAULT_DISPATCHER_TEXT_COLOR
-        ),
       };
 
       await Promise.all([
@@ -375,12 +365,7 @@ const GeneralSettings = () => {
             <ColorField label="Landing Website Theme Color" name="landing_theme_color" value={settings.customization.landing_theme_color} onChange={(n, v) => handleChange('customization', n, v)} placeholder={DEFAULT_LANDING_THEME_COLOR} defaultValue={DEFAULT_LANDING_THEME_COLOR} />
             <ColorField label="Side Text Bar Color" name="sidebar_text_color" value={settings.customization.sidebar_text_color} onChange={(n, v) => handleChange('customization', n, v)} placeholder={DEFAULT_SIDEBAR_TEXT_COLOR} defaultValue={DEFAULT_SIDEBAR_TEXT_COLOR} />
             <InputField label="App Name" name="app_name" value={settings.general.app_name} onChange={(n, v) => handleChange('general', n, v)} placeholder={configuredAppName} />
-            <InputField label="Currency Code" name="default_currency_code_for_mobile_app" value={settings.customization.default_currency_code_for_mobile_app} onChange={(n, v) => handleChange('customization', n, v)} placeholder="INR" />
             <InputField label="Currency Symbol" name="currency_symbol" value={settings.customization.currency_symbol} onChange={(n, v) => handleChange('customization', n, v)} placeholder="₹" />
-            <InputField label="Contact Us Mobile 1" name="contact_phone_1" value={settings.general.contact_phone_1} onChange={(n, v) => handleChange('general', n, v)} placeholder="0000000000" />
-            <InputField label="Contact Us Mobile 2" name="contact_phone_2" value={settings.general.contact_phone_2} onChange={(n, v) => handleChange('general', n, v)} placeholder="0000000000" />
-            <InputField label="Default Latitude" name="default_lat" value={settings.general.default_lat} onChange={(n, v) => handleChange('general', n, v)} placeholder="11.21215" />
-            <InputField label="Default Longitude" name="default_lng" value={settings.general.default_lng} onChange={(n, v) => handleChange('general', n, v)} placeholder="78.54545" />
           </div>
         </SectionCard>
 
@@ -402,33 +387,6 @@ const GeneralSettings = () => {
         </SectionCard>
 
 
-
-        {/* Extra Metadata */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 pt-4">
-          <InputField label="Footer Content 1" name="footer_1" value={settings.general.footer_1} onChange={(n, v) => handleChange('general', n, v)} placeholder={`2026 © ${configuredAppName}.`} />
-          <InputField label="Footer Content 2" name="footer_2" value={settings.general.footer_2} onChange={(n, v) => handleChange('general', n, v)} placeholder={`Design & Develop by ${configuredAppName}`} />
-        </div>
-
-        {/* Landing Page Content Redirect */}
-        <SectionCard title="Landing Page Content">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-6 p-4 rounded-xl border border-indigo-100 bg-indigo-50/50">
-            <div>
-              <h4 className="text-sm font-bold text-gray-800">Manage Landing Page & Footer Pages</h4>
-              <p className="text-xs text-gray-500 mt-1">Terms, Privacy, Refund, Cancellation and About Us are edited in Master settings, Legal pages.</p>
-            </div>
-            <a href="/admin/master/settings/legal" className="shrink-0 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-lg text-sm font-bold shadow-sm transition-colors">
-              Open Legal Pages
-            </a>
-          </div>
-        </SectionCard>
-
-        {/* Operational Styling */}
-        <SectionCard title="Dispatcher Panel Section">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
-            <ColorField label="Side Bar Background Color" name="disp_sidebar_bg" value={settings.customization.disp_sidebar_bg} onChange={(n, v) => handleChange('customization', n, v)} placeholder={DEFAULT_DISPATCHER_SIDEBAR_COLOR} defaultValue={DEFAULT_DISPATCHER_SIDEBAR_COLOR} />
-            <ColorField label="Side Menu Text Color" name="disp_side_text" value={settings.customization.disp_side_text} onChange={(n, v) => handleChange('customization', n, v)} placeholder={DEFAULT_DISPATCHER_TEXT_COLOR} defaultValue={DEFAULT_DISPATCHER_TEXT_COLOR} />
-          </div>
-        </SectionCard>
 
       </div>
 

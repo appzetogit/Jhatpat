@@ -66,18 +66,13 @@ const CustomizationSettings = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [settings, setSettings] = useState({});
-  const [countries, setCountries] = useState([]);
 
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [settingsRes, countriesRes] = await Promise.all([
-        api.get('/admin/general-settings/customize'),
-        api.get('/admin/countries?active=1'),
-      ]);
+      const settingsRes = await api.get('/admin/general-settings/customize');
       
       setSettings(settingsRes.data?.settings || {});
-      setCountries(countriesRes.data?.results || []);
     } catch (err) {
       console.error('Fetch error:', err);
       toast.error('Failed to load system parameters');
@@ -239,108 +234,6 @@ const CustomizationSettings = () => {
         </div>
 
         <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden p-5">
-           <SectionHeader title="General Settings" />
-           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 mb-8">
-              <div className="md:col-span-1">
-                 <label className="text-[12px] font-bold text-slate-600 dark:text-slate-300 block mb-1.5 ml-0.5">Default Country Code</label>
-                 <select 
-                  value={settings.default_country_code || 'IN'} 
-                  onChange={(e) => handleChange('default_country_code', e.target.value)}
-                  className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg py-2 px-3 text-[13px] text-slate-700 dark:text-slate-200 focus:border-indigo-500 transition-all outline-none appearance-none"
-                 >
-                    {countries.length > 0 ? (
-                      countries.map(c => (
-                        <option key={c.code} value={c.code}>{c.name} ({c.code})</option>
-                      ))
-                    ) : (
-                      <option value="IN">India (IN)</option>
-                    )}
-                 </select>
-
-              </div>
-              <ToggleField label="Show WAZE Map Navigation on Driver App" name="enable_waze_navigation" value={settings.enable_waze_navigation} onChange={handleChange} />
-              <ToggleField label="Show Wallet Feature On Mobile App User" name="show_wallet_feature_on_mobile_app" value={settings.show_wallet_feature_on_mobile_app} onChange={handleChange} />
-              <ToggleField label="Show Wallet Feature On Mobile App Driver" name="show_wallet_feature_for_driver" value={settings.show_wallet_feature_for_driver} onChange={handleChange} />
-              <ToggleField label="Show Instant Ride Feature on Mobile App" name="show_instant_ride_feature_on_mobile_app" value={settings.show_instant_ride_feature_on_mobile_app} onChange={handleChange} />
-              <ToggleField label="Show Wallet Money Transfer Feature On Mobile App For User" name="enable_wallet_transfer_user" value={settings.enable_wallet_transfer_user} onChange={handleChange} />
-              <ToggleField label="Show Wallet Money Transfer Feature On Mobile App For Driver" name="enable_wallet_transfer_driver" value={settings.enable_wallet_transfer_driver} onChange={handleChange} />
-              <ToggleField label="Show Incentive Feature" name="show_incentive_feature_for_driver" value={settings.show_incentive_feature_for_driver} onChange={handleChange} />
-              <ToggleField label="Enable Driver Loyalty Feature" name="enable_driver_loyalty" value={settings.enable_driver_loyalty} onChange={handleChange} />
-              <ToggleField label="Enable Country Restrict on Map" name="enable_country_restrict_on_map" value={settings.enable_country_restrict_on_map} onChange={handleChange} />
-              <ToggleField label="Show Ride OTP Feature" name="show_ride_otp" value={settings.show_ride_otp} onChange={handleChange} />
-              <ToggleField label="Show Delivery Ride Otp On Loading Feature" name="enable_delivery_otp_load" value={settings.enable_delivery_otp_load} onChange={handleChange} />
-              <ToggleField label="Show Delivery Ride Otp On Unloading Feature" name="enable_delivery_otp_unload" value={settings.enable_delivery_otp_unload} onChange={handleChange} />
-              <ToggleField label="Show Ride Without Destination" name="show_ride_without_destination" value={settings.show_ride_without_destination} onChange={handleChange} />
-              <ToggleField label="Enable Web Booking Feature" name="enable_web_booking_feature" value={settings.enable_web_booking_feature} onChange={handleChange} />
-              <ToggleField label="Enable Sub Vehicle Feature" name="enable_sub_vehicle_feature" value={settings.enable_sub_vehicle_feature} onChange={handleChange} />
-              <ToggleField label="Enable Landing Website" name="enable_landing_site" value={settings.enable_landing_site} onChange={handleChange} />
-              <ToggleField label="Enable Additional Charges Feature" name="enable_additional_charge_feature" value={settings.enable_additional_charge_feature} onChange={handleChange} />
-              <ToggleField label="Enable Driver Disapprove When Updating Feature" name="enable_driver_disapprove_on_update" value={settings.enable_driver_disapprove_on_update} onChange={handleChange} />
-              <ToggleField label="Enable Support Ticket Feature" name="enable_support_ticket_feature" value={settings.enable_support_ticket_feature} onChange={handleChange} />
-              <ToggleField label="Enable Map Appearance Edit on Mobile App" name="enable_map_appearance_change_on_mobile_app" value={settings.enable_map_appearance_change_on_mobile_app} onChange={handleChange} />
-              <ToggleField label="Enable Multiple Ride Feature" name="enable_multiple_ride_feature" value={settings.enable_multiple_ride_feature} onChange={handleChange} />
-              <ToggleField label="Enable Maximum Distance Feature" name="enable_max_dist_feature" value={settings.enable_max_dist_feature} onChange={handleChange} />
-              <ToggleField label="Enable Fixed Fare" name="enable_fixed_fare" value={settings.enable_fixed_fare} onChange={handleChange} />
-           </div>
-
-           <SectionHeader title="Transport Ride Settings" />
-           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 mb-8">
-              <ToggleField label="Enable Shipment Load Feature" name="enable_shipment_load_feature" value={settings.enable_shipment_load_feature} onChange={handleChange} />
-              <ToggleField label="Enable Shipment Unload Feature" name="enable_shipment_unload_feature" value={settings.enable_shipment_unload_feature} onChange={handleChange} />
-              <ToggleField label="Enable Digital Signature" name="enable_digital_signature" value={settings.enable_digital_signature} onChange={handleChange} />
-              <ToggleField label="Set The ETA price (without Waiting Charge) on completion of ride" name="enable_eta_price_on_complete" value={settings.enable_eta_price_on_complete} onChange={handleChange} />
-           </div>
-
-           <SectionHeader title="Chain Ride settings" />
-           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 mb-8 items-start">
-              <ToggleField label="Enable Secondary Ride For Driver While On Trip" name="enable_secondary_ride" value={settings.enable_secondary_ride} onChange={handleChange} />
-              <InputField 
-                label="Maximum distance for Secondary Ride (KM)" 
-                name="max_dist_secondary_ride" 
-                value={settings.max_dist_secondary_ride || '2'} 
-                onChange={handleChange} 
-                type="number"
-                helpText="Numeric value only"
-              />
-           </div>
-
-           <SectionHeader title="My Route Booking Settings" />
-           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 mb-8 items-start">
-              <ToggleField label="Enable My Route Booking Feature" name="enable_my_route_booking_feature" value={settings.enable_my_route_booking_feature} onChange={handleChange} />
-              <InputField 
-                label="Daily Route Booking Limit" 
-                name="how_many_times_a_driver_can_enable_the_my_route_booking_per_day" 
-                value={settings.how_many_times_a_driver_can_enable_the_my_route_booking_per_day || '1'} 
-                onChange={handleChange} 
-                type="number"
-                helpText="Numeric value only"
-              />
-           </div>
-
-           <SectionHeader title="User Sign-in" />
-           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 mb-8">
-              <ToggleField label="Enable User Email Login" name="user_email_login" value={settings.user_email_login} onChange={handleChange} />
-              <div className="hidden md:block"></div>
-              <ToggleField label="Enable Email OTP" name="user_email_otp" value={settings.user_email_otp} onChange={handleChange} />
-              <ToggleField label="Enable Email Password" name="user_email_password" value={settings.user_email_password} onChange={handleChange} />
-              <ToggleField label="Enable User Mobile Login" name="user_mobile_login" value={settings.user_mobile_login} onChange={handleChange} />
-              <div className="hidden md:block"></div>
-              <ToggleField label="Enable Mobile OTP" name="user_mobile_otp" value={settings.user_mobile_otp} onChange={handleChange} />
-              <ToggleField label="Enable Mobile Password" name="user_mobile_password" value={settings.user_mobile_password} onChange={handleChange} />
-           </div>
-
-           <SectionHeader title="Driver Sign-in" />
-           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 mb-8">
-              <ToggleField label="Enable Driver Email Login" name="driver_email_login" value={settings.driver_email_login} onChange={handleChange} />
-              <div className="hidden md:block"></div>
-              <ToggleField label="Enable Email OTP" name="driver_email_otp" value={settings.driver_email_otp} onChange={handleChange} />
-              <ToggleField label="Enable Email Password" name="driver_email_password" value={settings.driver_email_password} onChange={handleChange} />
-              <ToggleField label="Enable Driver Mobile Login" name="driver_mobile_login" value={settings.driver_mobile_login} onChange={handleChange} />
-              <div className="hidden md:block"></div>
-              <ToggleField label="Enable Mobile OTP" name="driver_mobile_otp" value={settings.driver_mobile_otp} onChange={handleChange} />
-              <ToggleField label="Enable Mobile Password" name="driver_mobile_password" value={settings.driver_mobile_password} onChange={handleChange} />
-           </div>
-
            <div className="mt-8 flex justify-end pt-6 border-t border-slate-100 dark:border-slate-700/50">
               <button 
                 onClick={handleUpdate}

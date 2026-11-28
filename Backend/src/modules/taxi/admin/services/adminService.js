@@ -6461,13 +6461,7 @@ export const buildDriverDutyReport = async (query = {}) => {
     _id: 0,
     general: {
       app_name: '$general.app_name',
-      contact_phone_1: '$general.contact_phone_1',
-      contact_phone_2: '$general.contact_phone_2',
       contact_booking_number: '$general.contact_booking_number',
-      footer_1: '$general.footer_1',
-      footer_2: '$general.footer_2',
-      default_lat: '$general.default_lat',
-      default_lng: '$general.default_lng',
       logo: '$general.logo',
       favicon: '$general.favicon',
       brand_logo: '$general.brand_logo',
@@ -6494,7 +6488,6 @@ export const buildDriverDutyReport = async (query = {}) => {
     if (b.faviconUrl) general.favicon = b.faviconUrl;
     if (b.phone) general.contact_booking_number = `${b.phoneCountryCode || ''}${b.phone}`;
     if (b.currencySymbol) general.currency_symbol = b.currencySymbol;
-    if (b.currencyCode) general.default_currency_code_for_mobile_app = b.currencyCode;
     return general;
   };
 
