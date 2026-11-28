@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react'
 import { Menu, X } from 'lucide-react'
-import { Container, Cta } from '../shared'
+import { Container, Cta, useSite } from '../shared'
 
 export default function Header({ brand, nav = [], cta }) {
+  const { ok } = useSite()
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
+  const links = nav.filter((n) => n?.label && ok(n.href))
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 12)
+    const onScroll = () => setScrolled(window.scrollY > 8)
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
@@ -16,25 +18,26 @@ export default function Header({ brand, nav = [], cta }) {
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
-        scrolled || open ? 'bg-white/85 shadow-[0_1px_0_rgba(21,23,28,0.06)] backdrop-blur-xl' : 'bg-transparent'
+        scrolled || open ? 'border-b border-slate-200/80 bg-white/90 backdrop-blur-xl' : 'border-b border-transparent bg-transparent'
       }`}
     >
-      <Container className="flex h-[72px] items-center justify-between">
-        <a href="#top" className="flex items-center gap-2" aria-label={brand?.name}>
+      <Container className="flex h-[68px] items-center justify-between">
+        <a href="#top" className="flex items-center" aria-label={brand?.name}>
           {brand?.logo ? (
-            <img src={brand.logo} alt={brand?.name} className="h-14 w-14 object-contain mix-blend-multiply" />
+            <img src={brand.logo} alt={brand?.name} className="h-12 w-12 object-contain mix-blend-multiply" />
           ) : (
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FFB400] text-lg font-black text-[#15171C]">J</span>
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FFB400] text-lg font-bold text-slate-900">
+              {(brand?.name || 'J').charAt(0)}
+            </span>
           )}
-          {!brand?.logo && <span className="text-xl font-extrabold tracking-tight text-[#15171C]">{brand?.name}</span>}
         </a>
 
         <nav className="hidden items-center gap-1 lg:flex" aria-label="Primary">
-          {nav.map((item) => (
+          {links.map((item) => (
             <a
               key={item.label}
               href={item.href}
-              className="rounded-full px-4 py-2 text-[15px] font-semibold text-[#3A3F4B] transition-colors hover:bg-[#15171C]/5 hover:text-[#15171C]"
+              className="rounded-lg px-4 py-2 text-[15px] font-medium text-slate-600 transition-colors hover:bg-slate-900/5 hover:text-slate-900"
             >
               {item.label}
             </a>
@@ -42,13 +45,13 @@ export default function Header({ brand, nav = [], cta }) {
         </nav>
 
         <div className="hidden lg:block">
-          <Cta cta={cta} variant="primary" className="!px-5 !py-2.5 !text-sm" />
+          <Cta cta={cta} variant="primary" className="!h-10 !px-5 !text-sm" />
         </div>
 
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
-          className="flex h-11 w-11 items-center justify-center rounded-xl text-[#15171C] hover:bg-[#15171C]/5 lg:hidden"
+          className="flex h-11 w-11 items-center justify-center rounded-xl text-slate-900 hover:bg-slate-900/5 lg:hidden"
           aria-label={open ? 'Close menu' : 'Open menu'}
           aria-expanded={open}
         >
@@ -57,14 +60,14 @@ export default function Header({ brand, nav = [], cta }) {
       </Container>
 
       {open && (
-        <div className="border-t border-[#15171C]/5 bg-white lg:hidden">
-          <Container className="flex flex-col gap-1 py-4">
-            {nav.map((item) => (
+        <div className="border-t border-slate-200 bg-white lg:hidden">
+          <Container className="flex flex-col gap-1 py-3">
+            {links.map((item) => (
               <a
                 key={item.label}
                 href={item.href}
                 onClick={() => setOpen(false)}
-                className="rounded-xl px-4 py-3 text-base font-semibold text-[#15171C] hover:bg-[#FFF7DB]"
+                className="rounded-lg px-3 py-3 text-base font-medium text-slate-900 hover:bg-slate-50"
               >
                 {item.label}
               </a>

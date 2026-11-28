@@ -13,7 +13,7 @@ export const WEBSITE_DEFAULTS = {
     features: true,
     app: true,
     partner: true,
-    testimonials: true,
+    testimonials: false,
     faq: true,
     contact: true,
   },
@@ -30,7 +30,7 @@ export const WEBSITE_DEFAULTS = {
     { label: 'Partner with us', href: '#partner' },
     { label: 'FAQs', href: '#faq' },
   ],
-  navCta: { label: 'Get the app', href: '#app' },
+  navCta: { label: 'Explore services', href: '#services' },
 
   hero: {
     eyebrow: 'One app for everything you need',
@@ -38,13 +38,13 @@ export const WEBSITE_DEFAULTS = {
     highlight: 'delivered Jhatpat.',
     subtitle:
       'Book a taxi in seconds, order from the restaurants you love, or send a parcel across the city. Verified captains, live tracking and honest prices.',
-    primaryCta: { label: 'Book a ride', href: '#app' },
-    secondaryCta: { label: 'See how it works', href: '#how' },
-    image: '/site/hero.png',
+    primaryCta: { label: 'Explore services', href: '#services' },
+    secondaryCta: { label: 'How it works', href: '#how' },
+    image: '',
     stats: [
-      { value: '1 Lakh+', label: 'Verified captains' },
-      { value: '60 sec', label: 'Average pickup match' },
-      { value: '24 x 7', label: 'Support & safety' },
+      { value: '3 in 1', label: 'Rides, food and parcels' },
+      { value: 'Live', label: 'Tracking on every trip' },
+      { value: '24 x 7', label: 'Support and safety' },
     ],
     chips: ['Taxi', 'Food Delivery', 'Parcel & Courier', 'Cargo'],
   },
@@ -69,8 +69,8 @@ export const WEBSITE_DEFAULTS = {
         title: 'Taxi & Rides',
         text: 'Auto, bike, mini and sedan rides with upfront fares and live tracking from pickup to drop.',
         points: ['Instant captain matching', 'Safe rides with SOS', 'Cash, UPI & wallet'],
-        image: '/site/service-ride.jpg',
-        cta: { label: 'Book a ride', href: '#app' },
+        image: '',
+        cta: { label: '', href: '' },
         accent: 'yellow',
       },
       {
@@ -78,8 +78,8 @@ export const WEBSITE_DEFAULTS = {
         title: 'Food Delivery',
         text: 'Hot food from local restaurants, delivered fast by riders who know your neighbourhood.',
         points: ['Hundreds of restaurants', 'Live order tracking', 'Offers & coupons'],
-        image: '/site/service-food.jpg',
-        cta: { label: 'Order food', href: '#app' },
+        image: '',
+        cta: { label: '', href: '' },
         accent: 'red',
       },
       {
@@ -87,8 +87,8 @@ export const WEBSITE_DEFAULTS = {
         title: 'Parcel & Courier',
         text: 'Send documents and parcels across the city the same day, with proof of delivery.',
         points: ['Same-day delivery', 'Photo proof & OTP', 'Pickup from your door'],
-        image: '/site/service-parcel.jpg',
-        cta: { label: 'Send a parcel', href: '#app' },
+        image: '',
+        cta: { label: '', href: '' },
         accent: 'blue',
       },
     ],
@@ -102,7 +102,6 @@ export const WEBSITE_DEFAULTS = {
       { title: 'Confirm and track', text: 'See your fare, get matched with a captain and follow every move live.' },
       { title: 'Pay and rate', text: 'Pay with cash, UPI or wallet, then rate your experience.' },
     ],
-    image: '/site/why.jpg',
   },
 
   features: {
@@ -122,7 +121,7 @@ export const WEBSITE_DEFAULTS = {
     eyebrow: 'Get the app',
     title: 'Everything in your pocket',
     subtitle: 'Download Jhatpat and get your first ride, meal or delivery in minutes.',
-    image: '/site/app.png',
+    image: '',
     playStoreUrl: '',
     appStoreUrl: '',
     points: ['Free to download', 'Works on Android and iOS', 'One login for every service'],
@@ -133,7 +132,7 @@ export const WEBSITE_DEFAULTS = {
     title: 'Earn on your own schedule',
     subtitle:
       'Drive a taxi, deliver food or run parcels. Keep more of what you earn with simple commissions and weekly payouts.',
-    image: '/site/partner.jpg',
+    image: '',
     points: ['Low commission, fast payouts', 'Work when you want', 'Free onboarding and support'],
     cta: { label: 'Become a captain', href: '#contact' },
   },
@@ -141,11 +140,7 @@ export const WEBSITE_DEFAULTS = {
   testimonials: {
     eyebrow: 'Loved by riders and captains',
     title: 'What people say',
-    items: [
-      { name: 'Aarav Mehta', role: 'Daily commuter', text: 'The pickup is quick and the fare matches what the app showed. I stopped haggling with autos.' },
-      { name: 'Sneha Kapoor', role: 'Food lover', text: 'Food arrives hot and I can see the rider on the map the whole way. Support actually replies.' },
-      { name: 'Ramesh Yadav', role: 'Captain partner', text: 'Payouts are on time and the commission is fair. I decide my own hours.' },
-    ],
+    items: [],
   },
 
   faq: {

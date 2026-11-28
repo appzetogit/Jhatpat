@@ -1,46 +1,47 @@
 import { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ChevronDown, Clock, Mail, MapPin, Phone } from 'lucide-react'
-import { Container, Reveal, SectionHead, isInternal } from '../shared'
+import { Clock, Facebook, Instagram, Linkedin, Mail, MapPin, Minus, Phone, Plus, Twitter, Youtube } from 'lucide-react'
+import { Container, HEADING, Reveal, SectionHead } from '../shared'
 
 export function Faq({ data }) {
   const [open, setOpen] = useState(0)
   if (!data?.items?.length) return null
   return (
-    <section id="faq" className="bg-[#F7F8FA] py-20 sm:py-28">
-      <Container className="max-w-[860px]">
-        <SectionHead eyebrow={data.eyebrow} title={data.title} />
-        <div className="mt-12 space-y-3">
+    <section id="faq" className="scroll-mt-20 bg-slate-50 py-20 sm:py-28">
+      <Container className="grid gap-12 lg:grid-cols-[0.8fr_1.4fr] lg:gap-16">
+        <div className="lg:sticky lg:top-28 lg:self-start">
+          <SectionHead eyebrow={data.eyebrow} title={data.title} subtitle={data.subtitle} center={false} />
+        </div>
+        <div className="divide-y divide-slate-200 rounded-3xl border border-slate-200 bg-white px-6 sm:px-8">
           {data.items.map((item, i) => {
             const isOpen = open === i
             return (
-              <Reveal key={item.question} delay={i * 0.05}>
-                <div className={`overflow-hidden rounded-2xl bg-white ring-1 transition-shadow ${isOpen ? 'shadow-[0_20px_40px_-24px_rgba(21,23,28,0.3)] ring-[#FFB400]/60' : 'ring-[#15171C]/8'}`}>
-                  <button
-                    type="button"
-                    onClick={() => setOpen(isOpen ? -1 : i)}
-                    aria-expanded={isOpen}
-                    className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left"
-                  >
-                    <span className="text-base font-extrabold text-[#15171C] sm:text-lg">{item.question}</span>
-                    <motion.span animate={{ rotate: isOpen ? 180 : 0 }} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#FFF3C4]">
-                      <ChevronDown className="h-5 w-5 text-[#15171C]" />
-                    </motion.span>
-                  </button>
-                  <AnimatePresence initial={false}>
-                    {isOpen && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.28 }}
-                      >
-                        <p className="px-6 pb-6 text-[15px] leading-relaxed text-[#5B6070]">{item.answer}</p>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              </Reveal>
+              <div key={`${item.question}-${i}`}>
+                <button
+                  type="button"
+                  onClick={() => setOpen(isOpen ? -1 : i)}
+                  aria-expanded={isOpen}
+                  className="flex w-full items-center justify-between gap-6 py-5 text-left"
+                >
+                  <span className={`${HEADING} text-[1.05rem] font-semibold text-slate-900`}>{item.question}</span>
+                  <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border transition-colors ${isOpen ? 'border-[#FFB400] bg-[#FFB400]' : 'border-slate-300 bg-white'}`}>
+                    {isOpen ? <Minus className="h-4 w-4 text-slate-900" /> : <Plus className="h-4 w-4 text-slate-600" />}
+                  </span>
+                </button>
+                <AnimatePresence initial={false}>
+                  {isOpen && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.25 }}
+                      className="overflow-hidden"
+                    >
+                      <p className="pb-6 pr-12 text-[15px] leading-7 text-slate-600">{item.answer}</p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             )
           })}
         </div>
@@ -52,96 +53,92 @@ export function Faq({ data }) {
 const Row = ({ icon: I, label, value, href }) => {
   if (!value) return null
   const body = (
-    <div className="flex items-start gap-4 rounded-2xl bg-white/5 p-5 ring-1 ring-white/10 transition-colors hover:bg-white/10">
-      <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#FFB400]">
-        <I className="h-5 w-5 text-[#15171C]" />
+    <div className="flex h-full items-start gap-4 rounded-2xl border border-slate-200 bg-white p-5 transition-all hover:border-slate-300 hover:shadow-[0_16px_32px_-20px_rgba(15,23,42,0.3)]">
+      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-100">
+        <I className="h-5 w-5 text-amber-700" />
       </span>
-      <span>
-        <span className="block text-xs font-bold uppercase tracking-wider text-white/50">{label}</span>
-        <span className="mt-1 block text-base font-bold text-white">{value}</span>
+      <span className="min-w-0">
+        <span className="block text-[13px] font-medium text-slate-500">{label}</span>
+        <span className="mt-0.5 block break-words text-[15px] font-semibold text-slate-900">{value}</span>
       </span>
     </div>
   )
-  return href ? <a href={href}>{body}</a> : body
+  return href ? <a href={href} className="block">{body}</a> : body
 }
 
 export function Contact({ data }) {
   if (!data) return null
   const tel = data.phone ? `tel:${data.phone.replace(/[^\d+]/g, '')}` : undefined
   return (
-    <section id="contact" className="bg-[#15171C] py-20 sm:py-28">
-      <Container className="grid gap-12 lg:grid-cols-[1fr_1.1fr] lg:items-center">
-        <SectionHead eyebrow={data.eyebrow} title={data.title} subtitle={data.subtitle} center={false} dark />
-        <Reveal>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Row icon={Phone} label="Call us" value={data.phone} href={tel} />
-            <Row icon={Mail} label="Email" value={data.email} href={data.email ? `mailto:${data.email}` : undefined} />
-            <Row icon={MapPin} label="Address" value={data.address} />
-            <Row icon={Clock} label="Support hours" value={data.hours} />
-          </div>
+    <section id="contact" className="scroll-mt-20 bg-white py-20 sm:py-28">
+      <Container>
+        <SectionHead eyebrow={data.eyebrow} title={data.title} subtitle={data.subtitle} />
+        <Reveal className="mx-auto mt-12 grid max-w-4xl gap-4 sm:grid-cols-2">
+          <Row icon={Phone} label="Call us" value={data.phone} href={tel} />
+          <Row icon={Mail} label="Email us" value={data.email} href={data.email ? `mailto:${data.email}` : undefined} />
+          <Row icon={MapPin} label="Address" value={data.address} />
+          <Row icon={Clock} label="Support hours" value={data.hours} />
         </Reveal>
       </Container>
     </section>
   )
 }
 
-export function Footer({ brand, footer, social, contact }) {
+const SOCIAL_ICONS = { facebook: Facebook, instagram: Instagram, twitter: Twitter, linkedin: Linkedin, youtube: Youtube }
+
+export function Footer({ brand, footer, social, contact, canGo }) {
   const socials = Object.entries(social || {}).filter(([, url]) => url)
-  const links = footer?.links || []
+  const links = (footer?.links || []).filter((l) => l?.label && (!canGo || canGo(l.href)))
+  const half = Math.ceil(links.length / 2)
   return (
-    <footer className="bg-[#0E1014] text-white">
+    <footer className="bg-slate-950 text-white">
       <Container className="py-14">
-        <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr]">
+        <div className="grid gap-10 md:grid-cols-[1.5fr_1fr_1fr]">
           <div>
-            <div className="flex items-center gap-2.5">
-              {brand?.logo ? (
-                <img src={brand.logo} alt={brand?.name} className="h-16 w-16 rounded-2xl bg-white object-contain p-1" />
-              ) : (
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FFB400] text-lg font-black text-[#15171C]">J</span>
-              )}
-              {!brand?.logo && <span className="text-xl font-extrabold">{brand?.name}</span>}
-            </div>
-            <p className="mt-4 max-w-sm text-sm leading-relaxed text-white/60">{footer?.about}</p>
+            {brand?.logo ? (
+              <img src={brand.logo} alt={brand?.name} className="h-16 w-16 rounded-2xl bg-white object-contain p-1" />
+            ) : (
+              <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#FFB400] text-xl font-bold text-slate-900">
+                {(brand?.name || 'J').charAt(0)}
+              </span>
+            )}
+            <p className="mt-5 max-w-sm text-sm leading-7 text-slate-400">{footer?.about}</p>
             {socials.length > 0 && (
-              <div className="mt-5 flex flex-wrap gap-2">
-                {socials.map(([name, url]) => (
-                  <a
-                    key={name}
-                    href={url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="rounded-full bg-white/8 px-3.5 py-1.5 text-xs font-bold capitalize text-white/80 transition-colors hover:bg-[#FFB400] hover:text-[#15171C]"
-                  >
-                    {name}
-                  </a>
-                ))}
+              <div className="mt-6 flex flex-wrap gap-2">
+                {socials.map(([name, url]) => {
+                  const I = SOCIAL_ICONS[name]
+                  return (
+                    <a
+                      key={name}
+                      href={url}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label={name}
+                      className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-[#FFB400] hover:text-slate-900"
+                    >
+                      {I ? <I className="h-[18px] w-[18px]" /> : <span className="text-xs font-semibold capitalize">{name.charAt(0)}</span>}
+                    </a>
+                  )
+                })}
               </div>
             )}
           </div>
-          <div>
-            <h4 className="text-sm font-bold uppercase tracking-wider text-white/50">Company</h4>
-            <ul className="mt-4 space-y-2.5">
-              {links.slice(0, Math.ceil(links.length / 2)).map((l) => (
-                <li key={l.label}>
-                  <a href={l.href} className="text-sm font-medium text-white/80 hover:text-[#FFB400]">{l.label}</a>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <h4 className="text-sm font-bold uppercase tracking-wider text-white/50">Legal & help</h4>
-            <ul className="mt-4 space-y-2.5">
-              {links.slice(Math.ceil(links.length / 2)).map((l) => (
-                <li key={l.label}>
-                  <a href={l.href} className="text-sm font-medium text-white/80 hover:text-[#FFB400]">{l.label}</a>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {[links.slice(0, half), links.slice(half)].map((col, idx) => col.length > 0 && (
+            <div key={idx}>
+              <h4 className="text-[13px] font-semibold uppercase tracking-[0.12em] text-slate-500">{idx === 0 ? 'Company' : 'Legal & help'}</h4>
+              <ul className="mt-4 space-y-3">
+                {col.map((l) => (
+                  <li key={l.label}>
+                    <a href={l.href} className="text-sm font-medium text-slate-300 transition-colors hover:text-[#FFB400]">{l.label}</a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
-        <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-6 text-xs text-white/45 sm:flex-row">
+        <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-6 text-[13px] text-slate-500 sm:flex-row">
           <p>© {new Date().getFullYear()} {footer?.copyright}</p>
-          {contact?.email && <p>{contact.email}</p>}
+          {contact?.email && <a href={`mailto:${contact.email}`} className="hover:text-slate-300">{contact.email}</a>}
         </div>
       </Container>
     </footer>

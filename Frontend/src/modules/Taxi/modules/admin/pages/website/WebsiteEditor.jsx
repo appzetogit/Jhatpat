@@ -153,7 +153,7 @@ export default function WebsiteEditor() {
           <Text label="Subtitle" multiline {...bind('hero.subtitle')} />
           <CtaFields label="Main button" value={content.hero.primaryCta} onChange={(v) => set('hero.primaryCta', v)} />
           <CtaFields label="Second button" value={content.hero.secondaryCta} onChange={(v) => set('hero.secondaryCta', v)} />
-          <ImageField label="Hero image" hint="A wide illustration or app screenshot with a transparent background works best." {...bind('hero.image')} />
+          <ImageField label="Hero image (optional)" hint="Leave empty to show the built-in app preview. Use a tall app screenshot or transparent PNG if you upload one." {...bind('hero.image')} />
         </Card>
         <Card title="Service chips">
           <StringList label="Chips" items={content.hero.chips} onChange={(v) => set('hero.chips', v)} addLabel="Add chip" />
@@ -217,7 +217,7 @@ export default function WebsiteEditor() {
               </div>
               <Text label="Description" multiline rows={2} value={it.text} onChange={(v) => up({ text: v })} />
               <StringList label="Bullet points" items={it.points || []} onChange={(v) => up({ points: v })} />
-              <ImageField label="Image" value={it.image} onChange={(v) => up({ image: v })} />
+              <ImageField label="Image (optional)" hint="Leave empty to show the coloured icon header. A 4:3 photo works best." value={it.image} onChange={(v) => up({ image: v })} />
               <CtaFields label="Button" value={it.cta} onChange={(v) => up({ cta: v })} />
             </>
           )}
@@ -229,7 +229,6 @@ export default function WebsiteEditor() {
       <Card title="How it works">
         <Text label="Small label" {...bind('how.eyebrow')} />
         <Text label="Heading" {...bind('how.title')} />
-        <ImageField label="Side image" {...bind('how.image')} />
         <ListEditor
           label="Steps"
           items={content.how.steps}
@@ -272,11 +271,11 @@ export default function WebsiteEditor() {
     ),
 
     app: (
-      <Card title="App download" hint="Leave both store links empty to show “Apps launching soon”.">
+      <Card title="App download" hint="This whole section is hidden until you add a Google Play or App Store link.">
         <Text label="Small label" {...bind('app.eyebrow')} />
         <Text label="Heading" {...bind('app.title')} />
         <Text label="Subheading" multiline rows={2} {...bind('app.subtitle')} />
-        <ImageField label="Phone image" {...bind('app.image')} />
+        <ImageField label="Phone image (optional)" hint="Leave empty to show the built-in app preview." {...bind('app.image')} />
         <div className="grid gap-3 sm:grid-cols-2">
           <Text label="Google Play link" placeholder="https://play.google.com/…" {...bind('app.playStoreUrl')} />
           <Text label="App Store link" placeholder="https://apps.apple.com/…" {...bind('app.appStoreUrl')} />
@@ -290,14 +289,14 @@ export default function WebsiteEditor() {
         <Text label="Small label" {...bind('partner.eyebrow')} />
         <Text label="Heading" {...bind('partner.title')} />
         <Text label="Subheading" multiline rows={2} {...bind('partner.subtitle')} />
-        <ImageField label="Image" {...bind('partner.image')} />
+        <ImageField label="Image (optional)" hint="Leave empty to show the benefit cards." {...bind('partner.image')} />
         <StringList label="Points" items={content.partner.points} onChange={(v) => set('partner.points', v)} />
         <CtaFields label="Button" value={content.partner.cta} onChange={(v) => set('partner.cta', v)} />
       </Card>
     ),
 
     testimonials: (
-      <Card title="Testimonials">
+      <Card title="Testimonials" hint="Off by default. Add real customer or captain quotes here, then switch the section on under General.">
         <Text label="Small label" {...bind('testimonials.eyebrow')} />
         <Text label="Heading" {...bind('testimonials.title')} />
         <ListEditor
