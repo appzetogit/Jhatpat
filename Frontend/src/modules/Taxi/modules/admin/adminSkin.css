@@ -1,0 +1,91 @@
+/* Taxi admin skin: makes every Taxi admin page read like the Food admin (Poppins,
+ neutral greys, near-black primary, white cards on a light-grey canvas).
+ Done by re-pointing Tailwind's colour variables inside this wrapper, so no page
+ markup or behaviour changes. Light mode only; dark mode is left as it was. */
+html:not(.dark) .taxi-admin-skin {
+  font-family: var(--font-poppins), system-ui, sans-serif;
+  --color-gray-50: var(--color-neutral-100);
+  --color-gray-100: var(--color-neutral-100);
+  --color-gray-200: var(--color-neutral-200);
+  --color-gray-300: var(--color-neutral-300);
+  --color-gray-400: var(--color-neutral-400);
+  --color-gray-500: var(--color-neutral-500);
+  --color-gray-600: var(--color-neutral-600);
+  --color-gray-700: var(--color-neutral-700);
+  --color-gray-800: var(--color-neutral-800);
+  --color-gray-900: var(--color-neutral-900);
+  --color-gray-950: var(--color-neutral-950);
+  --color-slate-50: var(--color-neutral-100);
+  --color-slate-100: var(--color-neutral-100);
+  --color-slate-200: var(--color-neutral-200);
+  --color-slate-300: var(--color-neutral-300);
+  --color-slate-400: var(--color-neutral-400);
+  --color-slate-500: var(--color-neutral-500);
+  --color-slate-600: var(--color-neutral-600);
+  --color-slate-700: var(--color-neutral-700);
+  --color-slate-800: var(--color-neutral-800);
+  --color-slate-900: var(--color-neutral-900);
+  --color-slate-950: var(--color-neutral-950);
+  --color-zinc-50: var(--color-neutral-100);
+  --color-zinc-100: var(--color-neutral-100);
+  --color-zinc-200: var(--color-neutral-200);
+  --color-zinc-300: var(--color-neutral-300);
+  --color-zinc-400: var(--color-neutral-400);
+  --color-zinc-500: var(--color-neutral-500);
+  --color-zinc-600: var(--color-neutral-600);
+  --color-zinc-700: var(--color-neutral-700);
+  --color-zinc-800: var(--color-neutral-800);
+  --color-zinc-900: var(--color-neutral-900);
+  --color-zinc-950: var(--color-neutral-950);
+  --color-stone-50: var(--color-neutral-100);
+  --color-stone-100: var(--color-neutral-100);
+  --color-stone-200: var(--color-neutral-200);
+  --color-stone-300: var(--color-neutral-300);
+  --color-stone-400: var(--color-neutral-400);
+  --color-stone-500: var(--color-neutral-500);
+  --color-stone-600: var(--color-neutral-600);
+  --color-stone-700: var(--color-neutral-700);
+  --color-stone-800: var(--color-neutral-800);
+  --color-stone-900: var(--color-neutral-900);
+  --color-stone-950: var(--color-neutral-950);
+  --color-indigo-50: var(--color-neutral-100);
+  --color-indigo-100: var(--color-neutral-200);
+  --color-indigo-200: var(--color-neutral-300);
+  --color-indigo-300: var(--color-neutral-400);
+  --color-indigo-400: var(--color-neutral-500);
+  --color-indigo-500: var(--color-neutral-700);
+  --color-indigo-600: var(--color-neutral-900);
+  --color-indigo-700: var(--color-neutral-800);
+  --color-indigo-800: var(--color-neutral-800);
+  --color-indigo-900: var(--color-neutral-900);
+  --color-indigo-950: var(--color-neutral-950);
+  --color-violet-50: var(--color-neutral-100);
+  --color-violet-100: var(--color-neutral-200);
+  --color-violet-200: var(--color-neutral-300);
+  --color-violet-300: var(--color-neutral-400);
+  --color-violet-400: var(--color-neutral-500);
+  --color-violet-500: var(--color-neutral-700);
+  --color-violet-600: var(--color-neutral-900);
+  --color-violet-700: var(--color-neutral-800);
+  --color-violet-800: var(--color-neutral-800);
+  --color-violet-900: var(--color-neutral-900);
+  --color-violet-950: var(--color-neutral-950);
+  --color-purple-50: var(--color-neutral-100);
+  --color-purple-100: var(--color-neutral-200);
+  --color-purple-200: var(--color-neutral-300);
+  --color-purple-300: var(--color-neutral-400);
+  --color-purple-400: var(--color-neutral-500);
+  --color-purple-500: var(--color-neutral-700);
+  --color-purple-600: var(--color-neutral-900);
+  --color-purple-700: var(--color-neutral-800);
+  --color-purple-800: var(--color-neutral-800);
+  --color-purple-900: var(--color-neutral-900);
+  --color-purple-950: var(--color-neutral-950);
+}
+html:not(.dark) .taxi-admin-skin .font-black, html:not(.dark) .taxi-admin-skin .font-extrabold { font-weight: 700; }
+html:not(.dark) .taxi-admin-skin .text-\[10px\] { font-size: 11px; }
+html:not(.dark) .taxi-admin-skin .text-\[11px\] { font-size: 12px; }
+html:not(.dark) .taxi-admin-skin .text-\[12px\] { font-size: 13px; }
+html:not(.dark) .taxi-admin-skin .text-\[13px\] { font-size: 14px; }
+html:not(.dark) .taxi-admin-skin .bg-\[\#F1F5F9\], html:not(.dark) .taxi-admin-skin .bg-\[\#f8fafc\], html:not(.dark) .taxi-admin-skin .bg-\[\#F8FAFC\] { background-color: #f5f5f5; }
+html:not(.dark) .taxi-admin-skin .tracking-widest { letter-spacing: 0.08em; }

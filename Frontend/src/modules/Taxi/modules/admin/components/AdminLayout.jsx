@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import '../adminSkin.css';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { socketService } from '../../../shared/api/socket';
 import { useSettings } from '../../../shared/context/SettingsContext';
@@ -1151,7 +1152,7 @@ const AdminLayout = () => {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-neutral-200 dark:bg-slate-950 font-sans text-gray-900 dark:text-gray-100">
+    <div className="taxi-admin-skin flex h-screen overflow-hidden bg-neutral-200 dark:bg-slate-950 text-gray-900 dark:text-gray-100">
       <aside
         // Sidebar palette, shared with the Food admin rail (see Food's
         // AdminSidebar.jsx, which defines the same tokens) so the two panels read as
