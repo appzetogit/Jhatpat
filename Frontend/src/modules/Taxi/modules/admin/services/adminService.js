@@ -270,6 +270,9 @@ export const adminService = {
   updateOnboardingScreen: (id, payload) => api.patch(`/on-boarding/${id}`, payload),
   deleteOnboardingScreen: (id) => api.delete(`/on-boarding/${id}`),
 
+  getWebsite: () => api.get('/admin/website'),
+  saveWebsite: (data) => api.put('/admin/website', data),
+  resetWebsite: () => api.post('/admin/website/reset'),
   getLandingPageSettings: () => api.get('/admin/landing-page/settings'),
   updateLandingPageSettings: (data) => api.patch('/admin/landing-page/settings', data),
 };

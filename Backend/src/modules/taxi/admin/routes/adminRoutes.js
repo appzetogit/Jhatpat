@@ -32,6 +32,9 @@ import {
   deletePaymentMethod,
   deleteSetPrice,
   getSurgeSlots,
+  getWebsite,
+  saveWebsite,
+  resetWebsite,
   createSurgeSlot,
   updateSurgeSlot,
   deleteSurgeSlot,
@@ -337,6 +340,9 @@ adminRouter.get('/admin/integration-settings/mail', getMailSettings);
 adminRouter.patch('/admin/integration-settings/mail', updateMailSettings);
 
 adminRouter.patch('/admin/general-settings/:category', updateGeneralSettingsCategory);
+adminRouter.get('/admin/website', getWebsite);
+adminRouter.put('/admin/website', saveWebsite);
+adminRouter.post('/admin/website/reset', resetWebsite);
 adminRouter.get('/admin/landing-page/settings', authenticate(['admin']), getLandingPageSettings);
 adminRouter.patch('/admin/landing-page/settings', authenticate(['admin']), updateLandingPageSettings);
 

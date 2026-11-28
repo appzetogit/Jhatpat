@@ -335,7 +335,7 @@ const TAXI_ADMIN_RULES = [
   rule(/^\/admin\/(promotions|promo|coupons|banners)(\/|$)/, 'promotions'),
   rule(/^\/admin\/(landing-page|languages)(\/|$)/, 'cms'),
   rule(/^\/admin\/payment-methods(\/|$)/, 'fee_settings'),
-  rule(/^\/admin\/(integration-settings|common|general-settings|notification-channels)(\/|$)/, 'settings'),
+  rule(/^\/admin\/(integration-settings|common|general-settings|notification-channels|website)(\/|$)/, 'settings'),
   rule(/^\/on-boarding(\/|$)/, 'cms'),
 ];
 

@@ -1012,6 +1012,26 @@ export default function AdminSidebar({ isOpen = false, onClose, onCollapseChange
                 Master
               </button>
               )}
+              {serviceAccess.taxi && (
+              <button
+                type="button"
+                onClick={() => navigate("/taxi/admin/dashboard")}
+                className={cn(
+                  "flex-1 min-w-0 flex flex-col items-center justify-center gap-1 px-1 py-2 text-[11px] leading-none font-bold rounded-lg transition-all duration-300",
+                  location.pathname.startsWith("/taxi")
+                    ? "bg-[var(--sb-active-bg)] text-[var(--sb-active-ink)] shadow-[0_2px_8px_rgba(26,26,26,0.18)]"
+                    : "text-[var(--sb-ink-faint)] hover:text-[var(--sb-ink-soft)] hover:bg-[var(--sb-hover)]"
+                )}
+              >
+                <Truck
+                  className={cn(
+                    "w-3.5 h-3.5",
+                    location.pathname.startsWith("/taxi") ? "text-[var(--sb-active-ink)]" : "text-[var(--sb-ink-faint)]"
+                  )}
+                />
+                Taxi
+              </button>
+              )}
               {serviceAccess.food && (
               <button
                 type="button"
@@ -1032,26 +1052,6 @@ export default function AdminSidebar({ isOpen = false, onClose, onCollapseChange
                   )}
                 />
                 Food
-              </button>
-              )}
-              {serviceAccess.taxi && (
-              <button
-                type="button"
-                onClick={() => navigate("/taxi/admin/dashboard")}
-                className={cn(
-                  "flex-1 min-w-0 flex flex-col items-center justify-center gap-1 px-1 py-2 text-[11px] leading-none font-bold rounded-lg transition-all duration-300",
-                  location.pathname.startsWith("/taxi")
-                    ? "bg-[var(--sb-active-bg)] text-[var(--sb-active-ink)] shadow-[0_2px_8px_rgba(26,26,26,0.18)]"
-                    : "text-[var(--sb-ink-faint)] hover:text-[var(--sb-ink-soft)] hover:bg-[var(--sb-hover)]"
-                )}
-              >
-                <Truck
-                  className={cn(
-                    "w-3.5 h-3.5",
-                    location.pathname.startsWith("/taxi") ? "text-[var(--sb-active-ink)]" : "text-[var(--sb-ink-faint)]"
-                  )}
-                />
-                Taxi
               </button>
               )}
             </div>

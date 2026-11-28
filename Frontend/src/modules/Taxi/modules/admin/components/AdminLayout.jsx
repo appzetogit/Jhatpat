@@ -720,6 +720,7 @@ const AdminLayout = () => {
           },
           { icon: Home, label: 'Dashboard', path: '/taxi/admin/dashboard', permission: 'dashboard.view' },
           { icon: IndianRupee, label: 'Admin Earnings', path: '/taxi/admin/earnings', permission: 'earnings.view' },
+          { icon: Globe, label: 'Website', path: '/taxi/admin/website', permission: 'settings.view' },
           { icon: MessageCircle, label: 'Chat', path: '/taxi/admin/chat', permission: 'chat.view' },
           {
             icon: TrendingUp,
@@ -844,7 +845,6 @@ const AdminLayout = () => {
             permission: 'settings.view',
             subItems: [
               { label: 'General Settings', path: '/taxi/admin/settings/business/general', permission: 'settings.view' },
-              { label: 'Landing Page CMS', path: '/taxi/admin/settings/cms/home', permission: 'settings.view' },
               { label: 'Customization Settings', path: '/taxi/admin/settings/business/customization', permission: 'settings.view' },
               { label: 'Logo Management', path: '/taxi/admin/settings/business/logos', permission: 'settings.view' },
               { label: 'Transport Ride Settings', path: '/taxi/admin/settings/business/transport-ride', permission: 'settings.view' },
@@ -880,15 +880,12 @@ const AdminLayout = () => {
           // },
           {
             icon: Monitor,
-            label: 'CMS-Landing Website',
+            label: 'Content Pages',
             permission: 'settings.view',
             subItems: [
-              { label: 'Header-Footer', path: '/taxi/admin/settings/cms/header-footer', permission: 'settings.view' },
-              { label: 'Home', path: '/taxi/admin/settings/cms/home', permission: 'settings.view' },
               { label: 'About Us', path: '/taxi/admin/settings/cms/about', permission: 'settings.view' },
               { label: 'Driver', path: '/taxi/admin/settings/cms/driver', permission: 'settings.view' },
               { label: 'User', path: '/taxi/admin/settings/cms/user', permission: 'settings.view' },
-              { label: 'Contact', path: '/taxi/admin/settings/cms/contact', permission: 'settings.view' },
               { label: 'Privacy Policy, T&C and DMV', path: '/taxi/admin/settings/cms/legal', permission: 'settings.view' },
             ],
           },
@@ -1286,17 +1283,6 @@ const AdminLayout = () => {
                   <SlidersHorizontal className="w-3.5 h-3.5 text-[var(--sb-ink-faint)]" />
                   Master
                 </button>}
-                {showPanel("food") && <button
-                  type="button"
-                  onClick={() => navigate("/admin/food")}
-                  className={cn(
-                    "flex-1 min-w-0 flex flex-col items-center justify-center gap-1 px-1 py-2 text-[11px] leading-none font-bold rounded-lg transition-all duration-300",
-                    "text-[var(--sb-ink-faint)] hover:text-[var(--sb-ink-soft)] hover:bg-[var(--sb-hover)]"
-                  )}
-                >
-                  <UtensilsCrossed className="w-3.5 h-3.5 text-[var(--sb-ink-faint)]" />
-                  Food
-                </button>}
                 <button
                   type="button"
                   onClick={() => navigate("/taxi/admin/dashboard")}
@@ -1312,6 +1298,17 @@ const AdminLayout = () => {
                   <Truck className="w-3.5 h-3.5 text-[var(--sb-active-ink)]" />
                   Taxi
                 </button>
+                {showPanel("food") && <button
+                  type="button"
+                  onClick={() => navigate("/admin/food")}
+                  className={cn(
+                    "flex-1 min-w-0 flex flex-col items-center justify-center gap-1 px-1 py-2 text-[11px] leading-none font-bold rounded-lg transition-all duration-300",
+                    "text-[var(--sb-ink-faint)] hover:text-[var(--sb-ink-soft)] hover:bg-[var(--sb-hover)]"
+                  )}
+                >
+                  <UtensilsCrossed className="w-3.5 h-3.5 text-[var(--sb-ink-faint)]" />
+                  Food
+                </button>}
               </div>
             )}
           </div>

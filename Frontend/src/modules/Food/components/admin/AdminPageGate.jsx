@@ -12,8 +12,8 @@ import {
 } from "@food/utils/adminAccess"
 
 const PANELS = [
-  { service: "food", base: "/admin/food", label: "Food" },
   { service: "taxi", base: "/taxi/admin/dashboard", label: "Taxi" },
+  { service: "food", base: "/admin/food", label: "Food" },
 ]
 
 /** First screen this admin can open in a panel, or null. */

@@ -11,7 +11,6 @@ export const createDefaultBusinessSettings = () => ({
     default_lng: '75.8577',
     logo: '',
     favicon: '',
-    landing_video_url: '/k9_bg_vdo.mp4',
   },
   customization: {
     admin_theme_color: '#405189',

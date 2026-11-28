@@ -132,50 +132,10 @@ export const acknowledgePhonePeCallback = asyncHandler(async (_req, res) => {
 export const getLandingPageSettings = asyncHandler(async (_req, res) => {
     let settings = await LandingPageSetting.findOne({ scope: 'default' }).lean();
     if (!settings) {
-        // Automatically create default settings with Jhatpat branding
-        const newSettings = new LandingPageSetting({
+        // First read: seed the About / Careers / Newsroom / legal text the apps and
+        // the /taxi/* static pages show. The website home page has its own editor.
+        const created = await LandingPageSetting.create({
             scope: 'default',
-            video_url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-            logo_url: '',
-            hero_title: 'All-in-One Platform for Rides, Food & Logistics',
-            hero_description: 'Jhatpat is the multi-service super-app designed for modern cities. Easily book a taxi, order from your favorite local restaurants, ship parcels, arrange airport transfers, rent vehicles, and coordinate complex supply chains.',
-            hero_image_url: '',
-            why_us_image_url: '',
-            social_links: {
-                facebook: 'https://facebook.com/jhatpat',
-                twitter: 'https://twitter.com/jhatpat',
-                instagram: 'https://instagram.com/jhatpat',
-                linkedin: 'https://linkedin.com/company/jhatpat',
-                youtube: 'https://youtube.com/jhatpat'
-            },
-            contact_email: 'jhatpattaxiofficial@gmail.com',
-            contact_phone: '+91 7358789910',
-            contact_address: 'Jhatpat, Siliguri, West Bengal, India',
-            contact_location: { lat: 26.7271, lng: 88.3953 },
-            play_store_url: '/login/services',
-            app_store_url: '/login/services',
-            faqs: [
-                {
-                    question: 'What is Jhatpat?',
-                    answer: 'Jhatpat is a unified multi-service super-app offering on-demand taxi bookings, local food ordering, courier deliveries, rentals, and airport transfers.',
-                    order: 0
-                },
-                {
-                    question: 'How do I book a ride?',
-                    answer: 'Simply log in with your phone number, select your pickup and drop locations, choose a vehicle class, and confirm your booking. A driver will be assigned immediately.',
-                    order: 1
-                },
-                {
-                    question: 'What payment methods are supported?',
-                    answer: 'We support digital payments via UPI, Credit/Debit Cards, Net Banking, and Mobile Wallets, as well as Cash on delivery/ride.',
-                    order: 2
-                },
-                {
-                    question: 'How are surge prices calculated?',
-                    answer: 'Surge pricing is dynamically applied during peak demand hours, bad weather, or heavy traffic, to balance driver supply with passenger demand.',
-                    order: 3
-                }
-            ],
             pages: {
                 about_us: '<h1>About Jhatpat</h1><p>Jhatpat is a leading technology platform dedicated to providing safe, reliable, and affordable mobility solutions for everyone. Our mission is to transform urban transportation and logistics by connecting people with professional drivers and efficient services.</p>',
                 careers: '<h1>Careers at Jhatpat</h1><p>Join our team and build the future of urban mobility. We are constantly looking for talented software engineers, product managers, driver relationship experts, and support specialists to join our journey.</p>',
@@ -186,12 +146,11 @@ export const getLandingPageSettings = asyncHandler(async (_req, res) => {
                 cancellation_policy: '<h1>Cancellation Policy</h1><p>Users may cancel bookings free of charge before a driver accepts. Nominal cancellation charges apply once a driver is assigned or dispatch preparation has already started.</p>'
             }
         });
-        await newSettings.save();
-        settings = newSettings.toObject();
+        settings = created.toObject();
     }
 
-    settings.pages = await overlayManagedLegal(settings.pages);
-    return res.json({ success: true, data: settings });
+    const pages = await overlayManagedLegal(settings.pages);
+    return res.json({ success: true, data: { pages } });
 });
 
 /*
@@ -226,3 +185,9 @@ async function overlayManagedLegal(pages) {
     }
     return out;
 }
+
+export const getPublicWebsite = asyncHandler(async (_req, res) => {
+    const { getWebsiteForPublic } = await import('../../admin/services/websiteService.js');
+    res.set('Cache-Control', 'public, max-age=60');
+    return res.json({ success: true, data: await getWebsiteForPublic() });
+});

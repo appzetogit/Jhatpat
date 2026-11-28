@@ -147,7 +147,6 @@ const AppWebSettings = lazy(() => import("@food/pages/admin/system/AppWebSetting
 const NotificationChannels = lazy(() => import("@food/pages/admin/system/NotificationChannels"));
 const NotificationBroadcast = lazy(() => import("@food/pages/admin/system/NotificationBroadcast"));
 const AdminNotifications = lazy(() => import("@food/pages/admin/system/AdminNotifications"));
-const LandingPageSettings = lazy(() => import("@food/pages/admin/system/LandingPageSettings"));
 const PageMetaData = lazy(() => import("@food/pages/admin/system/PageMetaData"));
 const ReactSite = lazy(() => import("@food/pages/admin/system/ReactSite"));
 const CleanDatabase = lazy(() => import("@food/pages/admin/system/CleanDatabase"));
@@ -316,8 +315,6 @@ const verticalAdminRoutes = (
             <Route path="notifications" element={<AdminNotifications />} />
             <Route path="broadcast-notification" element={<NotificationBroadcast />} />
             <Route path="notification-channels" element={<NotificationChannels />} />
-            <Route path="landing-page-settings/admin" element={<LandingPageSettings type="admin" />} />
-            <Route path="landing-page-settings/react" element={<LandingPageSettings type="react" />} />
             <Route path="page-meta-data" element={<PageMetaData />} />
             <Route path="react-site" element={<ReactSite />} />
             <Route path="clean-database" element={<CleanDatabase />} />
@@ -347,7 +344,7 @@ export default function AdminRouter() {
           }
         >
           {/* Default Admin Redirect */}
-          <Route path="/" element={<Navigate to="food" replace />} />
+          <Route path="/" element={<Navigate to="/taxi/admin/dashboard" replace />} />
 
           {/*
             MASTER / GLOBAL

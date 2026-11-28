@@ -6471,7 +6471,6 @@ export const buildDriverDutyReport = async (query = {}) => {
       logo: '$general.logo',
       favicon: '$general.favicon',
       brand_logo: '$general.brand_logo',
-      landing_video_url: '$general.landing_video_url',
     },
   };
 

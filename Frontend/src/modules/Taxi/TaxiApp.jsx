@@ -181,8 +181,7 @@ const AdminFinance = lazy(() => import('./modules/admin/pages/finance/Finance'))
 const AdminFareConfig = lazy(() => import('./modules/admin/pages/finance/FareConfiguration'));
 const AdminSafetyCenter = lazy(() => import('./modules/admin/pages/safety/SafetyCenter'));
 const AdminSafetySettings = lazy(() => import('./modules/admin/pages/safety/SafetySettings'));
-const AdminCMSBuilder = lazy(() => import('./modules/admin/pages/cms/CMSBuilder'));
-const AdminHeaderFooter = lazy(() => import('./modules/admin/pages/cms/HeaderFooter'));
+const AdminWebsiteEditor = lazy(() => import('./modules/admin/pages/website/WebsiteEditor'));
 const AdminLandingSettings = lazy(() => import('./modules/admin/pages/cms/LandingPageSettings'));
 const AdminGlobalSettings = lazy(() => import('./modules/admin/pages/settings/GlobalSettings'));
 const AdminGeneralSettings = lazy(() => import('./modules/admin/pages/settings/GeneralSettings'));
@@ -774,6 +773,7 @@ function TaxiApp() {
               <Route path="dashboard" element={<AdminDashboard />} />
               <Route path="earnings" element={<AdminEarnings />} />
               <Route path="chat" element={<AdminChat />} />
+              <Route path="website" element={<AdminWebsiteEditor />} />
               <Route path="trips" element={<AdminTrips />} />
               <Route path="deliveries" element={<AdminDeliveries />} />
               <Route path="ongoing" element={<AdminOngoing />} />
@@ -997,14 +997,10 @@ function TaxiApp() {
               <Route path="safety/sos" element={<AdminSafetyCenter />} />
               <Route path="safety/settings" element={<AdminSafetySettings />} />
 
-              <Route path="cms" element={<AdminCMSBuilder />} />
-              <Route path="settings/cms/home" element={<AdminLandingSettings defaultTab="general" />} />
               <Route path="settings/cms/about" element={<AdminLandingSettings defaultTab="pages" defaultPage="about_us" />} />
               <Route path="settings/cms/driver" element={<AdminLandingSettings defaultTab="pages" defaultPage="about_us" />} />
               <Route path="settings/cms/user" element={<AdminLandingSettings defaultTab="pages" defaultPage="about_us" />} />
-              <Route path="settings/cms/contact" element={<AdminLandingSettings defaultTab="contact" />} />
               <Route path="settings/cms/legal" element={<AdminLandingSettings defaultTab="pages" defaultPage="terms_conditions" />} />
-              <Route path="settings/cms/header-footer" element={<AdminLandingSettings defaultTab="general" />} />
               <Route
                 path="support/ticket-title"
                 element={<AdminSupportTicketTitle />}
@@ -1120,7 +1116,7 @@ function TaxiApp() {
               />
               <Route
                 path="settings/cms/*"
-                element={<AdminReportPlaceholder title="CMS Management" />}
+                element={<Navigate to="/taxi/admin/website" replace />}
               />
             </Route>
 
