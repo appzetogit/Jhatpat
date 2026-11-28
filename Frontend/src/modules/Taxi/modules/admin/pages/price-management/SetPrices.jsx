@@ -727,6 +727,18 @@ const SetPrices = ({ mode }) => {
 
 
                                  <div>
+                                    <label className={labelClass}>Fixed Cancellation Charge (₹)</label>
+                                    <input
+                                       type="number"
+                                       min="0"
+                                       className={inputClass}
+                                       placeholder="e.g. 8 (used instead of % when above 0)"
+                                       value={formData.fixed_cancellation_charge}
+                                       onChange={e => setFormData(p => ({ ...p, fixed_cancellation_charge: e.target.value }))}
+                                    />
+                                 </div>
+
+                                 <div>
                                     <label className={labelClass}>Percentage Cancellation Charge (%)</label>
                                     <input
                                        type="number"
