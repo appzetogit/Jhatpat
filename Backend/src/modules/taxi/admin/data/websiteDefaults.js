@@ -185,7 +185,6 @@ export const WEBSITE_DEFAULTS = {
     about: 'Jhatpat brings rides, food and parcel delivery together in one fast, trusted app.',
     links: [
       { label: 'About us', href: '/about' },
-      { label: 'Careers', href: '/taxi/careers' },
       { label: 'Terms of service', href: '/terms' },
       { label: 'Privacy policy', href: '/privacy' },
       { label: 'Refund policy', href: '/refund' },

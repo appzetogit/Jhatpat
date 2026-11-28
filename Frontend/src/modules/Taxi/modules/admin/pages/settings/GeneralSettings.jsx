@@ -414,10 +414,10 @@ const GeneralSettings = () => {
           <div className="flex flex-col sm:flex-row items-center justify-between gap-6 p-4 rounded-xl border border-indigo-100 bg-indigo-50/50">
             <div>
               <h4 className="text-sm font-bold text-gray-800">Manage Landing Page & Footer Pages</h4>
-              <p className="text-xs text-gray-500 mt-1">Edit content for About Us, Careers, Newsroom, Terms & Conditions, Privacy, Refund & Cancellation Policy.</p>
+              <p className="text-xs text-gray-500 mt-1">Terms, Privacy, Refund, Cancellation and About Us are edited in Master settings, Legal pages.</p>
             </div>
-            <a href="/taxi/admin/settings/cms/home" className="shrink-0 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-lg text-sm font-bold shadow-sm transition-colors">
-              Open Landing Page CMS
+            <a href="/admin/master/settings/legal" className="shrink-0 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-lg text-sm font-bold shadow-sm transition-colors">
+              Open Legal Pages
             </a>
           </div>
         </SectionCard>

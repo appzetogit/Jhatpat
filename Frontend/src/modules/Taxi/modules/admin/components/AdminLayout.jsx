@@ -861,25 +861,11 @@ const AdminLayout = () => {
               { label: 'Mobile App Landing/Onboard Screens Settings', path: '/taxi/admin/settings/app/onboard', permission: 'settings.view' },
             ],
           },
-          {
-            icon: Settings2,
-            label: 'Third-party Settings',
-            permission: 'settings.view',
-            subItems: [
-              // Payments, SMS and email are set once for every service in Master Settings.
-              { label: 'Payments, SMS & Email (Master)', path: '/admin/master/settings', permission: 'settings.view' },
-              { label: 'Firebase Settings', path: '/taxi/admin/settings/third-party/firebase', permission: 'settings.view' },
-              { label: 'Map and Map APIs Settings', path: '/taxi/admin/settings/third-party/map-apis', permission: 'settings.view' },
-              // { label: 'Notification Channel', path: '/taxi/admin/settings/third-party/notification-channel' },
-            ],
-          },
           // {
           //   icon: PlusCircle,
           //   label: 'Addons',
           //   subItems: [{ label: 'Dispatcher Addons', path: '/taxi/admin/settings/addons/dispatcher' }],
           // },
-          { icon: Monitor, label: 'Careers & Newsroom', path: '/taxi/admin/settings/cms/careers', permission: 'settings.view' },
-          { icon: Monitor, label: 'Legal Pages & About', path: '/admin/master/settings/legal', permission: 'settings.view' },
         ],
       },
     ],
