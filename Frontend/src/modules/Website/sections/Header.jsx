@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react'
 import { Menu, X } from 'lucide-react'
+import { motion, useScroll } from 'framer-motion'
 import { Container, Cta, useSite } from '../shared'
 
 export default function Header({ brand, nav = [], cta }) {
   const { ok } = useSite()
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
+  const { scrollYProgress } = useScroll()
   const links = nav.filter((n) => n?.label && ok(n.href))
 
   useEffect(() => {
@@ -21,6 +23,7 @@ export default function Header({ brand, nav = [], cta }) {
         scrolled || open ? 'border-b border-slate-200/80 bg-white/90 backdrop-blur-xl' : 'border-b border-transparent bg-transparent'
       }`}
     >
+      <motion.div style={{ scaleX: scrollYProgress }} className="absolute inset-x-0 top-0 h-[3px] origin-left bg-gradient-to-r from-[#FFB400] to-red-600" />
       <Container className="flex h-[68px] items-center justify-between">
         <a href="#top" className="flex items-center" aria-label={brand?.name}>
           {brand?.logo ? (

@@ -57,7 +57,8 @@ export const Container = ({ children, className = '' }) => (
 export const SectionHead = ({ eyebrow, title, subtitle, center = true, dark = false }) => (
   <Reveal className={center ? 'mx-auto max-w-2xl text-center' : 'max-w-xl'}>
     {eyebrow && (
-      <p className={`text-[13px] font-semibold uppercase tracking-[0.12em] ${dark ? 'text-[#FFB400]' : 'text-amber-600'}`}>
+      <p className={`text-[13px] font-semibold uppercase tracking-[0.12em] ${dark ? 'text-[#FFB400]' : 'text-red-600'}`}>
+        <span className="mr-2 inline-block h-[3px] w-6 -translate-y-[3px] rounded-full bg-[#FFB400]" />
         {eyebrow}
       </p>
     )}
@@ -89,8 +90,8 @@ export const Cta = ({ cta, variant = 'primary', className = '', arrow = false })
   if (!cta?.label || !ok(cta.href)) return null
   const base = 'group inline-flex h-12 items-center justify-center gap-2 rounded-xl px-6 text-[15px] font-semibold transition-all duration-200 active:scale-[0.98]'
   const styles = {
-    primary: 'bg-slate-900 text-white shadow-sm hover:bg-slate-800',
-    accent: 'bg-[#FFB400] text-slate-900 shadow-sm hover:bg-[#FFC21F]',
+    primary: 'bg-slate-900 text-white shadow-[0_8px_20px_-8px_rgba(15,23,42,0.6)] hover:bg-slate-800 hover:-translate-y-0.5',
+    accent: 'bg-[#FFB400] text-slate-900 shadow-[0_8px_24px_-8px_rgba(255,180,0,0.8)] hover:bg-[#FFC21F] hover:-translate-y-0.5',
     ghost: 'border border-slate-300 bg-white text-slate-900 hover:border-slate-400 hover:bg-slate-50',
     light: 'bg-white text-slate-900 hover:bg-slate-100',
   }

@@ -13,6 +13,7 @@ export const WEBSITE_DEFAULTS = {
     features: true,
     app: true,
     partner: true,
+    gallery: true,
     testimonials: false,
     faq: true,
     contact: true,
@@ -135,6 +136,13 @@ export const WEBSITE_DEFAULTS = {
     image: '',
     points: ['Low commission, fast payouts', 'Work when you want', 'Free onboarding and support'],
     cta: { label: 'Become a captain', href: '#contact' },
+  },
+
+  gallery: {
+    eyebrow: 'In the city',
+    title: 'Jhatpat on the road',
+    subtitle: 'Add photos from the Website admin and they appear here.',
+    items: [],
   },
 
   testimonials: {

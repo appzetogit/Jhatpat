@@ -1,9 +1,10 @@
 import { useEffect, useMemo } from 'react'
 import { BODY, SiteProvider, makeAnchorCheck, useWebsite } from './shared'
+import { Marquee } from './Art'
 import Header from './sections/Header'
 import Hero from './sections/Hero'
 import { Trust, Services, How } from './sections/TrustAndServices'
-import { Features, AppDownload, Partner, Testimonials, hasStoreLinks } from './sections/Showcase'
+import { Features, AppDownload, Partner, Testimonials, Gallery, hasStoreLinks } from './sections/Showcase'
 import { Faq, Contact, Footer } from './sections/FaqContactFooter'
 
 const Skeleton = () => (
@@ -71,6 +72,7 @@ export default function WebsiteHome() {
   if (error || !content) return <Message title="Something went wrong" text="We could not load this page. Please refresh in a moment." />
 
   const on = (key) => content.sections?.[key] !== false
+  const marquee = (content.services?.items || []).map((s) => s.title).concat(content.hero?.chips || []).filter(Boolean)
 
   return (
     <SiteProvider value={site}>
@@ -78,12 +80,14 @@ export default function WebsiteHome() {
         <Header brand={content.brand} nav={content.nav} cta={content.navCta} />
         <main>
           {on('hero') && <Hero data={content.hero} />}
+          {on('hero') && <Marquee items={marquee} />}
           {on('trust') && <Trust data={content.trust} />}
           {on('services') && <Services data={content.services} />}
           {on('how') && <How data={content.how} />}
           {on('features') && <Features data={content.features} />}
           {on('app') && <AppDownload data={content.app} />}
           {on('partner') && <Partner data={content.partner} />}
+          {on('gallery') && <Gallery data={content.gallery} />}
           {on('testimonials') && <Testimonials data={content.testimonials} />}
           {on('faq') && <Faq data={content.faq} />}
           {on('contact') && <Contact data={content.contact} />}

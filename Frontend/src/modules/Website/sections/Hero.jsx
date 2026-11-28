@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { CheckCircle2, UtensilsCrossed, Car, Package } from 'lucide-react'
 import { Container, Cta, HEADING, Icon } from '../shared'
+import { RoadStrip } from '../Art'
 import PhoneMockup, { FloatCard } from '../PhoneMockup'
 
 const CHIP_ICONS = ['car', 'food', 'parcel', 'truck']
@@ -10,12 +11,14 @@ export default function Hero({ data }) {
   const stats = Array.isArray(data.stats) ? data.stats.filter((s) => s?.value) : []
   return (
     <section id="top" className="relative overflow-hidden bg-white pt-[68px]">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[640px] bg-[radial-gradient(60%_60%_at_80%_0%,rgba(255,180,0,0.16),transparent_70%),radial-gradient(50%_50%_at_0%_30%,rgba(255,180,0,0.07),transparent_70%)]" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[760px] bg-[radial-gradient(60%_60%_at_80%_0%,rgba(255,180,0,0.16),transparent_70%),radial-gradient(50%_50%_at_0%_30%,rgba(255,180,0,0.07),transparent_70%)]" />
       <div
         className="pointer-events-none absolute inset-0 opacity-60 [mask-image:linear-gradient(to_bottom,black,transparent_70%)]"
         style={{ backgroundImage: 'linear-gradient(rgba(15,23,42,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(15,23,42,0.04) 1px, transparent 1px)', backgroundSize: '56px 56px' }}
       />
 
+      <motion.div aria-hidden className="pointer-events-none absolute -left-24 top-40 h-72 w-72 rounded-full bg-[#FFB400]/20 blur-3xl" animate={{ x: [0, 60, 0], y: [0, -30, 0] }} transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }} />
+      <motion.div aria-hidden className="pointer-events-none absolute -right-20 top-10 h-80 w-80 rounded-full bg-red-500/10 blur-3xl" animate={{ x: [0, -50, 0], y: [0, 40, 0] }} transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }} />
       <Container className="relative grid items-center gap-14 pb-20 pt-12 lg:grid-cols-[1.08fr_1fr] lg:gap-8 lg:pb-28 lg:pt-20">
         <div>
           {data.eyebrow && (
@@ -39,7 +42,7 @@ export default function Hero({ data }) {
             {data.title}{' '}
             <span
               className="[box-decoration-break:clone]"
-              style={{ backgroundImage: 'linear-gradient(transparent 64%, #FFD45E 64%, #FFD45E 92%, transparent 92%)' }}
+              style={{ backgroundImage: 'linear-gradient(transparent 62%, #FFB400 62%, #FFB400 90%, transparent 90%)' }}
             >
               {data.highlight}
             </span>
@@ -60,7 +63,7 @@ export default function Hero({ data }) {
             transition={{ duration: 0.5, delay: 0.22 }}
             className="mt-9 flex flex-wrap items-center gap-3"
           >
-            <Cta cta={data.primaryCta} variant="primary" arrow />
+            <Cta cta={data.primaryCta} variant="accent" arrow />
             <Cta cta={data.secondaryCta} variant="ghost" />
           </motion.div>
 
@@ -132,6 +135,7 @@ export default function Hero({ data }) {
           </motion.div>
         </motion.div>
       </Container>
+      <RoadStrip />
     </section>
   )
 }

@@ -172,3 +172,29 @@ export function Testimonials({ data }) {
     </section>
   )
 }
+
+export function Gallery({ data }) {
+  const items = (data?.items || []).filter((g) => g?.image)
+  if (!items.length) return null
+  return (
+    <section id="gallery" className="scroll-mt-20 bg-white py-20 sm:py-28">
+      <Container>
+        <SectionHead eyebrow={data.eyebrow} title={data.title} subtitle={data.subtitle} />
+        <div className="mt-14 grid auto-rows-[220px] gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:auto-rows-[260px]">
+          {items.map((g, i) => (
+            <Reveal key={`${g.image}-${i}`} delay={(i % 3) * 0.07} className={i % 5 === 0 ? 'lg:row-span-2' : ''}>
+              <figure className="group relative h-full overflow-hidden rounded-3xl bg-slate-100">
+                <img src={g.image} alt={g.caption || ''} loading="lazy" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                {g.caption && (
+                  <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-5 pt-16 text-[15px] font-semibold text-white">
+                    {g.caption}
+                  </figcaption>
+                )}
+              </figure>
+            </Reveal>
+          ))}
+        </div>
+      </Container>
+    </section>
+  )
+}

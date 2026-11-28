@@ -9,7 +9,7 @@ const ACCENTS = ['yellow', 'red', 'blue', 'green'].map((v) => ({ value: v, label
 
 const SECTION_LABELS = {
   hero: 'Hero', trust: 'Trust bar', services: 'Services', how: 'How it works', features: 'Features',
-  app: 'App download', partner: 'Partner with us', testimonials: 'Testimonials', faq: 'FAQs', contact: 'Contact',
+  app: 'App download', partner: 'Partner with us', gallery: 'Gallery', testimonials: 'Testimonials', faq: 'FAQs', contact: 'Contact',
 }
 
 const TABS = [
@@ -21,6 +21,7 @@ const TABS = [
   { id: 'features', label: 'Features' },
   { id: 'app', label: 'App download' },
   { id: 'partner', label: 'Partner' },
+  { id: 'gallery', label: 'Gallery' },
   { id: 'testimonials', label: 'Testimonials' },
   { id: 'faq', label: 'FAQs' },
   { id: 'contact', label: 'Contact & social' },
@@ -292,6 +293,27 @@ export default function WebsiteEditor() {
         <ImageField label="Image (optional)" hint="Leave empty to show the benefit cards." {...bind('partner.image')} />
         <StringList label="Points" items={content.partner.points} onChange={(v) => set('partner.points', v)} />
         <CtaFields label="Button" value={content.partner.cta} onChange={(v) => set('partner.cta', v)} />
+      </Card>
+    ),
+
+    gallery: (
+      <Card title="Gallery" hint="Upload photos of your cars, riders, food or team. The section stays hidden until you add at least one photo.">
+        <Text label="Small label" {...bind('gallery.eyebrow')} />
+        <Text label="Heading" {...bind('gallery.title')} />
+        <Text label="Subheading" multiline rows={2} {...bind('gallery.subtitle')} />
+        <ListEditor
+          items={content.gallery.items}
+          onChange={(v) => set('gallery.items', v)}
+          blank={{ image: '', caption: '' }}
+          addLabel="Add photo"
+          itemTitle={(it) => it.caption || 'New photo'}
+          renderItem={(it, up) => (
+            <>
+              <ImageField label="Photo" value={it.image} onChange={(v) => up({ image: v })} />
+              <Text label="Caption" value={it.caption} onChange={(v) => up({ caption: v })} />
+            </>
+          )}
+        />
       </Card>
     ),
 
